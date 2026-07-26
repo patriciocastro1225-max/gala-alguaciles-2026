@@ -1,0 +1,9 @@
+AGREGAR AQUÍ DOS IMÁGENES:
+
+1. hero-placeholder.jpg
+   Fotografía panorámica nocturna o institucional para la portada.
+
+2. venue-placeholder.jpg
+   Fotografía del Club Palestino o del salón del evento.
+
+El sitio funciona sin ellas, pero mostrará únicamente los degradados de fondo.
