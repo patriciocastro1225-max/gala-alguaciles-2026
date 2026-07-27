@@ -175,3 +175,21 @@ Incluye:
 - Exportación de informe resumido.
 
 Los datos continúan siendo demostrativos. El siguiente paso será la conexión real con Supabase y autenticación por usuarios.
+
+
+## Sprint 6 — Supabase y autenticación
+
+Incluye:
+
+- Cliente oficial `@supabase/supabase-js`.
+- Inicio de sesión real mediante Supabase Auth.
+- Cierre de sesión real.
+- Modo demostración automático cuando no existen variables.
+- Esquema SQL de todas las tablas.
+- Seguridad Row Level Security.
+- Creación automática de 22 mesas.
+- Página de diagnóstico `/admin/configuracion`.
+- Guía completa `SUPABASE_CONFIGURACION.md`.
+- Archivo `.env.example`.
+
+Antes de publicar, ejecuta `npm install` para instalar la nueva dependencia.

@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3, Bell, CircleDollarSign, ClipboardCheck, LayoutDashboard,
@@ -18,6 +19,7 @@ const items = [
   { label: "Correos", icon: Bell, href: "/admin/correos", enabled: true },
   { label: "QR", icon: ShieldCheck, href: "/admin/qr", enabled: true },
   { label: "Estadísticas", icon: BarChart3, href: "/admin/estadisticas", enabled: true },
+  { label: "Configuración", icon: ShieldCheck, href: "/admin/configuracion", enabled: true },
 ];
 
 export default function AdminShell({ children }: { children: ReactNode }) {
@@ -26,10 +28,21 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem("gala-admin") !== "1") router.replace("/admin");
+    async function verify() {
+      if (supabaseConfigured && supabase) {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) router.replace("/admin");
+        return;
+      }
+      if (sessionStorage.getItem("gala-admin") !== "1") router.replace("/admin");
+    }
+    verify();
   }, [router]);
 
-  function logout() {
+  async function logout() {
+    if (supabaseConfigured && supabase) {
+      await supabase.auth.signOut();
+    }
     sessionStorage.removeItem("gala-admin");
     router.push("/admin");
   }
