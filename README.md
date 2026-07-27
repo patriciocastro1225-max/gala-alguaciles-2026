@@ -92,3 +92,27 @@ Funciones demostrativas:
 
 Los datos de este Sprint son demostrativos y se mantienen solo mientras la página está abierta.
 El próximo paso técnico será conectarlos a Supabase para guardarlos en una base de datos real.
+
+
+## Sprint 3 — Mesas y plano del salón
+
+Nueva ruta:
+
+```text
+/admin/mesas
+```
+
+Funciones demostrativas:
+
+- Plano visual del salón con 22 mesas.
+- Zona de autoridades, salón central y zona general.
+- Estado por color: disponible, pocos cupos o completa.
+- Selección de cada mesa para revisar sus asistentes.
+- Agregar y quitar personas.
+- Mover personas a la mesa anterior o siguiente.
+- Editar nombre, capacidad y zona de cada mesa.
+- Filtros por nombre y zona.
+- Resumen de cupos totales, asignados y disponibles.
+
+Los cambios son demostrativos y permanecen mientras la página está abierta.
+La conexión con Supabase permitirá guardar la distribución real.

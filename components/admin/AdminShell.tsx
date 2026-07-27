@@ -10,7 +10,7 @@ import {
 const items = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard", enabled: true },
   { label: "Asistentes", icon: UsersRound, href: "/admin/asistentes", enabled: true },
-  { label: "Mesas", icon: TableProperties, href: "/admin/mesas", enabled: false },
+  { label: "Mesas", icon: TableProperties, href: "/admin/mesas", enabled: true },
   { label: "Invitados", icon: Star, href: "/admin/invitados", enabled: true },
   { label: "Círculos", icon: ShieldCheck, href: "/admin/circulos", enabled: true },
   { label: "Pagos", icon: CircleDollarSign, href: "/admin/pagos", enabled: false },
