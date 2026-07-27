@@ -148,3 +148,30 @@ En producción:
 - Los códigos QR se generarán desde la base de datos.
 - El escáner usará la cámara del teléfono o tablet.
 - El check-in quedará registrado en Supabase.
+
+
+## Sprint 5 — Pagos y estadísticas
+
+Nuevas rutas:
+
+```text
+/admin/pagos
+/admin/estadisticas
+```
+
+Incluye:
+
+- Registro, edición y eliminación de pagos.
+- Estados pagado, pendiente y parcial.
+- Métodos transferencia, Webpay, efectivo e invitación.
+- Referencias y fechas de pago.
+- Exportación de pagos a CSV.
+- Indicadores financieros.
+- Estadísticas de inscritos, confirmados, mesas y recaudación.
+- Evolución mensual de inscripciones.
+- Ranking de Círculos participantes.
+- Distribución de métodos de pago.
+- Proyección de check-in.
+- Exportación de informe resumido.
+
+Los datos continúan siendo demostrativos. El siguiente paso será la conexión real con Supabase y autenticación por usuarios.

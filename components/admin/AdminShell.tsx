@@ -13,11 +13,11 @@ const items = [
   { label: "Mesas", icon: TableProperties, href: "/admin/mesas", enabled: true },
   { label: "Invitados", icon: Star, href: "/admin/invitados", enabled: true },
   { label: "Círculos", icon: ShieldCheck, href: "/admin/circulos", enabled: true },
-  { label: "Pagos", icon: CircleDollarSign, href: "/admin/pagos", enabled: false },
+  { label: "Pagos", icon: CircleDollarSign, href: "/admin/pagos", enabled: true },
   { label: "Check-in", icon: ClipboardCheck, href: "/admin/checkin", enabled: true },
   { label: "Correos", icon: Bell, href: "/admin/correos", enabled: true },
   { label: "QR", icon: ShieldCheck, href: "/admin/qr", enabled: true },
-  { label: "Estadísticas", icon: BarChart3, href: "/admin/estadisticas", enabled: false },
+  { label: "Estadísticas", icon: BarChart3, href: "/admin/estadisticas", enabled: true },
 ];
 
 export default function AdminShell({ children }: { children: ReactNode }) {
