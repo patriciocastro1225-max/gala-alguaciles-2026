@@ -57,3 +57,15 @@ http://localhost:3000
 - Ubicación.
 - Botones de reserva.
 - Diseño adaptable para celulares.
+
+## Panel administrativo — Sprint 1
+
+Rutas:
+- `/admin`
+- `/admin/dashboard`
+
+Acceso demostración:
+- Usuario: `admin@galaalguaciles.cl`
+- Contraseña: `Gala2026!`
+
+Incluye login demostrativo, dashboard, menú lateral, estadísticas, capacidad y últimas inscripciones. El login usa sessionStorage y debe migrarse a Supabase Auth antes de producción.
