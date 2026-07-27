@@ -116,3 +116,35 @@ Funciones demostrativas:
 
 Los cambios son demostrativos y permanecen mientras la página está abierta.
 La conexión con Supabase permitirá guardar la distribución real.
+
+
+## Sprint 4 — Correos, QR y check-in
+
+Nuevas rutas:
+
+```text
+/admin/correos
+/admin/qr
+/admin/checkin
+```
+
+Incluye:
+
+- Redacción de comunicados segmentados.
+- Plantillas de confirmación, pago e información general.
+- Vista previa de correos.
+- Historial demostrativo de envíos.
+- Credencial QR individual por asistente.
+- Acciones de regenerar, descargar y enviar QR.
+- Check-in por código manual.
+- Simulación de escaneo QR.
+- Registro de hora de ingreso.
+- Prevención demostrativa de ingresos duplicados.
+- Listado operativo de asistentes.
+
+En producción:
+
+- Los correos se conectarán a Resend o servicio equivalente.
+- Los códigos QR se generarán desde la base de datos.
+- El escáner usará la cámara del teléfono o tablet.
+- El check-in quedará registrado en Supabase.
