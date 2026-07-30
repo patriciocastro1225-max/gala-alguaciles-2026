@@ -1,3 +1,5 @@
+
+// Fotografías eliminadas por requerimiento de protocolo.
 "use client";
 
 import { useState } from "react";

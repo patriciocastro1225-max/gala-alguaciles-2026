@@ -1,11 +1,54 @@
 "use client";
-import { CalendarDays,CircleDollarSign,Clock3,Download,Star,TableProperties,UserCheck,UsersRound } from "lucide-react";
+
+import { CircleDollarSign, TableProperties, UserCheck, UsersRound } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
-const metrics=[["Inscritos","186","+24 este mes",UsersRound],["Pagados","152","81,7% del total",CircleDollarSign],["Pendientes","34","Requieren seguimiento",Clock3],["Mesas","18 / 22","4 disponibles",TableProperties],["Invitados","12","8 confirmados",Star],["Círculos","17","6 regiones",UserCheck]] as const;
-const recent=[["Eduardo Martínez Azócar","Círculo Mayor","Invitación","Mesa 1","Confirmado"],["María Elena Cofré","60ª Comisaría Metro","Cortesía","Mesa 2","Confirmado"],["Rodrigo Ponce","Servicios Diplomáticos","Pagado","Mesa 4","Confirmado"],["Fernando Pérez","40ª COP FF.EE.","Pendiente","Sin asignar","Pendiente"],["Donatto G.","Rancagua","Pagado","Mesa 8","Confirmado"]];
-export default function Dashboard(){return <AdminShell><main className="dashboard"><section className="dashboardWelcome"><div><p className="adminEyebrow">Resumen general</p><h1>Buenas noches, Yamal</h1><p>Estado actualizado de la organización de la Gala.</p></div><div className="eventDate"><CalendarDays/><span>Miércoles<strong>25 de noviembre de 2026</strong></span></div></section>
-<section className="metricsGrid">{metrics.map(([t,v,d,Icon])=><article className="metricCard" key={t}><span className="metricIcon"><Icon/></span><div><span>{t}</span><strong>{v}</strong><small>{d}</small></div></article>)}</section>
-<section className="dashboardGrid"><article className="panel"><div className="panelHeader"><div><p className="adminEyebrow">Evolución</p><h3>Inscripciones por mes</h3></div><span>2026</span></div><div className="bars">{[[18,"Jun"],[30,"Jul"],[48,"Ago"],[72,"Sep"],[88,"Oct"],[64,"Nov"]].map(([v,m])=><div key={m as string}><b>{v}</b><i style={{height:`${Number(v)}%`}}/><small>{m}</small></div>)}</div></article>
-<article className="panel capacity"><div className="panelHeader"><div><p className="adminEyebrow">Aforo</p><h3>Capacidad del evento</h3></div><span>75%</span></div><div className="ring"><div><strong>186</strong><small>de 250 cupos</small></div></div><p>64 lugares disponibles</p></article></section>
-<section className="panel tablePanel"><div className="panelHeader"><div><p className="adminEyebrow">Actividad reciente</p><h3>Últimas inscripciones</h3></div><button className="secondary"><Download size={17}/>Exportar</button></div><div className="tableWrap"><table><thead><tr><th>Asistente</th><th>Círculo</th><th>Pago</th><th>Mesa</th><th>Estado</th></tr></thead><tbody>{recent.map(r=><tr key={r[0]}>{r.map((c,i)=><td key={i}><span className={i===4?(c==="Confirmado"?"ok":"pending"):""}>{c}</span></td>)}</tr>)}</tbody></table></div></section>
-</main></AdminShell>}
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { getDashboardMetrics } from "@/services/dashboard";
+
+const money = (value: number) =>
+  new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(value);
+
+export default function DashboardPage() {
+  const { data, loading, error, reload } = useAsyncData(getDashboardMetrics, []);
+
+  return (
+    <AdminShell>
+      <main className="adminPage">
+        <section className="pageHeading">
+          <div>
+            <p className="adminEyebrow">Información en tiempo real</p>
+            <h1>Dashboard</h1>
+            <p>Indicadores calculados directamente desde Supabase.</p>
+          </div>
+          <button className="adminAction" onClick={reload}>Actualizar</button>
+        </section>
+
+        {error && <div className="dataError">{error}</div>}
+        {loading && <div className="dataLoading">Cargando indicadores reales…</div>}
+
+        {data && (
+          <>
+            <section className="analyticsKpis">
+              <article><UsersRound /><span>Inscritos</span><strong>{data.registered}</strong><small>Registros reales</small></article>
+              <article><UserCheck /><span>Confirmados</span><strong>{data.confirmed}</strong><small>{data.checked_in} ya ingresaron</small></article>
+              <article><CircleDollarSign /><span>Recaudación</span><strong>{money(data.collected)}</strong><small>{data.payment_pending} pagos pendientes</small></article>
+              <article><TableProperties /><span>Mesas</span><strong>{data.total_tables}</strong><small>{data.assigned_seats} de {data.total_capacity} asientos asignados</small></article>
+            </section>
+
+            <section className="productionStatus">
+              <h3>Estado operativo</h3>
+              <div>
+                <span><b style={{ width: `${data.total_capacity ? Math.min(100, data.assigned_seats / data.total_capacity * 100) : 0}%` }} /></span>
+                <p>Ocupación de mesas: <strong>{data.total_capacity ? Math.round(data.assigned_seats / data.total_capacity * 100) : 0}%</strong></p>
+              </div>
+              <div>
+                <span><b style={{ width: `${data.registered ? Math.min(100, data.confirmed / data.registered * 100) : 0}%` }} /></span>
+                <p>Confirmación de asistentes: <strong>{data.registered ? Math.round(data.confirmed / data.registered * 100) : 0}%</strong></p>
+              </div>
+            </section>
+          </>
+        )}
+      </main>
+    </AdminShell>
+  );
+}

@@ -193,3 +193,24 @@ Incluye:
 - Archivo `.env.example`.
 
 Antes de publicar, ejecuta `npm install` para instalar la nueva dependencia.
+
+
+## Sprint 7 — Datos reales en Supabase
+
+Este Sprint conecta los principales módulos con datos persistentes:
+
+- Dashboard real mediante la vista `dashboard_metrics`.
+- CRUD real de asistentes.
+- CRUD real de Círculos.
+- CRUD real de pagos.
+- Check-in real mediante QR.
+- Auditoría de altas, modificaciones, eliminaciones y entradas.
+- Migraciones organizadas.
+- Índices y vistas de rendimiento.
+- Perfil de usuario y roles preparados.
+- 22 mesas iniciales.
+
+Lea `SPRINT7_INSTALACION.md` antes de desplegar.
+
+
+- Actualización Sprint 7.1: se eliminó el manejo de fotografías de invitados de connotación nacional.
