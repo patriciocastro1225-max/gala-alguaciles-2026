@@ -168,7 +168,85 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section guests guestsSprint74" id="invitados" data-version="7.4">
+        
+        <section className="section countdownSection" id="cuenta-regresiva">
+          <div className="sectionHeading centeredHeading">
+            <p className="eyebrow">Falta cada vez menos</p>
+            <h2>Una noche para recordar</h2>
+            <p>
+              Miércoles 25 de noviembre de 2026 · 20:00 horas · Club Palestino
+            </p>
+          </div>
+          <Countdown />
+        </section>
+
+        <section className="section galaProgram" id="programa">
+          <div className="sectionHeading centeredHeading">
+            <p className="eyebrow">Programa de la noche</p>
+            <h2>Una celebración preparada en cada detalle</h2>
+          </div>
+
+          <div className="programTimeline">
+            <article>
+              <span>20:00</span>
+              <div>
+                <h3>Recepción y acreditación</h3>
+                <p>Bienvenida a autoridades, Alguaciles e invitados.</p>
+              </div>
+            </article>
+            <article>
+              <span>20:45</span>
+              <div>
+                <h3>Apertura oficial</h3>
+                <p>Inicio de la ceremonia y palabras institucionales.</p>
+              </div>
+            </article>
+            <article>
+              <span>21:15</span>
+              <div>
+                <h3>Cena de gala</h3>
+                <p>Servicio especialmente preparado para esta celebración nacional.</p>
+              </div>
+            </article>
+            <article>
+              <span>22:30</span>
+              <div>
+                <h3>Reconocimientos y camaradería</h3>
+                <p>Un momento para distinguir el servicio, la amistad y la tradición.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section className="section galaGuide" id="informacion">
+          <div className="guideGrid">
+            <article>
+              <p className="eyebrow">Vestimenta</p>
+              <h3>Tenida formal</h3>
+              <p>
+                Se solicita vestimenta formal, acorde al carácter solemne e
+                institucional de la ceremonia.
+              </p>
+            </article>
+            <article>
+              <p className="eyebrow">Lugar</p>
+              <h3>Club Palestino</h3>
+              <p>
+                Avenida Presidente Kennedy Nº 9351, Las Condes, Santiago de Chile.
+              </p>
+            </article>
+            <article>
+              <p className="eyebrow">Puntualidad</p>
+              <h3>Recepción desde las 20:00</h3>
+              <p>
+                Recomendamos llegar con anticipación para realizar la acreditación
+                y ubicación de mesa.
+              </p>
+            </article>
+          </div>
+        </section>
+
+<section className="section guests guestsSprint74" id="invitados" data-version="7.4">
           <div className="institutionalGuestNotice">
             <p className="eyebrow">Invitados especiales</p>
             <h2>Invitados de renombre institucional y nacional</h2>

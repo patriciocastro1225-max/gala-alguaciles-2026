@@ -467,3 +467,156 @@ footer p { font-size: .85rem; }
     border-color:rgba(200,161,77,.36);
   }
 }
+
+
+/* SPRINT 9 — EXPERIENCIA INSTITUCIONAL */
+.countdownSection,
+.galaProgram,
+.galaGuide{
+  background:#080908;
+}
+.centeredHeading{
+  max-width:850px;
+  margin:0 auto 46px;
+  text-align:center;
+}
+.centeredHeading p:last-child{
+  color:rgba(255,255,255,.68);
+}
+.countdownGrid{
+  width:min(900px,100%);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid rgba(200,161,77,.42);
+  background:rgba(255,255,255,.018);
+}
+.countdownUnit{
+  padding:34px 18px;
+  text-align:center;
+  border-right:1px solid rgba(200,161,77,.24);
+}
+.countdownUnit:last-child{border-right:0}
+.countdownUnit strong{
+  display:block;
+  font-family:var(--font-serif,Georgia,serif);
+  font-size:clamp(2rem,5vw,4.3rem);
+  font-weight:400;
+  line-height:1;
+  color:#f5f1e8;
+}
+.countdownUnit span{
+  display:block;
+  margin-top:13px;
+  color:#c8a14d;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  font-size:.72rem;
+}
+.countdownFinished{
+  text-align:center;
+  color:#c8a14d;
+  font-family:var(--font-serif,Georgia,serif);
+  font-size:2rem;
+}
+.programTimeline{
+  width:min(980px,100%);
+  margin:0 auto;
+  position:relative;
+}
+.programTimeline:before{
+  content:"";
+  position:absolute;
+  left:88px;
+  top:8px;
+  bottom:8px;
+  width:1px;
+  background:linear-gradient(#c8a14d,rgba(200,161,77,.12));
+}
+.programTimeline article{
+  position:relative;
+  display:grid;
+  grid-template-columns:70px 1fr;
+  gap:42px;
+  padding:0 0 42px;
+}
+.programTimeline article:last-child{padding-bottom:0}
+.programTimeline article>span{
+  padding-top:5px;
+  color:#c8a14d;
+  font-family:var(--font-serif,Georgia,serif);
+  font-size:1.25rem;
+  text-align:right;
+}
+.programTimeline article>span:after{
+  content:"";
+  position:absolute;
+  left:83px;
+  top:10px;
+  width:11px;
+  height:11px;
+  border:2px solid #c8a14d;
+  background:#080908;
+  transform:rotate(45deg);
+}
+.programTimeline h3{
+  margin:0 0 8px;
+  color:#f5f1e8;
+  font-family:var(--font-serif,Georgia,serif);
+  font-size:1.55rem;
+}
+.programTimeline p{
+  margin:0;
+  color:rgba(255,255,255,.65);
+  line-height:1.7;
+}
+.guideGrid{
+  width:min(1200px,100%);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+.guideGrid article{
+  min-height:250px;
+  padding:38px 32px;
+  border:1px solid rgba(200,161,77,.32);
+  background:linear-gradient(145deg,rgba(255,255,255,.028),rgba(255,255,255,.005));
+}
+.guideGrid h3{
+  margin:10px 0 18px;
+  color:#f5f1e8;
+  font-family:var(--font-serif,Georgia,serif);
+  font-size:1.6rem;
+}
+.guideGrid p:last-child{
+  color:rgba(255,255,255,.66);
+  line-height:1.75;
+}
+.countdownSection,
+.galaProgram,
+.galaGuide,
+.guestsSprint74,
+.venueFinalPhoto{
+  animation:sprint9Reveal .8s ease both;
+}
+@keyframes sprint9Reveal{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .countdownSection,
+  .galaProgram,
+  .galaGuide,
+  .guestsSprint74,
+  .venueFinalPhoto{animation:none}
+}
+@media(max-width:760px){
+  .countdownGrid{grid-template-columns:repeat(2,1fr)}
+  .countdownUnit:nth-child(2){border-right:0}
+  .countdownUnit:nth-child(-n+2){border-bottom:1px solid rgba(200,161,77,.24)}
+  .guideGrid{grid-template-columns:1fr}
+  .programTimeline:before{left:68px}
+  .programTimeline article{grid-template-columns:54px 1fr;gap:30px}
+  .programTimeline article>span:after{left:63px}
+}
