@@ -703,3 +703,5 @@ footer p { font-size: .85rem; }
 @media print{
  body{margin:0!important;background:#fff!important}.credentialsPrintPage .credentialWorkspace{display:block!important}.credentialsPrintPage .credentialPreview{display:block!important;min-height:0!important}.credentialsPrintPage .labelCredential{position:fixed;inset:0;margin:0!important}.credentialsPrintPage .credentialDirectory,.credentialsPrintPage .pageHeading{display:none!important}
 }
+
+.releaseBadge{display:inline-flex;margin-left:8px;padding:3px 7px;border:1px solid rgba(200,161,77,.45);color:#c8a14d;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase}

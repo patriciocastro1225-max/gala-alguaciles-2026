@@ -223,3 +223,7 @@ Lea `SPRINT7_INSTALACION.md` antes de desplegar.
 - Se eliminaron nombres, fotografías, tarjetas, confirmaciones y formularios de invitados.
 - El panel administrativo de Invitados quedó como página informativa sin CRUD.
 - La tabla `special_guests` fue retirada de la instalación nueva de Supabase.
+
+
+## Versión 1.0
+Entrega consolidada para operación de la Gala 2026. Revise `VERSION_1_0.md` y `LISTA_VERIFICACION_PRODUCCION.md`.
