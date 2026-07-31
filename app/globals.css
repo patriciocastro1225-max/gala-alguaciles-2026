@@ -628,3 +628,71 @@ footer p { font-size: .85rem; }
 
 /* SPRINT 10.1 — RECUPERACIÓN DE ACCESO */
 .forgotPasswordLink{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:18px;color:#c8a14d;text-decoration:none;font-size:.92rem}.forgotPasswordLink:hover{text-decoration:underline}.loginSuccess{padding:12px 14px;border:1px solid rgba(83,187,124,.45);background:rgba(83,187,124,.08);color:#a9e8bf;line-height:1.5}.passwordCard{max-width:520px}.passwordSecurity{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:24px;color:rgba(255,255,255,.55);font-size:.82rem}
+
+/* SPRINT 10.3 — CÍRCULOS PÚBLICOS DINÁMICOS */
+.chileMap{
+  min-height:620px;
+  position:relative;
+  padding:34px 0;
+}
+.mapPoints{
+  position:relative;
+  z-index:2;
+  min-height:550px;
+  display:grid;
+  align-content:center;
+  gap:18px;
+}
+.mapPoint{
+  position:relative;
+  left:auto;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  width:min(270px,46%);
+  padding:13px 15px;
+  border:1px solid rgba(234,213,154,.18);
+  background:rgba(2,10,6,.42);
+  backdrop-filter:blur(5px);
+}
+.mapPoint:nth-child(even){margin-left:auto;}
+.mapPoint:nth-child(odd){margin-right:auto;}
+.mapPoint > span{
+  flex:0 0 auto;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#6c756f;
+  box-shadow:0 0 0 5px rgba(255,255,255,.04);
+}
+.mapPoint.confirmed > span{
+  background:var(--gold-light);
+  box-shadow:0 0 10px var(--gold),0 0 28px rgba(234,213,154,.8);
+  animation:circlePulse 2.3s ease-in-out infinite;
+}
+.mapPoint.pending{opacity:.72;}
+.mapPoint div{display:flex;flex-direction:column;min-width:0;}
+.mapPoint strong{color:#fff;}
+.mapPoint small{color:#c6d4cb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mapPoint em{margin-top:3px;color:var(--gold-light);font-size:.66rem;font-style:normal;text-transform:uppercase;letter-spacing:.11em;}
+.mapPoint.pending em{color:#9ba6a0;}
+.publicCirclesMessage{
+  margin:auto;
+  max-width:360px;
+  padding:20px;
+  text-align:center;
+  color:#d7e0da;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.22);
+}
+.publicCirclesMessage.error{color:#ffd1c9;border-color:rgba(255,150,130,.28);}
+@keyframes circlePulse{
+  0%,100%{transform:scale(1);opacity:1;}
+  50%{transform:scale(1.22);opacity:.82;}
+}
+@media(max-width:560px){
+  .chileMap{min-height:auto;padding:20px 0;}
+  .mapPoints{min-height:auto;gap:12px;}
+  .mapLine{left:50%;opacity:.55;}
+  .mapPoint,.mapPoint:nth-child(even),.mapPoint:nth-child(odd){width:82%;margin-left:auto;margin-right:auto;}
+}

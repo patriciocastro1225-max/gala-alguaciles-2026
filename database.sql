@@ -340,3 +340,12 @@ commit;
 
 -- VERIFICACIÓN FINAL: debe devolver 23.
 select count(*) as total_mesas from public.gala_tables;
+
+-- ============================================================
+-- SPRINT 10.3: LECTURA PÚBLICA DE CÍRCULOS EN LA WEB
+-- ============================================================
+drop policy if exists "public circles read" on public.circles;
+create policy "public circles read" on public.circles
+for select
+to anon
+using (true);

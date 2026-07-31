@@ -1,1 +1,1 @@
-Sprint 10.2 activo - base de datos completa y 23 mesas protocolarias.
+Sprint 10.3 activo - Círculos públicos conectados a Supabase.

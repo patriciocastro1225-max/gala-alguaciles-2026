@@ -28,3 +28,20 @@ export async function deleteCircle(id: string) {
   if (error) throw error;
   await audit("DELETE", "circle", id);
 }
+
+/**
+ * Consulta pública utilizada por la portada.
+ * Solo expone los campos necesarios para mostrar los Círculos participantes.
+ */
+export async function listPublicCircles(): Promise<Circle[]> {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from("circles")
+    .select("id,name,city,president,confirmed,created_at")
+    .order("confirmed", { ascending: false })
+    .order("city", { ascending: true, nullsFirst: false })
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as Circle[];
+}

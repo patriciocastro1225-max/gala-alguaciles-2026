@@ -12,9 +12,11 @@ import {
   TicketCheck,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Countdown from "@/components/Countdown";
 import Intro from "@/components/Intro";
+import { listPublicCircles } from "@/services/circles";
+import type { Circle } from "@/types/database";
 
 const reservationUrl = "https://form.jotform.com/";
 
@@ -37,17 +39,45 @@ const testimonials = [
   ["Jhonny Mxxxxxx", "Fui con mi polola, bailamos hasta muy tarde, fue inolvidable."],
 ];
 
-const circles = [
-  ["Antofagasta", "Próximamente"],
-  ["Valparaíso", "Próximamente"],
-  ["Santiago", "Confirmado"],
-  ["Rancagua", "Próximamente"],
-  ["Concepción", "Próximamente"],
-  ["Temuco", "Próximamente"],
-];
+
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [circles, setCircles] = useState<Circle[]>([]);
+  const [circlesLoading, setCirclesLoading] = useState(true);
+  const [circlesError, setCirclesError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    listPublicCircles()
+      .then((data) => {
+        if (!active) return;
+        setCircles(data);
+        setCirclesError(null);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setCirclesError(error instanceof Error ? error.message : "No fue posible cargar los Círculos.");
+      })
+      .finally(() => {
+        if (active) setCirclesLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const confirmedCircles = useMemo(
+    () => circles.filter((circle) => circle.confirmed).length,
+    [circles],
+  );
+
+  const representedCities = useMemo(
+    () => new Set(circles.map((circle) => circle.city?.trim()).filter(Boolean)).size,
+    [circles],
+  );
 
   return (
     <>
@@ -265,32 +295,49 @@ export default function Home() {
           </div>
 
           <div className="circlesLayout">
-            <div className="chileMap" aria-label="Representación artística del mapa de Chile">
+            <div className="chileMap" aria-label="Círculos participantes de Chile">
               <div className="mapLine" />
-              {circles.map(([city, status], index) => (
-                <div className={`mapPoint point${index + 1}`} key={city}>
-                  <span />
-                  <div>
-                    <strong>{city}</strong>
-                    <small>{status}</small>
-                  </div>
-                </div>
-              ))}
+              <div className="mapPoints">
+                {circlesLoading && <p className="publicCirclesMessage">Cargando Círculos participantes…</p>}
+
+                {!circlesLoading && circlesError && (
+                  <p className="publicCirclesMessage error">No fue posible actualizar los Círculos en este momento.</p>
+                )}
+
+                {!circlesLoading && !circlesError && circles.length === 0 && (
+                  <p className="publicCirclesMessage">Los primeros Círculos participantes se publicarán próximamente.</p>
+                )}
+
+                {!circlesLoading && !circlesError && circles.map((circle) => (
+                  <article
+                    className={circle.confirmed ? "mapPoint confirmed" : "mapPoint pending"}
+                    key={circle.id}
+                  >
+                    <span aria-hidden="true" />
+                    <div>
+                      <strong>{circle.city || circle.name}</strong>
+                      <small>{circle.name}</small>
+                      <em>{circle.confirmed ? "Confirmado" : "Próximamente"}</em>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
 
             <div className="circleCopy">
               <h3>Cada confirmación encenderá una nueva luz</h3>
               <p>
-                A medida que los Círculos confirmen su participación, el mapa se
-                actualizará con su ciudad, escudo y número de asistentes.
+                Los Círculos creados en el panel administrativo se publican aquí
+                automáticamente. Al marcar su participación como confirmada, su luz
+                se encenderá en color dorado.
               </p>
               <div className="statCard">
-                <strong>01</strong>
-                <span>Círculo confirmado</span>
+                <strong>{String(confirmedCircles).padStart(2, "0")}</strong>
+                <span>{confirmedCircles === 1 ? "Círculo confirmado" : "Círculos confirmados"}</span>
               </div>
               <div className="statCard">
-                <strong>06</strong>
-                <span>Ciudades representadas inicialmente</span>
+                <strong>{String(representedCities).padStart(2, "0")}</strong>
+                <span>{representedCities === 1 ? "Ciudad representada" : "Ciudades representadas"}</span>
               </div>
             </div>
           </div>
