@@ -58,6 +58,8 @@ create table if not exists public.gala_tables (
     check (status in ('Disponible','Reservada','Cerrada')),
   responsible text,
   notes text,
+  location text,
+  color text default '#C8A14D',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -134,6 +136,8 @@ alter table public.profiles add constraint profiles_role_check
 alter table public.gala_tables add column if not exists status text not null default 'Disponible';
 alter table public.gala_tables add column if not exists responsible text;
 alter table public.gala_tables add column if not exists notes text;
+alter table public.gala_tables add column if not exists location text;
+alter table public.gala_tables add column if not exists color text default '#C8A14D';
 alter table public.gala_tables add column if not exists updated_at timestamptz not null default now();
 alter table public.gala_tables drop constraint if exists gala_tables_zone_check;
 alter table public.gala_tables add constraint gala_tables_zone_check
@@ -265,7 +269,9 @@ select
   (select coalesce(sum(capacity),0) from public.gala_tables) as total_capacity,
   (select count(*) from public.attendees where table_id is not null) as assigned_seats;
 
-create or replace view public.table_occupancy as
+drop view if exists public.table_occupancy;
+
+create view public.table_occupancy as
 select
   t.id,
   t.table_number,
@@ -275,11 +281,15 @@ select
   t.status,
   t.responsible,
   t.notes,
+  t.location,
+  t.color,
   count(a.id)::integer as occupied,
   greatest(t.capacity - count(a.id), 0)::integer as available
 from public.gala_tables t
 left join public.attendees a on a.table_id = t.id
-group by t.id, t.table_number, t.name, t.capacity, t.zone, t.status, t.responsible, t.notes;
+group by
+  t.id, t.table_number, t.name, t.capacity, t.zone, t.status,
+  t.responsible, t.notes, t.location, t.color;
 
 -- SEGURIDAD RLS
 alter table public.event_config enable row level security;

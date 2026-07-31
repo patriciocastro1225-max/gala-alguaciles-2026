@@ -227,3 +227,7 @@ Lea `SPRINT7_INSTALACION.md` antes de desplegar.
 
 ## Versión 1.0
 Entrega consolidada para operación de la Gala 2026. Revise `VERSION_1_0.md` y `LISTA_VERIFICACION_PRODUCCION.md`.
+
+
+## Versión 1.1.1
+Corrección idempotente de la vista `table_occupancy` y estabilidad de mesas personalizables.

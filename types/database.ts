@@ -12,7 +12,12 @@ export type GalaTable = {
   table_number: number;
   name: string;
   capacity: number;
-  zone: "Autoridades" | "Central" | "General";
+  zone: "Protocolar" | "Autoridades" | "Central" | "General" | "Reserva";
+  status?: "Disponible" | "Reservada" | "Cerrada";
+  responsible?: string | null;
+  notes?: string | null;
+  location?: string | null;
+  color?: string | null;
   occupied?: number;
   available?: number;
 };

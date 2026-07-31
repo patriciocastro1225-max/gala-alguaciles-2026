@@ -3,7 +3,10 @@ import { audit, requireSupabase } from "./helpers";
 
 export async function listTables(): Promise<GalaTable[]> {
   const client = requireSupabase();
-  const { data, error } = await client.from("table_occupancy").select("*").order("table_number");
+  const { data, error } = await client
+    .from("table_occupancy")
+    .select("*")
+    .order("table_number");
   if (error) throw error;
   return (data ?? []) as GalaTable[];
 }
@@ -30,4 +33,24 @@ export async function assignTable(attendeeId: string, tableId: string | null) {
   if (error) throw error;
   await audit("ASSIGN_TABLE", "attendee", attendeeId, { table_id: tableId });
   return data as Attendee;
+}
+
+export async function updateTable(
+  id: string,
+  payload: Pick<GalaTable, "name" | "capacity" | "zone" | "status" | "responsible" | "notes" | "location" | "color">
+) {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from("gala_tables")
+    .update(payload)
+    .eq("id", id)
+    .select("*")
+    .single();
+  if (error) {
+    if (error.code === "23505") throw new Error("Ya existe una mesa con ese nombre o número.");
+    if (error.code === "23514") throw new Error("La zona, el estado o la capacidad no son válidos.");
+    throw error;
+  }
+  await audit("UPDATE", "gala_table", id, payload);
+  return data as GalaTable;
 }
