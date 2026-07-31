@@ -4,12 +4,13 @@ import { ReactNode, useEffect, useState } from "react";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  BarChart3, Bell, CircleDollarSign, ClipboardCheck, LayoutDashboard,
+  BarChart3, Bell, CircleDollarSign, ClipboardCheck, CreditCard, LayoutDashboard, Radio,
   LogOut, Menu, ShieldCheck, Star, TableProperties, UsersRound, X
 } from "lucide-react";
 
 const items = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard", enabled: true },
+  { label: "Día del evento", icon: Radio, href: "/admin/evento", enabled: true },
   { label: "Asistentes", icon: UsersRound, href: "/admin/asistentes", enabled: true },
   { label: "Mesas", icon: TableProperties, href: "/admin/mesas", enabled: true },
   { label: "Invitados", icon: Star, href: "/admin/invitados", enabled: true },
@@ -18,6 +19,7 @@ const items = [
   { label: "Check-in", icon: ClipboardCheck, href: "/admin/checkin", enabled: true },
   { label: "Correos", icon: Bell, href: "/admin/correos", enabled: true },
   { label: "QR", icon: ShieldCheck, href: "/admin/qr", enabled: true },
+  { label: "Credenciales", icon: CreditCard, href: "/admin/credenciales", enabled: true },
   { label: "Estadísticas", icon: BarChart3, href: "/admin/estadisticas", enabled: true },
   { label: "Configuración", icon: ShieldCheck, href: "/admin/configuracion", enabled: true },
 ];
