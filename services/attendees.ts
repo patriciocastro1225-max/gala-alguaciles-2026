@@ -61,3 +61,12 @@ export async function checkInByCode(code: string) {
   await audit("CHECK_IN", "attendee", attendee.id);
   return data as Attendee;
 }
+
+export async function regenerateQr(id: string) {
+  const client = requireSupabase();
+  const token = `GALA2026-${crypto.randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
+  const { data, error } = await client.from("attendees").update({ qr_code: token }).eq("id", id).select(select).single();
+  if (error) throw error;
+  await audit("REGENERATE_QR", "attendee", id, { qr_code: token });
+  return data as Attendee;
+}

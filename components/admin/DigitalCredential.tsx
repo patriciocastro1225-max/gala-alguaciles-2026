@@ -1,23 +1,29 @@
-import { ShieldCheck } from "lucide-react";
+"use client";
+
+import { QRCodeSVG } from "qrcode.react";
 import type { Attendee } from "@/types/database";
 
 export default function DigitalCredential({ attendee }: { attendee: Attendee }) {
+  const table = attendee.gala_tables
+    ? `${attendee.gala_tables.name} · Nº ${attendee.gala_tables.table_number}`
+    : "Por asignar";
+
   return (
-    <article className="digitalCredential">
-      <header><span className="credentialSeal"><ShieldCheck /></span><div><small>Credencial oficial</small><strong>II Gran Gala Nacional 2026</strong></div></header>
-      <div className="credentialBody">
-        <p>Invitado</p><h2>{attendee.full_name}</h2>
+    <article className="labelCredential" aria-label={`Etiqueta de ${attendee.full_name}`}>
+      <section className="labelIdentity">
+        <div className="labelBrand"><span>II</span><div><small>Gran Gala Nacional</small><strong>Alguaciles de Chile 2026</strong></div></div>
+        <p className="labelRole">INVITADO OFICIAL</p>
+        <h2>{attendee.full_name}</h2>
+        <p className="labelCircle">{attendee.circles?.name ?? "Invitado institucional"}</p>
         <dl>
-          <div><dt>Círculo</dt><dd>{attendee.circles?.name ?? "Invitado institucional"}</dd></div>
-          <div><dt>Mesa</dt><dd>{attendee.gala_tables ? `${attendee.gala_tables.name} · Nº ${attendee.gala_tables.table_number}` : "Por asignar"}</dd></div>
-          <div><dt>Estado</dt><dd>{attendee.payment_status}</dd></div>
+          <div><dt>Mesa</dt><dd>{table}</dd></div>
+          <div><dt>Estado</dt><dd>{attendee.attendance_status}</dd></div>
         </dl>
-        <div className="credentialQr" aria-label={`Código ${attendee.qr_code}`}>
-          <span>{attendee.qr_code.slice(0,4)}</span><span>{attendee.qr_code.slice(4,8)}</span><span>{attendee.qr_code.slice(8,12)}</span>
-        </div>
+      </section>
+      <section className="labelQrBlock">
+        <QRCodeSVG value={attendee.qr_code} size={132} level="H" marginSize={2} title={`QR de ${attendee.full_name}`} />
         <code>{attendee.qr_code}</code>
-      </div>
-      <footer>25 · NOV · 2026 — CLUB PALESTINO</footer>
+      </section>
     </article>
   );
 }

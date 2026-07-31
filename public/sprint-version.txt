@@ -1,1 +1,1 @@
-Sprint 10.3 activo - Círculos públicos conectados a Supabase.
+Sprint 10.4 activo - correos, QR real, check-in y etiquetas 100x50 mm.

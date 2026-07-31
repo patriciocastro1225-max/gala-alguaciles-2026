@@ -1,43 +1,23 @@
 "use client";
-
-import { useMemo, useState } from "react";
-import { CheckCircle2, LogIn, Search, UserCheck, UsersRound, XCircle } from "lucide-react";
+import { useEffect,useMemo,useRef,useState } from "react";
+import { Camera,CheckCircle2,LogIn,Search,UserCheck,UsersRound,XCircle } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
-import { checkInByCode, listAttendees, updateAttendee } from "@/services/attendees";
+import { checkInByCode,listAttendees,updateAttendee } from "@/services/attendees";
 import type { Attendee } from "@/types/database";
 
+declare global{interface Window{BarcodeDetector?:new(opts:{formats:string[]})=>{detect:(source:CanvasImageSource)=>Promise<Array<{rawValue:string}>>}}}
+
 export default function CheckinPage(){
-  const source=useAsyncData(listAttendees,[]);
-  const [code,setCode]=useState("");
-  const [query,setQuery]=useState("");
-  const [last,setLast]=useState<Attendee|null>(null);
-  const [message,setMessage]=useState("");
-  const rows=useMemo(()=>(source.data??[]).filter(r=>`${r.full_name} ${r.qr_code}`.toLowerCase().includes(query.toLowerCase())),[source.data,query]);
-  const checked=(source.data??[]).filter(r=>r.checked_in).length;
-
-  async function registerCode(){
-    try{const result=await checkInByCode(code);setLast(result);setMessage("Ingreso autorizado.");setCode("");await source.reload();}
-    catch(e){setLast(null);setMessage(e instanceof Error?e.message:"No fue posible registrar.");}
-  }
-  async function manual(row:Attendee){
-    try{const result=await updateAttendee(row.id,{checked_in:true,checkin_at:new Date().toISOString()});setLast(result);setMessage("Ingreso autorizado.");await source.reload();}
-    catch(e){setMessage(e instanceof Error?e.message:"No fue posible registrar.");}
-  }
-
-  return <AdminShell><main className="adminPage">
-    <section className="pageHeading"><div><p className="adminEyebrow">Operación en vivo</p><h1>Check-in real</h1><p>Cada ingreso se registra inmediatamente en Supabase.</p></div></section>
-    <section className="checkinStats"><div><UsersRound/><span>Inscritos</span><strong>{(source.data??[]).length}</strong></div><div><UserCheck/><span>Ingresaron</span><strong>{checked}</strong></div><div><UserCheck/><span>Pendientes</span><strong>{(source.data??[]).length-checked}</strong></div><div><CheckCircle2/><span>Sincronización</span><strong>Activa</strong></div></section>
-    <section className="checkinWorkspace">
-      <article className="scannerPanel"><div className="scannerVisual"><LogIn size={80}/><strong>Validar credencial</strong><p>Ingrese el código QR impreso o leído por cámara.</p></div>
-        <div className="manualCode"><label>Código QR<input value={code} onChange={e=>setCode(e.target.value)} onKeyDown={e=>e.key==="Enter"&&registerCode()} placeholder="Código único"/></label><button className="adminAction primary" onClick={registerCode}><LogIn size={18}/> Registrar ingreso</button></div>
-      </article>
-      <aside className="checkinResult"><p className="panelEyebrow">Resultado</p>{message&&<div className={last?"entryResult success":"entryResult warning"}>{last?<CheckCircle2/>:<XCircle/>}<span>{message}</span><h2>{last?.full_name??"Sin registro"}</h2><p>{last?.circles?.name??""}</p><small>{last?.checkin_at?new Date(last.checkin_at).toLocaleString("es-CL"):""}</small></div>}</aside>
-    </section>
-    <section className="managementPanel checkinList"><div className="panelHeader"><h3>Listado operativo</h3><label className="searchBox compact"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar..."/></label></div>
-      <div className="adminTableWrap"><table className="adminTable"><thead><tr><th>Asistente</th><th>Círculo</th><th>Mesa</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
-        {rows.map(row=><tr key={row.id}><td><strong>{row.full_name}</strong><br/><small>{row.qr_code}</small></td><td>{row.circles?.name??"—"}</td><td>{row.gala_tables?.name??"Sin asignar"}</td><td><span className={row.checked_in?"statusConfirmed":"statusPending"}>{row.checked_in?"Ingresó":"Pendiente"}</span></td><td><button className="adminAction" disabled={row.checked_in} onClick={()=>manual(row)}>{row.checked_in?"Registrado":"Registrar"}</button></td></tr>)}
-      </tbody></table></div>
-    </section>
-  </main></AdminShell>;
+ const source=useAsyncData(listAttendees,[]); const [code,setCode]=useState(""); const [query,setQuery]=useState(""); const [last,setLast]=useState<Attendee|null>(null); const [message,setMessage]=useState(""); const [scanning,setScanning]=useState(false); const videoRef=useRef<HTMLVideoElement>(null); const streamRef=useRef<MediaStream|null>(null); const scanTimer=useRef<number|null>(null);
+ const rows=useMemo(()=>(source.data??[]).filter(r=>`${r.full_name} ${r.qr_code}`.toLowerCase().includes(query.toLowerCase())),[source.data,query]); const checked=(source.data??[]).filter(r=>r.checked_in).length;
+ async function register(value=code){try{const result=await checkInByCode(value);setLast(result);setMessage("Ingreso autorizado.");setCode("");await source.reload();stopCamera();}catch(e){setLast(null);setMessage(e instanceof Error?e.message:"No fue posible registrar.");}}
+ async function manual(row:Attendee){try{const result=await updateAttendee(row.id,{checked_in:true,checkin_at:new Date().toISOString()});setLast(result);setMessage("Ingreso autorizado.");await source.reload();}catch(e){setMessage(e instanceof Error?e.message:"No fue posible registrar.");}}
+ async function startCamera(){if(!window.BarcodeDetector){setMessage("Este navegador no permite lectura QR directa. Use Chrome en Android o ingrese el código manualmente.");return;}try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});streamRef.current=stream;setScanning(true);setTimeout(()=>{if(videoRef.current){videoRef.current.srcObject=stream;videoRef.current.play();scanFrame();}},100);}catch{setMessage("No fue posible acceder a la cámara. Revisa los permisos del navegador.");}}
+ async function scanFrame(){const Detector=window.BarcodeDetector; if(!Detector)return; const detector=new Detector({formats:["qr_code"]});const tick=async()=>{if(!videoRef.current||!streamRef.current)return;try{const found=await detector.detect(videoRef.current);if(found[0]?.rawValue){setCode(found[0].rawValue);await register(found[0].rawValue);return;}}catch{}scanTimer.current=window.setTimeout(tick,350);};tick();}
+ function stopCamera(){if(scanTimer.current)clearTimeout(scanTimer.current);streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;setScanning(false);}
+ useEffect(()=>()=>stopCamera(),[]);
+ return <AdminShell><main className="adminPage"><section className="pageHeading"><div><p className="adminEyebrow">Operación en vivo</p><h1>Check-in con cámara</h1><p>Escanea el QR o ingresa el código impreso.</p></div></section><section className="checkinStats"><div><UsersRound/><span>Inscritos</span><strong>{(source.data??[]).length}</strong></div><div><UserCheck/><span>Ingresaron</span><strong>{checked}</strong></div><div><UserCheck/><span>Pendientes</span><strong>{(source.data??[]).length-checked}</strong></div><div><CheckCircle2/><span>Sincronización</span><strong>Activa</strong></div></section>
+ <section className="checkinWorkspace"><article className="scannerPanel"><div className="scannerVisual">{scanning?<video ref={videoRef} className="scannerVideo" muted playsInline/>:<><Camera size={80}/><strong>Lector QR</strong><p>Usa la cámara trasera del teléfono o tablet.</p></>} </div><div className="scannerButtons"><button className="adminAction" onClick={scanning?stopCamera:startCamera}><Camera size={18}/>{scanning?"Detener cámara":"Abrir cámara"}</button></div><div className="manualCode"><label>Código QR<input value={code} onChange={e=>setCode(e.target.value)} onKeyDown={e=>e.key==="Enter"&&register()} placeholder="GALA2026-..."/></label><button className="adminAction primary" onClick={()=>register()}><LogIn size={18}/>Registrar ingreso</button></div></article><aside className="checkinResult"><p className="panelEyebrow">Resultado</p>{message&&<div className={last?"entryResult success":"entryResult warning"}>{last?<CheckCircle2/>:<XCircle/>}<span>{message}</span><h2>{last?.full_name??"Sin registro"}</h2><p>{last?.circles?.name??""}</p><p>{last?.gala_tables?.name??""}</p><small>{last?.checkin_at?new Date(last.checkin_at).toLocaleString("es-CL"):""}</small></div>}</aside></section>
+ <section className="managementPanel checkinList"><div className="panelHeader"><h3>Listado operativo</h3><label className="searchBox compact"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar..."/></label></div><div className="adminTableWrap"><table className="adminTable"><thead><tr><th>Asistente</th><th>Círculo</th><th>Mesa</th><th>Estado</th><th>Acción</th></tr></thead><tbody>{rows.map(row=><tr key={row.id}><td><strong>{row.full_name}</strong><br/><small>{row.qr_code}</small></td><td>{row.circles?.name??"—"}</td><td>{row.gala_tables?.name??"Sin asignar"}</td><td><span className={row.checked_in?"statusConfirmed":"statusPending"}>{row.checked_in?"Ingresó":"Pendiente"}</span></td><td><button className="adminAction" disabled={row.checked_in} onClick={()=>manual(row)}>{row.checked_in?"Registrado":"Registrar"}</button></td></tr>)}</tbody></table></div></section></main></AdminShell>;
 }
