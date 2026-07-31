@@ -23,7 +23,13 @@ export default function DashboardPage() {
           <button className="adminAction" onClick={reload}>Actualizar</button>
         </section>
 
-        {error && <div className="dataError">{error}</div>}
+        {error && (
+          <div className="dataError">
+            <strong>No fue posible leer la base de datos.</strong>
+            <p>{error}</p>
+            <small>Ejecuta el archivo database.sql en Supabase → SQL Editor y vuelve a cargar esta página.</small>
+          </div>
+        )}
         {loading && <div className="dataLoading">Cargando indicadores reales…</div>}
 
         {data && (

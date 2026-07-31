@@ -7,7 +7,7 @@ import { supabase, supabaseConfigured } from "@/lib/supabase";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@galaalguaciles.cl");
+  const [email, setEmail] = useState("admin@gala2026.cl");
   const [password, setPassword] = useState("Gala2026!");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    if (email === "admin@galaalguaciles.cl" && password === "Gala2026!") {
+    if (email === "admin@gala2026.cl" && password === "Gala2026!") {
       sessionStorage.setItem("gala-admin", "1");
       router.push("/admin/dashboard");
     } else {
@@ -77,9 +77,13 @@ export default function AdminLoginPage() {
           <button className="loginSubmit" disabled={loading}>{loading ? "Ingresando..." : "Ingresar al panel"}</button>
         </form>
 
+        {supabaseConfigured && (
+          <a className="forgotPasswordLink" href="/admin/recuperar-clave">¿Olvidaste tu contraseña?</a>
+        )}
+
         {!supabaseConfigured && (
           <p className="demoCredentials">
-            Demo: admin@galaalguaciles.cl · Gala2026!
+            Demo: admin@gala2026.cl · Gala2026!
           </p>
         )}
       </section>
