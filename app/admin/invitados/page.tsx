@@ -1,5 +1,4 @@
 
-// Fotografías eliminadas por requerimiento de protocolo.
 "use client";
 
 import { useState } from "react";
@@ -27,7 +26,7 @@ export default function GuestsPage(){
     <section className="pageHeading"><div><p className="adminEyebrow">Protocolo institucional</p><h1>Invitados especiales</h1><p>Gestiona autoridades, invitados nacionales y su orden de presentación.</p></div><button className="adminAction primary" onClick={openNew}><Plus size={18}/> Nuevo invitado</button></section>
     <section className="guestAdminGrid">
       {rows.sort((a,b)=>a.order-b.order).map(r=><article className="guestAdminCard" key={r.id}>
-        <div className="guestAvatar"><Star/></div>
+        
         <span className={r.status==="Confirmado"?"statusConfirmed":"statusPending"}>{r.status}</span>
         <small>Orden de presentación: {r.order}</small>
         <h3>{r.name}</h3><p>{r.role}</p><div className="institution"><Building2 size={16}/>{r.institution}</div>

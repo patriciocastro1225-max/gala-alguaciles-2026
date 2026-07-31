@@ -56,7 +56,7 @@ create table if not exists public.special_guests (
   confirmation_status text not null default 'Pendiente'
     check (confirmation_status in ('Confirmado','Pendiente','Declinado')),
   presentation_order integer not null default 1,
-  photo_url text,
+
   created_at timestamptz not null default now()
 );
 

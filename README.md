@@ -214,3 +214,5 @@ Lea `SPRINT7_INSTALACION.md` antes de desplegar.
 
 
 - Actualización Sprint 7.1: se eliminó el manejo de fotografías de invitados de connotación nacional.
+
+- Corrección Sprint 7.2: eliminadas completamente las fotografías, imágenes, avatares y campos visuales de la sección Invitados Especiales.
