@@ -285,6 +285,16 @@ export default function Home() {
             </a>
           </div>
         </section>
+
+        <section className="venueFinalPhoto" aria-label="Club Palestino, sede de la Gala">
+          <div className="venueFinalPhotoFrame">
+            <img
+              src="/images/club-palestino-gala-2026.webp"
+              alt="Fachada del Club Palestino, sede de la II Gran Gala Nacional de los Alguaciles de Chile 2026"
+              loading="lazy"
+            />
+          </div>
+        </section>
       </main>
 
       <footer>

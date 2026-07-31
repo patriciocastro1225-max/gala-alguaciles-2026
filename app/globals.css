@@ -439,3 +439,31 @@ footer p { font-size: .85rem; }
   line-height:1.85;
   color:rgba(255,255,255,.76);
 }
+
+
+/* SPRINT 8 — FOTOGRAFÍA FINAL CLUB PALESTINO */
+.venueFinalPhoto{
+  background:#080908;
+  padding:0 24px 72px;
+}
+.venueFinalPhotoFrame{
+  width:min(1500px,100%);
+  margin:0 auto;
+  border:1px solid rgba(200,161,77,.48);
+  box-shadow:0 28px 70px rgba(0,0,0,.38);
+  overflow:hidden;
+}
+.venueFinalPhotoFrame img{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:cover;
+}
+@media(max-width:700px){
+  .venueFinalPhoto{
+    padding:0 12px 40px;
+  }
+  .venueFinalPhotoFrame{
+    border-color:rgba(200,161,77,.36);
+  }
+}
