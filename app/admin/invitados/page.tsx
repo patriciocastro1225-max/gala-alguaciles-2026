@@ -14,7 +14,7 @@ export default function GuestsPage() {
           </div>
         </section>
 
-        <section className="institutionalGuestAdmin">
+        <section className="institutionalGuestAdmin" data-version="7.4">
           <Landmark size={48} aria-hidden="true" />
           <h2>Invitados de renombre institucional y nacional</h2>
           <p>

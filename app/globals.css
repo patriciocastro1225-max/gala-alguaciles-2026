@@ -168,18 +168,11 @@ p { color: #c9cfcb; }
 .timelineItem p { margin: 0; }
 
 .guests { background: #080908; }
-.guestGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1150px; margin: 0 auto; }
-.guestCard {
-  min-height: 410px;
-  padding: 38px;
-  border: 1px solid var(--border);
-  background: linear-gradient(145deg, rgba(255,255,255,.035), transparent);
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-  text-align: center;
-}
-.guestSilhouette { flex: 1; display: grid; place-items: center; color: rgba(200,161,77,.22); }
-.guestCard > svg { color: var(--gold); }
-.guestCard h3 { margin: 15px 0 5px; }
+
+
+
+
+
 
 .circlesSection { background: var(--green); }
 .circlesLayout { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
@@ -297,7 +290,7 @@ footer p { font-size: .85rem; }
   .countdownItem { min-width: 78px; }
   .countdownItem strong { font-size: 1.4rem; }
   .storyGrid, .circlesLayout { grid-template-columns: 1fr; }
-  .guestGrid { grid-template-columns: 1fr; }
+  
   .chileMap { min-height: 560px; }
   footer { flex-direction: column; gap: 20px; text-align: center; }
 }
@@ -420,4 +413,29 @@ footer p { font-size: .85rem; }
   margin:0 auto;
   color:#66736b;
   line-height:1.8;
+}
+
+
+/* SPRINT 7.4 — SECCIÓN INVITADOS DEFINITIVA */
+.guestsSprint74{
+  background:#080908;
+  padding:96px 24px;
+}
+.guestsSprint74 .institutionalGuestNotice{
+  width:min(900px,100%);
+  margin:0 auto;
+  padding:58px 34px;
+  text-align:center;
+  border:1px solid rgba(200,161,77,.42);
+  background:linear-gradient(145deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+}
+.guestsSprint74 .institutionalGuestNotice h2{
+  max-width:760px;
+  margin:12px auto 22px;
+}
+.guestsSprint74 .institutionalGuestNotice p:last-child{
+  max-width:720px;
+  margin:0 auto;
+  line-height:1.85;
+  color:rgba(255,255,255,.76);
 }

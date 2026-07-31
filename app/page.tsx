@@ -168,7 +168,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section guests" id="invitados">
+        <section className="section guests guestsSprint74" id="invitados" data-version="7.4">
           <div className="institutionalGuestNotice">
             <p className="eyebrow">Invitados especiales</p>
             <h2>Invitados de renombre institucional y nacional</h2>
