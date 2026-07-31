@@ -54,3 +54,30 @@ export async function updateTable(
   await audit("UPDATE", "gala_table", id, payload);
   return data as GalaTable;
 }
+
+
+export async function updateTablesBulk(
+  tables: Array<Pick<GalaTable, "id" | "name" | "capacity" | "zone" | "status" | "responsible" | "notes" | "location" | "color">>
+) {
+  const client = requireSupabase();
+
+  for (const table of tables) {
+    const { id, ...payload } = table;
+    const { error } = await client
+      .from("gala_tables")
+      .update(payload)
+      .eq("id", id);
+
+    if (error) {
+      if (error.code === "23505") {
+        throw new Error(`Ya existe otra mesa con el nombre “${payload.name}”.`);
+      }
+      if (error.code === "23514") {
+        throw new Error(`La configuración de la mesa “${payload.name}” no es válida.`);
+      }
+      throw error;
+    }
+
+    await audit("UPDATE", "gala_table", id, payload);
+  }
+}

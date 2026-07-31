@@ -1,10 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Pencil, RefreshCw, Search, UserRoundCheck, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Pencil, RefreshCw, Save, Search, Settings2, UserRoundCheck, X } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
-import { assignTable, listTableAttendees, listTables, updateTable } from "@/services/tables";
+import {
+  assignTable,
+  listTableAttendees,
+  listTables,
+  updateTable,
+  updateTablesBulk,
+} from "@/services/tables";
 import type { Attendee, GalaTable } from "@/types/database";
 
 async function load() {
@@ -30,12 +36,18 @@ export default function TablesPage() {
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
   const [modal, setModal] = useState(false);
+  const [bulkModal, setBulkModal] = useState(false);
   const [form, setForm] = useState<any>(defaultForm);
+  const [bulkRows, setBulkRows] = useState<GalaTable[]>([]);
   const [saving, setSaving] = useState(false);
 
   const tables = source.data?.tables ?? [];
   const attendees = source.data?.attendees ?? [];
   const active = tables.find((table) => table.id === selected) ?? tables[0];
+
+  useEffect(() => {
+    setBulkRows(tables.map((table) => ({ ...table })));
+  }, [tables]);
 
   const assigned = useMemo(
     () => attendees.filter((attendee) => attendee.table_id === active?.id),
@@ -85,8 +97,14 @@ export default function TablesPage() {
     setModal(true);
   }
 
+  function openBulkEdit() {
+    setBulkRows(tables.map((table) => ({ ...table })));
+    setBulkModal(true);
+  }
+
   async function saveTableChanges() {
     if (!active || !form.name.trim()) return;
+
     if (form.capacity < assigned.length) {
       setMessage(`La capacidad no puede ser menor que los ${assigned.length} asistentes ya asignados.`);
       return;
@@ -114,6 +132,54 @@ export default function TablesPage() {
     }
   }
 
+  async function saveAllTables() {
+    const names = bulkRows.map((table) => table.name.trim().toLowerCase());
+    const duplicate = names.find((name, index) => names.indexOf(name) !== index);
+
+    if (duplicate) {
+      setMessage("No se pueden guardar dos mesas con el mismo nombre.");
+      return;
+    }
+
+    for (const table of bulkRows) {
+      const occupied = attendees.filter((attendee) => attendee.table_id === table.id).length;
+      if (!table.name.trim()) {
+        setMessage(`La Mesa ${table.table_number} debe tener un nombre.`);
+        return;
+      }
+      if (table.capacity < occupied) {
+        setMessage(
+          `La capacidad de “${table.name}” no puede ser menor que sus ${occupied} asistentes asignados.`
+        );
+        return;
+      }
+    }
+
+    setSaving(true);
+    try {
+      await updateTablesBulk(
+        bulkRows.map((table) => ({
+          id: table.id,
+          name: table.name.trim(),
+          capacity: Number(table.capacity),
+          zone: table.zone,
+          status: table.status ?? "Disponible",
+          responsible: table.responsible?.trim() || null,
+          notes: table.notes?.trim() || null,
+          location: table.location?.trim() || null,
+          color: table.color || "#C8A14D",
+        }))
+      );
+      setBulkModal(false);
+      await source.reload();
+      setMessage("Los nombres y datos de las 23 mesas fueron actualizados correctamente.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "No fue posible guardar todas las mesas.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const totals = {
     capacity: tables.reduce((sum, table) => sum + table.capacity, 0),
     occupied: attendees.filter((attendee) => attendee.table_id).length,
@@ -126,11 +192,17 @@ export default function TablesPage() {
           <div>
             <p className="adminEyebrow">Mesas personalizables</p>
             <h1>Salón y mesas</h1>
-            <p>Cambia nombres, capacidad, zona, color, ubicación y observaciones.</p>
+            <p>Edita una mesa individual o cambia los nombres de las 23 mesas en una sola pantalla.</p>
           </div>
-          <button className="adminAction" onClick={source.reload}>
-            <RefreshCw size={18} /> Actualizar
-          </button>
+
+          <div className="tablePageActions">
+            <button className="adminAction" onClick={source.reload}>
+              <RefreshCw size={18} /> Actualizar
+            </button>
+            <button className="adminAction primary" onClick={openBulkEdit}>
+              <Settings2 size={18} /> Editar las 23 mesas
+            </button>
+          </div>
         </section>
 
         <section className="summaryStrip tableSummary">
@@ -154,6 +226,7 @@ export default function TablesPage() {
               {tables.map((table) => {
                 const count = attendees.filter((attendee) => attendee.table_id === table.id).length;
                 const percentage = Math.min(100, (count / table.capacity) * 100);
+
                 return (
                   <button
                     key={table.id}
@@ -164,7 +237,14 @@ export default function TablesPage() {
                     <span>Mesa {table.table_number}</span>
                     <strong>{table.name}</strong>
                     <small>{count} / {table.capacity}</small>
-                    <i><b style={{ width: `${percentage}%`, background: table.color ?? "#C8A14D" }} /></i>
+                    <i>
+                      <b
+                        style={{
+                          width: `${percentage}%`,
+                          background: table.color ?? "#C8A14D",
+                        }}
+                      />
+                    </i>
                   </button>
                 );
               })}
@@ -182,6 +262,7 @@ export default function TablesPage() {
                 <p className="panelEyebrow">Mesa seleccionada</p>
                 <h2>{active?.name ?? "Sin mesas"}</h2>
               </div>
+
               {active && (
                 <button className="adminAction compactAction" onClick={() => openEdit(active)}>
                   <Pencil size={16} /> Editar
@@ -251,15 +332,30 @@ export default function TablesPage() {
               <div className="formGrid">
                 <label>
                   Nombre visible
-                  <input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+                  <input
+                    value={form.name}
+                    onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  />
                 </label>
+
                 <label>
                   Capacidad
-                  <input type="number" min={assigned.length || 1} value={form.capacity} onChange={(event) => setForm({ ...form, capacity: Number(event.target.value) })} />
+                  <input
+                    type="number"
+                    min={assigned.length || 1}
+                    value={form.capacity}
+                    onChange={(event) =>
+                      setForm({ ...form, capacity: Number(event.target.value) })
+                    }
+                  />
                 </label>
+
                 <label>
                   Zona
-                  <select value={form.zone} onChange={(event) => setForm({ ...form, zone: event.target.value })}>
+                  <select
+                    value={form.zone}
+                    onChange={(event) => setForm({ ...form, zone: event.target.value })}
+                  >
                     <option>Protocolar</option>
                     <option>Autoridades</option>
                     <option>Central</option>
@@ -267,36 +363,186 @@ export default function TablesPage() {
                     <option>Reserva</option>
                   </select>
                 </label>
+
                 <label>
                   Estado
-                  <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}>
+                  <select
+                    value={form.status}
+                    onChange={(event) => setForm({ ...form, status: event.target.value })}
+                  >
                     <option>Disponible</option>
                     <option>Reservada</option>
                     <option>Cerrada</option>
                   </select>
                 </label>
+
                 <label>
                   Color
-                  <input type="color" value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} />
+                  <input
+                    type="color"
+                    value={form.color}
+                    onChange={(event) => setForm({ ...form, color: event.target.value })}
+                  />
                 </label>
+
                 <label>
                   Ubicación
-                  <input placeholder="Ej.: Frente al escenario" value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} />
+                  <input
+                    placeholder="Ej.: Frente al escenario"
+                    value={form.location}
+                    onChange={(event) => setForm({ ...form, location: event.target.value })}
+                  />
                 </label>
+
                 <label>
                   Responsable
-                  <input value={form.responsible} onChange={(event) => setForm({ ...form, responsible: event.target.value })} />
+                  <input
+                    value={form.responsible}
+                    onChange={(event) => setForm({ ...form, responsible: event.target.value })}
+                  />
                 </label>
+
                 <label className="fullField">
                   Observaciones
-                  <textarea rows={4} value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} />
+                  <textarea
+                    rows={4}
+                    value={form.notes}
+                    onChange={(event) => setForm({ ...form, notes: event.target.value })}
+                  />
                 </label>
               </div>
 
               <div className="modalActions">
                 <button className="adminAction" onClick={() => setModal(false)}>Cancelar</button>
-                <button className="adminAction primary" disabled={saving} onClick={saveTableChanges}>
+                <button
+                  className="adminAction primary"
+                  disabled={saving}
+                  onClick={saveTableChanges}
+                >
                   {saving ? "Guardando…" : "Guardar cambios"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {bulkModal && (
+          <div className="modalLayer bulkTableLayer">
+            <div className="formModal bulkTableModal">
+              <div className="modalHeader">
+                <div>
+                  <p className="adminEyebrow">Edición general</p>
+                  <h2>Renombrar las 23 mesas</h2>
+                  <p>Cambia todos los nombres y configuraciones antes de guardar.</p>
+                </div>
+                <button onClick={() => setBulkModal(false)}><X /></button>
+              </div>
+
+              <div className="bulkTableEditor">
+                <div className="bulkTableHeader">
+                  <span>Nº</span>
+                  <span>Nombre visible</span>
+                  <span>Capacidad</span>
+                  <span>Zona</span>
+                  <span>Estado</span>
+                  <span>Color</span>
+                </div>
+
+                {bulkRows.map((table, index) => (
+                  <div className="bulkTableRow" key={table.id}>
+                    <strong>{table.table_number}</strong>
+
+                    <input
+                      value={table.name}
+                      onChange={(event) =>
+                        setBulkRows((rows) =>
+                          rows.map((row, rowIndex) =>
+                            rowIndex === index ? { ...row, name: event.target.value } : row
+                          )
+                        )
+                      }
+                    />
+
+                    <input
+                      type="number"
+                      min="1"
+                      value={table.capacity}
+                      onChange={(event) =>
+                        setBulkRows((rows) =>
+                          rows.map((row, rowIndex) =>
+                            rowIndex === index
+                              ? { ...row, capacity: Number(event.target.value) }
+                              : row
+                          )
+                        )
+                      }
+                    />
+
+                    <select
+                      value={table.zone}
+                      onChange={(event) =>
+                        setBulkRows((rows) =>
+                          rows.map((row, rowIndex) =>
+                            rowIndex === index
+                              ? { ...row, zone: event.target.value as GalaTable["zone"] }
+                              : row
+                          )
+                        )
+                      }
+                    >
+                      <option>Protocolar</option>
+                      <option>Autoridades</option>
+                      <option>Central</option>
+                      <option>General</option>
+                      <option>Reserva</option>
+                    </select>
+
+                    <select
+                      value={table.status ?? "Disponible"}
+                      onChange={(event) =>
+                        setBulkRows((rows) =>
+                          rows.map((row, rowIndex) =>
+                            rowIndex === index
+                              ? {
+                                  ...row,
+                                  status: event.target.value as GalaTable["status"],
+                                }
+                              : row
+                          )
+                        )
+                      }
+                    >
+                      <option>Disponible</option>
+                      <option>Reservada</option>
+                      <option>Cerrada</option>
+                    </select>
+
+                    <input
+                      type="color"
+                      value={table.color ?? "#C8A14D"}
+                      onChange={(event) =>
+                        setBulkRows((rows) =>
+                          rows.map((row, rowIndex) =>
+                            rowIndex === index ? { ...row, color: event.target.value } : row
+                          )
+                        )
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="modalActions stickyActions">
+                <button className="adminAction" onClick={() => setBulkModal(false)}>
+                  Cancelar
+                </button>
+                <button
+                  className="adminAction primary"
+                  disabled={saving}
+                  onClick={saveAllTables}
+                >
+                  <Save size={17} />
+                  {saving ? "Guardando las 23 mesas…" : "Guardar las 23 mesas"}
                 </button>
               </div>
             </div>
