@@ -378,3 +378,46 @@ footer p { font-size: .85rem; }
 .adminTable code{font-size:.68rem;background:#edf2ef;padding:4px 6px;color:#315341}
 @media(max-width:980px){.circleRealGrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.circleRealGrid{grid-template-columns:1fr}}
+
+
+/* SPRINT 7.3 — INVITADOS: MENSAJE INSTITUCIONAL ÚNICO */
+.institutionalGuestNotice{
+  max-width:900px;
+  margin:0 auto;
+  padding:64px 28px;
+  text-align:center;
+  border-top:1px solid rgba(200,161,77,.55);
+  border-bottom:1px solid rgba(200,161,77,.55);
+}
+.institutionalGuestNotice h2{
+  margin:10px 0 20px;
+}
+.institutionalGuestNotice p:last-child{
+  max-width:760px;
+  margin:0 auto;
+  line-height:1.8;
+  color:rgba(255,255,255,.76);
+}
+.institutionalGuestAdmin{
+  max-width:850px;
+  margin:40px auto 0;
+  padding:60px 36px;
+  text-align:center;
+  background:#fff;
+  border:1px solid #dce3df;
+  border-top:4px solid #c8a14d;
+}
+.institutionalGuestAdmin svg{
+  color:#9b7936;
+  margin-bottom:16px;
+}
+.institutionalGuestAdmin h2{
+  color:#17231b;
+  margin:0 0 18px;
+}
+.institutionalGuestAdmin p{
+  max-width:680px;
+  margin:0 auto;
+  color:#66736b;
+  line-height:1.8;
+}

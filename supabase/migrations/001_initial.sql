@@ -51,17 +51,6 @@ create table if not exists public.attendees (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.special_guests (
-  id uuid primary key default gen_random_uuid(),
-  full_name text not null,
-  role text,
-  institution text,
-  confirmation_status text not null default 'Pendiente'
-    check (confirmation_status in ('Confirmado','Pendiente','Declinado')),
-  presentation_order integer not null default 1,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
 
 create table if not exists public.payments (
   id uuid primary key default gen_random_uuid(),
@@ -119,9 +108,6 @@ drop trigger if exists attendees_updated_at on public.attendees;
 create trigger attendees_updated_at before update on public.attendees
 for each row execute function public.set_updated_at();
 
-drop trigger if exists guests_updated_at on public.special_guests;
-create trigger guests_updated_at before update on public.special_guests
-for each row execute function public.set_updated_at();
 
 drop trigger if exists payments_updated_at on public.payments;
 create trigger payments_updated_at before update on public.payments

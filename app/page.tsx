@@ -9,9 +9,7 @@ import {
   Menu,
   Music2,
   Quote,
-  Sparkles,
   TicketCheck,
-  UsersRound,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -171,26 +169,14 @@ export default function Home() {
         </section>
 
         <section className="section guests" id="invitados">
-          <div className="sectionHeading">
+          <div className="institutionalGuestNotice">
             <p className="eyebrow">Invitados especiales</p>
-            <h2>Relevancia institucional y nacional</h2>
+            <h2>Invitados de renombre institucional y nacional</h2>
             <p>
-              Las confirmaciones serán anunciadas oficialmente a medida que se
-              incorporen al programa.
+              La II Gran Gala Nacional de los Alguaciles de Chile 2026 contará
+              con la distinguida presencia de invitados de renombre institucional
+              y nacional.
             </p>
-          </div>
-
-          <div className="guestGrid">
-            {[1, 2, 3].map((item) => (
-              <article className="guestCard" key={item}>
-                <div className="guestSilhouette">
-                  <UsersRound size={72} />
-                </div>
-                <Sparkles size={18} />
-                <h3>Confirmación próximamente</h3>
-                <p>Invitado de relevancia institucional o nacional.</p>
-              </article>
-            ))}
           </div>
         </section>
 

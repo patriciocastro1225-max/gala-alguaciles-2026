@@ -216,3 +216,10 @@ Lea `SPRINT7_INSTALACION.md` antes de desplegar.
 - Actualización Sprint 7.1: se eliminó el manejo de fotografías de invitados de connotación nacional.
 
 - Corrección Sprint 7.2: eliminadas completamente las fotografías, imágenes, avatares y campos visuales de la sección Invitados Especiales.
+
+
+## Sprint 7.3
+- La sección Invitados muestra únicamente un mensaje institucional.
+- Se eliminaron nombres, fotografías, tarjetas, confirmaciones y formularios de invitados.
+- El panel administrativo de Invitados quedó como página informativa sin CRUD.
+- La tabla `special_guests` fue retirada de la instalación nueva de Supabase.

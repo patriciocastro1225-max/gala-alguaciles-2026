@@ -2,7 +2,6 @@ alter table public.profiles enable row level security;
 alter table public.circles enable row level security;
 alter table public.gala_tables enable row level security;
 alter table public.attendees enable row level security;
-alter table public.special_guests enable row level security;
 alter table public.payments enable row level security;
 alter table public.email_campaigns enable row level security;
 alter table public.audit_log enable row level security;
@@ -23,9 +22,6 @@ drop policy if exists "authenticated attendees" on public.attendees;
 create policy "authenticated attendees" on public.attendees
 for all to authenticated using (true) with check (true);
 
-drop policy if exists "authenticated guests" on public.special_guests;
-create policy "authenticated guests" on public.special_guests
-for all to authenticated using (true) with check (true);
 
 drop policy if exists "authenticated payments" on public.payments;
 create policy "authenticated payments" on public.payments
