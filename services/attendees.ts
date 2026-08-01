@@ -42,24 +42,30 @@ export async function deleteAttendee(id: string) {
 
 export async function checkInByCode(code: string) {
   const client = requireSupabase();
-  const { data: attendee, error } = await client
-    .from("attendees")
-    .select(select)
-    .eq("qr_code", code.trim())
-    .maybeSingle();
-  if (error) throw error;
-  if (!attendee) throw new Error("Código no encontrado.");
-  if (attendee.checked_in) throw new Error("Este asistente ya registró su ingreso.");
+  const cleanCode = code.trim();
+  if (!cleanCode) throw new Error("Ingrese o escanee un código QR.");
 
-  const { data, error: updateError } = await client
-    .from("attendees")
-    .update({ checked_in: true, checkin_at: new Date().toISOString() })
-    .eq("id", attendee.id)
-    .select(select)
-    .single();
-  if (updateError) throw updateError;
-  await audit("CHECK_IN", "attendee", attendee.id);
-  return data as Attendee;
+  const { data, error } = await client.rpc("check_in_attendee", {
+    p_qr_code: cleanCode,
+  });
+
+  if (error) {
+    const message = error.message ?? "No fue posible registrar el ingreso.";
+    if (message.includes("ya registró")) throw new Error("Este asistente ya registró su ingreso.");
+    if (message.includes("no encontrado")) throw new Error("Código no encontrado.");
+    throw new Error(message);
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) throw new Error("Código no encontrado.");
+
+  return {
+    ...row,
+    circles: row.circle_name ? { name: row.circle_name } : null,
+    gala_tables: row.table_name
+      ? { name: row.table_name, table_number: row.table_number }
+      : null,
+  } as Attendee;
 }
 
 export async function regenerateQr(id: string) {

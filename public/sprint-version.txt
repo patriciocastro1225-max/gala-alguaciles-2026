@@ -1,1 +1,1 @@
-Versión 1.1.2 activa - edición general de las 23 mesas.
+Versión 1.2 activa - operación: correos, QR, etiquetas y check-in.

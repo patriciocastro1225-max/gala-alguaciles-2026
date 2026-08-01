@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { CircleDollarSign, TableProperties, UserCheck, UsersRound } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -11,6 +12,11 @@ const money = (value: number) =>
 export default function DashboardPage() {
   const { data, loading, error, reload } = useAsyncData(getDashboardMetrics, []);
 
+  useEffect(() => {
+    const timer = window.setInterval(() => reload(), 15000);
+    return () => window.clearInterval(timer);
+  }, [reload]);
+
   return (
     <AdminShell>
       <main className="adminPage">
@@ -18,7 +24,7 @@ export default function DashboardPage() {
           <div>
             <p className="adminEyebrow">Información en tiempo real</p>
             <h1>Dashboard</h1>
-            <p>Indicadores calculados directamente desde Supabase.</p>
+            <p>Indicadores calculados desde Supabase y actualizados automáticamente cada 15 segundos.</p>
           </div>
           <button className="adminAction" onClick={reload}>Actualizar</button>
         </section>
