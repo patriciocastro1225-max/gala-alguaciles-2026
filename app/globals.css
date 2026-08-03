@@ -1747,3 +1747,586 @@ footer p { font-size: .85rem; }
   .controlHero24{grid-template-columns:1fr}
   .controlTables24{grid-template-columns:1fr}
 }
+
+
+/* ================================================================
+   VERSIÓN 2.5 — REPORTES FINALES Y CIERRE
+   ================================================================ */
+.closureHero25{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:10px;
+}
+.closureHero25 article{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:4px 10px;
+  align-items:center;
+  padding:17px;
+  border:1px solid #dfe6e2;
+  border-radius:13px;
+  background:#fff;
+}
+.closureHero25 svg{grid-row:1/3;color:#b18b3f}
+.closureHero25 span{font-size:.62rem;color:#748078}
+.closureHero25 strong{font-size:1.18rem;color:#173b2b}
+.closureSecondary25{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+.closureSecondary25 div{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:10px 13px;
+  border-radius:9px;
+  background:#f3f6f4;
+}
+.closureSecondary25 span{font-size:.62rem;color:#6d7971}
+.closureSecondary25 strong{font-size:.72rem;color:#173b2b}
+.closureGrid25{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:18px;
+}
+.closurePanel25{
+  padding:18px;
+  border:1px solid #dfe6e2;
+  border-radius:13px;
+  background:#fff;
+}
+.closurePanel25 h2{margin:4px 0 8px;color:#173b2b;font-size:1rem}
+.closurePanel25>p:not(.panelEyebrow){color:#6f7b73;font-size:.66rem;line-height:1.5}
+.snapshotField25{
+  display:grid;
+  gap:6px;
+  margin:14px 0;
+  font-size:.66rem;
+  color:#657169;
+}
+.snapshotField25 input{
+  min-height:42px;
+  border:1px solid #d5ddd8;
+  padding:0 10px;
+}
+.snapshotList25{
+  display:grid;
+  gap:7px;
+  margin-top:14px;
+  max-height:220px;
+  overflow:auto;
+}
+.snapshotList25>div{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid #edf1ef;
+}
+.snapshotList25 strong{display:block;font-size:.67rem;color:#233d30}
+.snapshotList25 small{font-size:.56rem;color:#7c8780}
+.closureExports25{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:12px;
+}
+.closureExports25 button{
+  display:flex;
+  gap:9px;
+  align-items:center;
+  text-align:left;
+  padding:13px;
+  border:1px solid #dfe6e2;
+  border-radius:10px;
+  background:#fff;
+}
+.closureExports25 svg{color:#b18b3f}
+.closureExports25 strong{display:block;font-size:.68rem;color:#233d30}
+.closureExports25 small{display:block;margin-top:2px;font-size:.56rem;color:#7b867f}
+.finalReport25{
+  padding:24px;
+  border:1px solid #d8dfdb;
+  border-radius:14px;
+  background:#fff;
+}
+.finalReport25>header{
+  padding-bottom:12px;
+  border-bottom:3px solid #c8a14d;
+}
+.finalReport25>header p{
+  margin:0;
+  color:#8b6b2b;
+  font-size:.62rem;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+.finalReport25>header h2{margin:4px 0 0;color:#173b2b}
+.finalReportMetrics25{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+  margin:15px 0;
+}
+.finalReportMetrics25 div{
+  padding:10px;
+  background:#f4f6f5;
+}
+.finalReportMetrics25 span{display:block;font-size:.55rem;color:#758078}
+.finalReportMetrics25 strong{display:block;margin-top:3px;color:#173b2b;font-size:.78rem}
+.finalReport25 h3{margin:18px 0 8px;color:#173b2b;font-size:.85rem}
+.finalTable25{
+  width:100%;
+  border-collapse:collapse;
+}
+.finalTable25 th,
+.finalTable25 td{
+  padding:7px 8px;
+  border:1px solid #e0e5e2;
+  text-align:left;
+  font-size:.62rem;
+}
+.finalTable25 th{background:#f3f6f4;color:#5d6a62}
+@media(max-width:950px){
+  .closureHero25,.closureSecondary25{grid-template-columns:repeat(2,1fr)}
+  .closureGrid25{grid-template-columns:1fr}
+  .finalReportMetrics25{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:600px){
+  .closureHero25,.closureSecondary25{grid-template-columns:1fr}
+  .closureExports25{grid-template-columns:1fr}
+  .finalReportMetrics25{grid-template-columns:repeat(2,1fr)}
+  .finalReport25{overflow:auto}
+  .finalTable25{min-width:650px}
+}
+@media print{
+  .closurePage25 .pageHeading,
+  .closurePage25 .closureHero25,
+  .closurePage25 .closureSecondary25,
+  .closurePage25 .closureGrid25,
+  .adminSidebar,
+  .adminTopbar{
+    display:none!important;
+  }
+  .closurePage25{padding:0!important}
+  .adminWorkspace{margin:0!important}
+  .finalReport25{
+    border:none;
+    border-radius:0;
+    padding:0;
+  }
+  .finalReportMetrics25{grid-template-columns:repeat(6,1fr)}
+}
+
+
+/* ================================================================
+   VERSIÓN 2.5.1 — CORRECCIÓN SCROLL MENÚ LATERAL
+   ================================================================ */
+
+/* El panel lateral ocupa siempre la altura visible de la pantalla. */
+.adminSidebar{
+  height:100vh;
+  max-height:100vh;
+  overflow:hidden;
+}
+
+/* La navegación puede desplazarse aunque haya muchos módulos. */
+.adminSidebar nav,
+.adminSidebarNav,
+.adminNav{
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  padding-bottom:28px;
+}
+
+/* Si la implementación actual no separa header y nav, habilitamos
+   también scroll como respaldo sobre el contenedor completo. */
+.adminSidebar{
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+}
+
+/* Evita que el último botón quede pegado/cortado al borde inferior. */
+.adminSidebar > *:last-child,
+.adminSidebar nav > *:last-child,
+.adminSidebarNav > *:last-child,
+.adminNav > *:last-child{
+  margin-bottom:24px;
+}
+
+/* Scroll discreto para Chrome / Edge / Safari. */
+.adminSidebar::-webkit-scrollbar,
+.adminSidebar nav::-webkit-scrollbar,
+.adminSidebarNav::-webkit-scrollbar,
+.adminNav::-webkit-scrollbar{
+  width:7px;
+}
+.adminSidebar::-webkit-scrollbar-thumb,
+.adminSidebar nav::-webkit-scrollbar-thumb,
+.adminSidebarNav::-webkit-scrollbar-thumb,
+.adminNav::-webkit-scrollbar-thumb{
+  background:rgba(202,169,91,.42);
+  border-radius:999px;
+}
+.adminSidebar::-webkit-scrollbar-track,
+.adminSidebar nav::-webkit-scrollbar-track,
+.adminSidebarNav::-webkit-scrollbar-track,
+.adminNav::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+@media(max-width:900px){
+  .adminSidebar{
+    max-height:100dvh;
+    height:100dvh;
+  }
+}
+
+
+/* ================================================================
+   VERSIÓN 2.6 — COMUNICACIONES AVANZADAS
+   ================================================================ */
+.communicationsTabs26{
+  display:flex;
+  gap:7px;
+  margin-bottom:12px;
+}
+.communicationsTabs26 button{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:9px 14px;
+  border:1px solid #dce4df;
+  border-radius:9px;
+  background:#fff;
+  color:#5f6d65;
+}
+.communicationsTabs26 button.active{
+  border-color:#c8a14d;
+  background:#f8f3e6;
+  color:#765b24;
+}
+.communicationFilters26{
+  display:grid;
+  grid-template-columns:auto minmax(240px,1.4fr) repeat(5,minmax(120px,.7fr));
+  gap:8px;
+  align-items:center;
+  margin-bottom:10px;
+  padding:12px;
+  border:1px solid #dfe6e2;
+  border-radius:12px;
+  background:#fff;
+}
+.filterTitle26{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:.65rem;
+  color:#6d7972;
+}
+.communicationFilters26 select{
+  min-height:39px;
+  border:1px solid #d5ddd8;
+  background:#fff;
+  padding:0 8px;
+  font-size:.64rem;
+}
+.communicationSummary26{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-bottom:12px;
+}
+.communicationSummary26>div{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:3px 8px;
+  align-items:center;
+  padding:12px;
+  border-radius:10px;
+  background:#f3f6f4;
+}
+.communicationSummary26 svg{grid-row:1/3;color:#b18b3f}
+.communicationSummary26 span{font-size:.58rem;color:#758078}
+.communicationSummary26 strong{color:#173b2b}
+.communicationWorkspace26{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(280px,.65fr);
+  gap:14px;
+}
+.composer26,.recipientsPreview26,.historyPanel26{
+  padding:17px;
+  border:1px solid #dfe6e2;
+  border-radius:13px;
+  background:#fff;
+}
+.composerHeader26{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+  margin-bottom:12px;
+}
+.composerHeader26 h2,.recipientsPreview26 h2,.historyPanel26 h2{
+  margin:4px 0;
+  color:#173b2b;
+  font-size:1rem;
+}
+.composerHeader26 select{
+  min-height:38px;
+  border:1px solid #d5ddd8;
+  background:#fff;
+  padding:0 9px;
+}
+.composer26>label{
+  display:grid;
+  gap:6px;
+  margin-bottom:11px;
+  color:#68746c;
+  font-size:.66rem;
+}
+.composer26 input,.composer26 textarea{
+  width:100%;
+  border:1px solid #d5ddd8;
+  background:#fff;
+  padding:9px;
+  font:inherit;
+}
+.variables26{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:8px 0 14px;
+}
+.variables26 span{
+  padding:5px 7px;
+  border-radius:999px;
+  background:#f4f0e5;
+  color:#856827;
+  font-size:.58rem;
+}
+.sendCampaign26{width:100%;justify-content:center}
+.recipientList26,.campaignList26,.deliveryList26{
+  display:grid;
+  gap:7px;
+  max-height:600px;
+  overflow:auto;
+}
+.recipientList26>div,.deliveryList26>div{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid #edf1ef;
+}
+.recipientList26 strong,.deliveryList26 strong,.campaignList26 strong{
+  display:block;
+  font-size:.66rem;
+  color:#233d30;
+}
+.recipientList26 small,.deliveryList26 small,.campaignList26 small{
+  display:block;
+  margin-top:2px;
+  font-size:.55rem;
+  color:#7b867f;
+}
+.deliveryOk26{color:#3a855d}
+.deliveryWarn26{color:#c18a37}
+.historyGrid26{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.campaignList26>div{
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) 120px 140px;
+  gap:10px;
+  align-items:center;
+  padding:9px 0;
+  border-bottom:1px solid #edf1ef;
+}
+.campaignList26>div>span:nth-child(2){text-align:right}
+.deliveryList26>div{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 80px 140px;
+}
+.deliverySent26{
+  justify-self:start;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#e7f4ea;
+  color:#34724b;
+  font-size:.56rem;
+}
+.deliveryError26{
+  justify-self:start;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#f8e5e2;
+  color:#8b453c;
+  font-size:.56rem;
+}
+@media(max-width:1250px){
+  .communicationFilters26{
+    grid-template-columns:repeat(3,1fr);
+  }
+  .filterTitle26{grid-column:1/-1}
+  .communicationFilters26 .searchBox{grid-column:1/-1}
+}
+@media(max-width:900px){
+  .communicationWorkspace26,.historyGrid26{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+  .communicationFilters26{grid-template-columns:1fr}
+  .communicationSummary26{grid-template-columns:1fr}
+  .campaignList26>div,.deliveryList26>div{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ================================================================
+   VERSIÓN 2.6.1 — FIX DEFINITIVO SCROLL DEL MENÚ
+   El logo y cerrar sesión quedan fijos; SOLO la navegación hace scroll.
+   ================================================================ */
+.adminSidebar{
+  height:100vh !important;
+  max-height:100vh !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.sidebarBrand{
+  flex:0 0 88px !important;
+  min-height:88px !important;
+}
+
+.adminSidebar nav{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:5px !important;
+  padding:20px 14px 30px !important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(202,169,91,.48) transparent;
+}
+
+.adminSidebar nav .sidebarItem{
+  flex:0 0 48px !important;
+  min-height:48px !important;
+}
+
+.adminSidebar > .sidebarItem.logout{
+  flex:0 0 48px !important;
+  margin:10px 14px 18px !important;
+}
+
+.adminSidebar nav::-webkit-scrollbar{
+  width:7px;
+}
+.adminSidebar nav::-webkit-scrollbar-track{
+  background:transparent;
+}
+.adminSidebar nav::-webkit-scrollbar-thumb{
+  background:rgba(202,169,91,.48);
+  border-radius:999px;
+}
+.adminSidebar nav::-webkit-scrollbar-thumb:hover{
+  background:rgba(202,169,91,.72);
+}
+
+@media(max-width:900px){
+  .adminSidebar{
+    height:100dvh !important;
+    max-height:100dvh !important;
+  }
+}
+
+
+/* ================================================================
+   VERSIÓN 2.6.2 — SCROLL REAL DEL MENÚ LATERAL
+   ================================================================ */
+
+.adminSidebar{
+  height:100vh !important;
+  max-height:100vh !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.sidebarBrand{
+  flex:0 0 88px !important;
+  min-height:88px !important;
+}
+
+.sidebarScrollArea{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(202,169,91,.55) transparent;
+}
+
+.sidebarScrollArea nav{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:5px !important;
+  padding:20px 14px 34px !important;
+  min-height:max-content !important;
+  overflow:visible !important;
+}
+
+.sidebarScrollArea .sidebarItem{
+  flex:0 0 48px !important;
+  min-height:48px !important;
+}
+
+.adminSidebar > .sidebarItem.logout{
+  flex:0 0 48px !important;
+  min-height:48px !important;
+  margin:10px 14px 18px !important;
+}
+
+.sidebarScrollArea::-webkit-scrollbar{
+  width:8px;
+}
+.sidebarScrollArea::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.03);
+}
+.sidebarScrollArea::-webkit-scrollbar-thumb{
+  background:rgba(202,169,91,.58);
+  border-radius:999px;
+}
+.sidebarScrollArea::-webkit-scrollbar-thumb:hover{
+  background:rgba(202,169,91,.82);
+}
+
+@media(max-width:900px){
+  .adminSidebar{
+    height:100dvh !important;
+    max-height:100dvh !important;
+  }
+}
+.guestExperience{min-height:100vh;background:radial-gradient(circle at top right,rgba(200,161,77,.18),transparent 32%),linear-gradient(145deg,#07100b,#0d1c14);color:#fff}.guestHeader{height:76px;display:flex;align-items:center;gap:12px;padding:0 26px;border-bottom:1px solid rgba(255,255,255,.08)}.guestSeal{width:40px;height:40px;border:1px solid #c8a14d;border-radius:50%;display:grid;place-items:center;font-family:Cinzel;color:#edd596}.guestHeader strong{display:block;font-family:Cinzel}.guestHeader small{display:block;color:#c8a14d;font-size:.58rem;text-transform:uppercase}.registrationShell{width:min(1080px,100%);margin:auto;padding:34px 20px 60px;display:grid;grid-template-columns:250px 1fr;gap:18px}.registrationSteps{background:rgba(5,12,8,.72);padding:15px}.registrationSteps div{padding:12px;border-left:2px solid rgba(255,255,255,.12);color:#87948c}.registrationSteps div.active{border-left-color:#c8a14d;color:#fff}.registrationSteps span{display:block;font-size:.55rem;color:#c8a14d}.registrationCard,.guestConfirmationCard,.guestPortalHero>article,.guestPortalGrid>article{background:#fffdf8;color:#17251d;border:1px solid rgba(237,213,150,.5);box-shadow:0 24px 60px rgba(0,0,0,.25)}.registrationCard{padding:30px}.registrationProgress{height:4px;background:#ede8dc}.registrationProgress i{display:block;height:100%;background:linear-gradient(90deg,#c8a14d,#edd596)}.guestEyebrow{color:#8a6a2b;text-transform:uppercase;font-size:.6rem;font-weight:700}.registrationCard h1,.guestConfirmationCard h1,.guestPortal h1{font-family:Cinzel;color:#173b2b}.guestFormGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}.guestFormGrid label{display:grid;gap:6px;font-size:.66rem;color:#5e6a63}.guestFormGrid input,.guestFormGrid select,.guestFormGrid textarea{width:100%;border:1px solid #d6ddd8;min-height:43px;padding:9px 10px}.guestFormGrid .fullField{grid-column:1/-1}.guestConsent{display:flex!important;align-items:center!important}.guestConsent input{width:auto;min-height:auto}.guestActions{display:flex;justify-content:space-between;margin-top:24px}.guestPrimary,.guestSecondary{padding:13px 20px;font-weight:800}.guestPrimary{border:0;background:linear-gradient(100deg,#c8a14d,#edd596)}.guestSecondary{border:1px solid #cfd7d2;background:#fff}.guestError{margin-top:14px;padding:10px;background:#f8e5e2;color:#8b453c}.guestCenter{display:grid;place-items:center;padding:30px}.guestConfirmationCard{width:min(700px,100%);padding:45px;text-align:center}.guestCheck{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:auto;background:#e7f4ea;color:#34724b;font-size:2rem}.guestCodeBox{margin:22px auto;padding:17px;border:1px solid #e6dfcf}.guestLinkButton{display:inline-block;text-decoration:none}.guestPortal{width:min(1080px,100%);margin:auto;padding:34px 20px 60px}.guestPortalHero{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}.guestPortalHero>article,.guestPortalGrid>article{padding:24px}.guestPills{display:flex;gap:7px}.guestPills span{padding:6px 8px;border-radius:999px;font-size:.6rem}.guestPills .ok{background:#e7f4ea;color:#32704a}.guestPills .warn{background:#fff3d8;color:#8c6921}.guestQrCard{text-align:center}.guestQrVisual{min-height:130px;display:grid;place-items:center;background:#101713;color:white;margin:10px}.guestPortalGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}.guestTimeline div{display:grid;grid-template-columns:80px 1fr;gap:4px 10px}.validationGrid302{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:15px}.validationGrid302 article{padding:16px;background:#fff;border:1px solid #dfe6e2}.validationGrid302 article>div{display:flex;gap:6px;flex-wrap:wrap}.validationGrid302 h2{color:#173b2b}@media(max-width:900px){.registrationShell,.guestPortalHero,.guestPortalGrid{grid-template-columns:1fr}.registrationSteps{display:flex;overflow:auto}.registrationSteps div{min-width:160px}.validationGrid302{grid-template-columns:1fr 1fr}}@media(max-width:620px){.guestFormGrid,.validationGrid302{grid-template-columns:1fr}.guestFormGrid .fullField{grid-column:auto}}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-type Recipient = { email: string; name: string; table: string; circle: string; qr: string };
+type Recipient = { attendee_id?: string; email: string; name: string; table: string; circle: string; qr: string };
 
 function escapeHtml(value: string) {
   return value.replace(/[&<>'"]/g, (character) => {
@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
 
     const payload = await response.json();
     results.push({
+      attendee_id: person.attendee_id ?? null,
       email: person.email,
       ok: response.ok,
       id: payload.id,

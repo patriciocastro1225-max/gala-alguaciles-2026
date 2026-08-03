@@ -1,1 +1,1 @@
-Versión 2.4 activa - operación del evento, acompañantes e incidencias.
+Sprint 3.0.2 activo - inscripción automática, validación y portal del invitado.
