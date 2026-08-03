@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Mail, Send, UsersRound } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { listAttendees } from "@/services/attendees";
@@ -31,8 +30,12 @@ const templates = [
 
 export default function EmailsPage() {
   const source = useAsyncData(listAttendees, []);
-  const params = useSearchParams();
-  const attendeeId = params.get("attendee");
+  const [attendeeId, setAttendeeId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setAttendeeId(params.get("attendee"));
+  }, []);
   const [segment, setSegment] = useState("Confirmados");
   const [template, setTemplate] = useState(templates[0]);
   const [subject, setSubject] = useState(template.subject);

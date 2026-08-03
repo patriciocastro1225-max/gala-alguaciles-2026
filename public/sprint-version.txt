@@ -1,1 +1,1 @@
-Versión 2.0 activa - plano interactivo del salón.
+Versión 2.0.1 activa - plano interactivo y corrección de build Netlify.
