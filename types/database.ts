@@ -30,6 +30,9 @@ export type Attendee = {
   email: string | null;
   phone: string | null;
   companion_name: string | null;
+  companion_checked_in?: boolean;
+  companion_checkin_at?: string | null;
+  access_notes?: string | null;
   institution?: string | null;
   position_title?: string | null;
   protocol_category?: string | null;

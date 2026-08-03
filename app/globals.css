@@ -1514,3 +1514,236 @@ footer p { font-size: .85rem; }
   .financialReport23 .financeReportTable23 th,
   .financialReport23 .financeReportTable23 td{font-size:8pt}
 }
+
+
+/* ================================================================
+   VERSIÓN 2.4 — OPERACIÓN DÍA DEL EVENTO
+   ================================================================ */
+.eventOpsSearch24{
+  display:flex;
+  gap:10px;
+  margin-bottom:14px;
+}
+.eventOpsSearch24 .searchBox{flex:1}
+.eventOpsGrid24{
+  display:grid;
+  grid-template-columns:minmax(250px,.8fr) minmax(420px,1.35fr) minmax(260px,.7fr);
+  gap:14px;
+  align-items:start;
+}
+.eventResults24,
+.eventGuestCard24,
+.incidentPanel24{
+  border:1px solid #dfe6e2;
+  border-radius:14px;
+  background:#fff;
+  padding:16px;
+}
+.panelTitle24{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+.panelTitle24 h2,.incidentPanel24 h2{margin:3px 0;color:#173b2b;font-size:1rem}
+.eventResultList24{
+  display:grid;
+  gap:7px;
+  max-height:650px;
+  overflow:auto;
+}
+.eventResultList24 button{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  text-align:left;
+  padding:10px;
+  border:1px solid #e0e6e2;
+  border-radius:9px;
+  background:#fff;
+}
+.eventResultList24 button.active{
+  border-color:#c8a14d;
+  box-shadow:0 0 0 2px rgba(200,161,77,.15);
+}
+.eventResultList24 strong{display:block;font-size:.7rem;color:#223d30}
+.eventResultList24 small{display:block;margin-top:2px;font-size:.58rem;color:#7a867f}
+.checked24,.pending24{
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:.56rem;
+  white-space:nowrap;
+}
+.checked24{background:#e7f4ea;color:#34724b}
+.pending24{background:#fff3d8;color:#8c6921}
+.emptyEvent24{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:18px;
+  border:1px dashed #ccd7d1;
+  border-radius:10px;
+  color:#7c8880;
+  font-size:.66rem;
+}
+.large24{justify-content:center;min-height:380px;flex-direction:column}
+.eventGuestHeading24{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
+.eventGuestHeading24 h2{margin:4px 0;color:#173b2b;font-size:1.25rem}
+.eventGuestHeading24 p{margin:0;color:#748078;font-size:.68rem}
+.bigOk24{color:#3b8b60}
+.bigPending24{color:#c08a38}
+.eventGuestStatus24{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin:14px 0;
+}
+.eventGuestStatus24>div{
+  padding:10px;
+  border-radius:9px;
+  background:#f4f6f5;
+}
+.eventGuestStatus24 span{display:block;font-size:.56rem;color:#7b867f}
+.eventGuestStatus24 strong{display:block;margin-top:3px;font-size:.7rem;color:#233d30;word-break:break-all}
+.eventGuestActions24{display:grid;gap:9px}
+.eventCheckButton24{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  width:100%;
+  padding:15px;
+  border:1px solid #bfd8c8;
+  border-radius:11px;
+  background:#edf7f0;
+  text-align:left;
+}
+.eventCheckButton24.companion24{
+  border-color:#d9c99d;
+  background:#faf5e8;
+}
+.eventCheckButton24:disabled{opacity:.58}
+.eventCheckButton24 strong{display:block;color:#245b3c;font-size:.78rem}
+.eventCheckButton24 small{display:block;margin-top:3px;color:#6d7972;font-size:.6rem}
+.accessNote24{
+  display:grid;
+  gap:7px;
+  margin-top:14px;
+  font-size:.66rem;
+  color:#657169;
+}
+.accessNote24 textarea,.newIncident24 textarea,.newIncident24 select{
+  width:100%;
+  border:1px solid #d5ddd8;
+  background:#fff;
+  padding:8px;
+  font:inherit;
+}
+.newIncident24{
+  display:grid;
+  gap:7px;
+  margin:12px 0;
+}
+.incidentList24{
+  display:grid;
+  gap:8px;
+  max-height:470px;
+  overflow:auto;
+}
+.incidentList24>div:not(.emptyEvent24){
+  padding:9px;
+  border:1px solid #e5dfcf;
+  border-radius:9px;
+  background:#fffaf0;
+}
+.incidentList24 span{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+.incidentList24 strong{font-size:.66rem;color:#7b5f28}
+.incidentList24 small{font-size:.56rem;color:#8a958e}
+.incidentList24 p{margin:6px 0;font-size:.62rem;color:#606b64;line-height:1.45}
+.incidentList24 button{
+  border:0;
+  background:transparent;
+  color:#377454;
+  padding:0;
+  font-size:.6rem;
+  text-decoration:underline;
+}
+.controlHero24{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:10px;
+}
+.controlHero24 article{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:4px 9px;
+  align-items:center;
+  padding:17px;
+  border:1px solid #dfe6e2;
+  border-radius:13px;
+  background:#fff;
+}
+.controlHero24 svg{grid-row:1/3;color:#b18b3f}
+.controlHero24 span{font-size:.62rem;color:#748078}
+.controlHero24 strong{font-size:1.25rem;color:#173b2b}
+.companionStrip24{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 14px;
+  margin-bottom:14px;
+  border-radius:10px;
+  background:#f3f6f4;
+  color:#607067;
+  font-size:.68rem;
+}
+.controlTables24{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.controlTables24 article{
+  padding:12px;
+  border:1px solid #dfe6e2;
+  border-top:4px solid #c8a14d;
+  border-radius:11px;
+  background:#fff;
+}
+.controlTables24 header span{display:block;font-size:.55rem;color:#7b867f;text-transform:uppercase}
+.controlTables24 header strong{display:block;margin-top:2px;color:#173b2b;font-size:.72rem}
+.controlTables24 article>div{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:4px 7px;
+  align-items:center;
+  margin-top:9px;
+}
+.controlTables24 article>div svg{grid-row:1/3;color:#b18b3f}
+.controlTables24 article>div span{font-size:.58rem;color:#758078}
+.controlTables24 article>div strong{font-size:.66rem;color:#34724b}
+@media(max-width:1200px){
+  .eventOpsGrid24{grid-template-columns:1fr 1fr}
+  .incidentPanel24{grid-column:1/-1}
+  .controlTables24{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:800px){
+  .eventOpsSearch24{flex-direction:column}
+  .eventOpsGrid24{grid-template-columns:1fr}
+  .incidentPanel24{grid-column:auto}
+  .controlHero24{grid-template-columns:repeat(2,1fr)}
+  .controlTables24{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:520px){
+  .eventGuestStatus24{grid-template-columns:1fr}
+  .controlHero24{grid-template-columns:1fr}
+  .controlTables24{grid-template-columns:1fr}
+}

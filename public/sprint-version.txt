@@ -1,1 +1,1 @@
-Versión 2.3 activa - control financiero, saldos y conciliación.
+Versión 2.4 activa - operación del evento, acompañantes e incidencias.
