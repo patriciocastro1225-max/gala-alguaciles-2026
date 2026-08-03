@@ -1,1 +1,1 @@
-Sprint 3.0.2 activo - inscripción automática, validación y portal del invitado.
+Sprint 3.0.2.1 activo - corrección Suspense para confirmación y portal del invitado.

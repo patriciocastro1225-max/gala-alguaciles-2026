@@ -1,1 +1,18 @@
-"use client"; import {useEffect,useState} from "react"; import {useParams,useSearchParams} from "next/navigation"; import {getGuestPortal} from "@/services/publicRegistration"; export default function Page(){const p=useParams<{code:string}>();const q=useSearchParams();const [d,setD]=useState<any>();const [e,setE]=useState("");useEffect(()=>{getGuestPortal(decodeURIComponent(p.code),q.get("token")||"").then(setD).catch(x=>setE(x.message))},[p.code,q]);if(e)return <main className="guestExperience guestCenter"><article className="guestConfirmationCard"><h1>Enlace no disponible</h1><p>{e}</p></article></main>;if(!d)return <main className="guestExperience guestCenter"><article className="guestConfirmationCard"><p>Cargando portal…</p></article></main>;return <main className="guestExperience"><header className="guestHeader"><span className="guestSeal">II</span><div><strong>Portal del Invitado</strong><small>Gala Nacional 2026</small></div></header><section className="guestPortal"><div className="guestPortalHero"><article><p className="guestEyebrow">Bienvenido</p><h1>{d.full_name}</h1><div className="guestPills"><span className={d.validation_status==="Aprobado"?"ok":"warn"}>{d.validation_status}</span><span className="warn">{d.payment_status}</span><span className={d.table_name?"ok":"warn"}>{d.table_name||"Mesa por confirmar"}</span></div></article><article className="guestQrCard"><span>Código de acreditación</span><div className="guestQrVisual"><strong>{d.qr_code}</strong></div><small>{d.registration_code}</small></article></div><div className="guestPortalGrid"><article><h2>Información del evento</h2><p>25 de noviembre de 2026 · 20:00 horas</p><p>Club Palestino, Las Condes</p></article><article><h2>Su registro</h2><p><strong>Círculo:</strong> {d.circle||"Por informar"}</p><p><strong>Mesa:</strong> {d.table_name||"Por asignar"}</p><p><strong>Acompañante:</strong> {d.companion_name||"No registrado"}</p></article><article><h2>Cronología</h2><div className="guestTimeline">{(d.timeline||[]).map((x:any,i:number)=><div key={i}><strong>{new Date(x.created_at).toLocaleDateString("es-CL")}</strong><span>{x.title}</span><small>{x.description}</small></div>)}</div></article></div></section></main>}
+import { Suspense } from "react";
+import GuestPortalClient from "./GuestPortalClient";
+
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <main className="guestExperience guestCenter">
+          <article className="guestConfirmationCard">
+            <p>Cargando portal…</p>
+          </article>
+        </main>
+      }
+    >
+      <GuestPortalClient />
+    </Suspense>
+  );
+}

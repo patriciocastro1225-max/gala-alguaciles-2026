@@ -1,1 +1,18 @@
-"use client"; import {useSearchParams} from "next/navigation"; import Link from "next/link"; export default function Page(){const p=useSearchParams();const c=p.get("code")||"";const t=p.get("token")||"";return <main className="guestExperience guestCenter"><article className="guestConfirmationCard"><div className="guestCheck">✓</div><p className="guestEyebrow">Inscripción recibida</p><h1>Muchas gracias</h1><p>Su inscripción fue recibida correctamente.</p><div className="guestCodeBox"><span>Número de inscripción</span><strong>{c}</strong></div><p>Su registro quedó pendiente de validación por el Comité Organizador.</p><Link className="guestPrimary guestLinkButton" href={`/i/${c}?token=${t}`}>Ir a mi Portal</Link></article></main>}
+import { Suspense } from "react";
+import ConfirmationClient from "./ConfirmationClient";
+
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <main className="guestExperience guestCenter">
+          <article className="guestConfirmationCard">
+            <p>Cargando confirmación…</p>
+          </article>
+        </main>
+      }
+    >
+      <ConfirmationClient />
+    </Suspense>
+  );
+}
