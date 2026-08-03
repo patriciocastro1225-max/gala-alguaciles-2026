@@ -1362,3 +1362,155 @@ footer p { font-size: .85rem; }
     box-shadow:none;
   }
 }
+
+
+/* ================================================================
+   VERSIÓN 2.3 — CONTROL FINANCIERO
+   ================================================================ */
+.financeHero23{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:10px;
+}
+.financeHero23 article{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:4px 10px;
+  align-items:center;
+  padding:17px;
+  border:1px solid #dfe6e2;
+  border-radius:13px;
+  background:#fff;
+}
+.financeHero23 svg{grid-row:1/3;color:#b18b3f}
+.financeHero23 span{font-size:.64rem;color:#748078}
+.financeHero23 strong{font-size:1.1rem;color:#173b2b}
+.financeMiniStats23{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+.financeMiniStats23 div{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 14px;
+  border-radius:9px;
+  background:#f3f6f4;
+}
+.financeMiniStats23 span{font-size:.65rem;color:#6d7971}
+.financeMiniStats23 strong{color:#173b2b}
+.financeGrid23{
+  display:grid;
+  grid-template-columns:minmax(0,1.8fr) minmax(300px,.8fr);
+  gap:14px;
+  align-items:start;
+}
+.financePanel23{
+  padding:17px;
+  border:1px solid #dfe6e2;
+  border-radius:13px;
+  background:#fff;
+}
+.financePanel23 h2{margin:4px 0 12px;color:#173b2b;font-size:1rem}
+.financeToolbar23{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+.financeToolbar23 .searchBox{flex:1}
+.financeToolbar23 select{
+  min-width:140px;
+  border:1px solid #d5ddd8;
+  background:#fff;
+  padding:0 9px;
+}
+.financeRows23{display:grid}
+.financeRowHeader23,
+.financeRow23{
+  display:grid;
+  grid-template-columns:minmax(220px,1.8fr) 110px 110px 110px;
+  gap:8px;
+  align-items:center;
+}
+.financeRowHeader23{
+  padding:8px 10px;
+  color:#7b867f;
+  background:#f4f6f5;
+  font-size:.59rem;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+}
+.financeRow23{
+  padding:9px 10px;
+  border-bottom:1px solid #edf1ef;
+}
+.financeRow23 strong{font-size:.7rem;color:#233d30}
+.financeRow23 small{display:block;margin-top:2px;color:#7a867f;font-size:.58rem}
+.financeRow23>span{font-size:.66rem;color:#546159}
+.balancePending23{color:#9d592d!important}
+.balanceOk23{color:#34724b!important}
+.financeSide23{display:grid;gap:14px}
+.circleFinance23>div,
+.methodFinance23>div{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid #edf1ef;
+}
+.circleFinance23 span:last-child{text-align:right}
+.circleFinance23 strong,.methodFinance23 strong{display:block;font-size:.67rem;color:#223d30}
+.circleFinance23 small{display:block;margin-top:2px;font-size:.56rem;color:#7b867f}
+.methodFinance23 span{font-size:.65rem;color:#6d7971}
+.smallFinanceModal23{width:min(500px,94vw)}
+.feeField23{display:grid;gap:6px;margin:15px 0;font-size:.7rem;color:#5e6b63}
+.feeField23 input{min-height:44px;border:1px solid #d5ddd8;padding:0 10px;font-size:1rem}
+.printFinanceHeader23{display:none}
+.financeReportTotals23{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+.financeReportTotals23 div{
+  padding:14px;
+  border:1px solid #dfe6e2;
+  background:#fff;
+}
+.financeReportTotals23 span{display:block;font-size:.62rem;color:#748078}
+.financeReportTotals23 strong{display:block;margin-top:4px;color:#173b2b;font-size:1rem}
+.financeReportTable23{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+}
+.financeReportTable23 th,
+.financeReportTable23 td{
+  padding:8px 9px;
+  border:1px solid #e0e5e2;
+  text-align:left;
+  font-size:.65rem;
+}
+.financeReportTable23 th{background:#f3f6f4;color:#5d6a62}
+@media(max-width:1050px){
+  .financeHero23{grid-template-columns:repeat(2,1fr)}
+  .financeGrid23{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+  .financeHero23{grid-template-columns:1fr}
+  .financeMiniStats23{grid-template-columns:1fr}
+  .financeToolbar23{flex-direction:column}
+  .financeRows23{overflow:auto}
+  .financeRowHeader23,.financeRow23{min-width:620px}
+  .financeReportTotals23{grid-template-columns:1fr}
+}
+@media print{
+  .financialReport23 .printFinanceHeader23{display:block;margin-bottom:18px}
+  .financialReport23 .printFinanceHeader23 h1{font-size:16pt;margin:0}
+  .financialReport23 .printFinanceHeader23 p{font-size:10pt}
+  .financialReport23 .financeReportTotals23{grid-template-columns:repeat(3,1fr)}
+  .financialReport23 .financeReportTable23 th,
+  .financialReport23 .financeReportTable23 td{font-size:8pt}
+}

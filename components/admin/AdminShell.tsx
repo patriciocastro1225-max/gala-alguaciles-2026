@@ -5,7 +5,7 @@ import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3, Bell, CircleDollarSign, ClipboardCheck, CreditCard, FileText, LayoutDashboard, LayoutGrid, Radio,
-  LogOut, Menu, ShieldCheck, Star, TableProperties, UserRoundCheck, UsersRound, X
+  LogOut, Menu, ShieldCheck, Star, TableProperties, UserRoundCheck, UsersRound, WalletCards, X
 } from "lucide-react";
 
 const items = [
@@ -18,12 +18,14 @@ const items = [
   { label: "Invitados", icon: Star, href: "/admin/invitados", enabled: true },
   { label: "Círculos", icon: ShieldCheck, href: "/admin/circulos", enabled: true },
   { label: "Pagos", icon: CircleDollarSign, href: "/admin/pagos", enabled: true },
+  { label: "Finanzas", icon: WalletCards, href: "/admin/finanzas", enabled: true },
   { label: "Check-in", icon: ClipboardCheck, href: "/admin/checkin", enabled: true },
   { label: "Correos", icon: Bell, href: "/admin/correos", enabled: true },
   { label: "QR", icon: ShieldCheck, href: "/admin/qr", enabled: true },
   { label: "Credenciales", icon: CreditCard, href: "/admin/credenciales", enabled: true },
   { label: "Estadísticas", icon: BarChart3, href: "/admin/estadisticas", enabled: true },
   { label: "Listado por mesa", icon: FileText, href: "/admin/reporte-mesas", enabled: true },
+  { label: "Informe financiero", icon: FileText, href: "/admin/reporte-financiero", enabled: true },
   { label: "Configuración", icon: ShieldCheck, href: "/admin/configuracion", enabled: true },
 ];
 

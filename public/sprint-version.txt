@@ -1,1 +1,1 @@
-Versión 2.2 activa - gestión avanzada de invitados y reportes por mesa.
+Versión 2.3 activa - control financiero, saldos y conciliación.
