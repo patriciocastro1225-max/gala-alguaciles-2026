@@ -18,7 +18,7 @@ import Intro from "@/components/Intro";
 import { listPublicCircles } from "@/services/circles";
 import type { Circle } from "@/types/database";
 
-const reservationUrl = "https://form.jotform.com/";
+const reservationUrl = "/inscripcion";
 
 const program = [
   ["20:00", "Recepción", "Bienvenida y acreditación de los asistentes."],

@@ -1,1 +1,1 @@
-Sprint 3.0.2.1 activo - corrección Suspense para confirmación y portal del invitado.
+Sprint 3.0.2.3 activo - registro detallado e inmediato del acompañante.

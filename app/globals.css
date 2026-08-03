@@ -2330,3 +2330,33 @@ footer p { font-size: .85rem; }
   }
 }
 .guestExperience{min-height:100vh;background:radial-gradient(circle at top right,rgba(200,161,77,.18),transparent 32%),linear-gradient(145deg,#07100b,#0d1c14);color:#fff}.guestHeader{height:76px;display:flex;align-items:center;gap:12px;padding:0 26px;border-bottom:1px solid rgba(255,255,255,.08)}.guestSeal{width:40px;height:40px;border:1px solid #c8a14d;border-radius:50%;display:grid;place-items:center;font-family:Cinzel;color:#edd596}.guestHeader strong{display:block;font-family:Cinzel}.guestHeader small{display:block;color:#c8a14d;font-size:.58rem;text-transform:uppercase}.registrationShell{width:min(1080px,100%);margin:auto;padding:34px 20px 60px;display:grid;grid-template-columns:250px 1fr;gap:18px}.registrationSteps{background:rgba(5,12,8,.72);padding:15px}.registrationSteps div{padding:12px;border-left:2px solid rgba(255,255,255,.12);color:#87948c}.registrationSteps div.active{border-left-color:#c8a14d;color:#fff}.registrationSteps span{display:block;font-size:.55rem;color:#c8a14d}.registrationCard,.guestConfirmationCard,.guestPortalHero>article,.guestPortalGrid>article{background:#fffdf8;color:#17251d;border:1px solid rgba(237,213,150,.5);box-shadow:0 24px 60px rgba(0,0,0,.25)}.registrationCard{padding:30px}.registrationProgress{height:4px;background:#ede8dc}.registrationProgress i{display:block;height:100%;background:linear-gradient(90deg,#c8a14d,#edd596)}.guestEyebrow{color:#8a6a2b;text-transform:uppercase;font-size:.6rem;font-weight:700}.registrationCard h1,.guestConfirmationCard h1,.guestPortal h1{font-family:Cinzel;color:#173b2b}.guestFormGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}.guestFormGrid label{display:grid;gap:6px;font-size:.66rem;color:#5e6a63}.guestFormGrid input,.guestFormGrid select,.guestFormGrid textarea{width:100%;border:1px solid #d6ddd8;min-height:43px;padding:9px 10px}.guestFormGrid .fullField{grid-column:1/-1}.guestConsent{display:flex!important;align-items:center!important}.guestConsent input{width:auto;min-height:auto}.guestActions{display:flex;justify-content:space-between;margin-top:24px}.guestPrimary,.guestSecondary{padding:13px 20px;font-weight:800}.guestPrimary{border:0;background:linear-gradient(100deg,#c8a14d,#edd596)}.guestSecondary{border:1px solid #cfd7d2;background:#fff}.guestError{margin-top:14px;padding:10px;background:#f8e5e2;color:#8b453c}.guestCenter{display:grid;place-items:center;padding:30px}.guestConfirmationCard{width:min(700px,100%);padding:45px;text-align:center}.guestCheck{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:auto;background:#e7f4ea;color:#34724b;font-size:2rem}.guestCodeBox{margin:22px auto;padding:17px;border:1px solid #e6dfcf}.guestLinkButton{display:inline-block;text-decoration:none}.guestPortal{width:min(1080px,100%);margin:auto;padding:34px 20px 60px}.guestPortalHero{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}.guestPortalHero>article,.guestPortalGrid>article{padding:24px}.guestPills{display:flex;gap:7px}.guestPills span{padding:6px 8px;border-radius:999px;font-size:.6rem}.guestPills .ok{background:#e7f4ea;color:#32704a}.guestPills .warn{background:#fff3d8;color:#8c6921}.guestQrCard{text-align:center}.guestQrVisual{min-height:130px;display:grid;place-items:center;background:#101713;color:white;margin:10px}.guestPortalGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}.guestTimeline div{display:grid;grid-template-columns:80px 1fr;gap:4px 10px}.validationGrid302{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:15px}.validationGrid302 article{padding:16px;background:#fff;border:1px solid #dfe6e2}.validationGrid302 article>div{display:flex;gap:6px;flex-wrap:wrap}.validationGrid302 h2{color:#173b2b}@media(max-width:900px){.registrationShell,.guestPortalHero,.guestPortalGrid{grid-template-columns:1fr}.registrationSteps{display:flex;overflow:auto}.registrationSteps div{min-width:160px}.validationGrid302{grid-template-columns:1fr 1fr}}@media(max-width:620px){.guestFormGrid,.validationGrid302{grid-template-columns:1fr}.guestFormGrid .fullField{grid-column:auto}}
+
+
+/* Sprint 3.0.2.3 — Registro detallado de acompañante */
+.companionRegistration{
+  margin-top:8px;
+  padding:20px;
+  border:1px solid #d7c486;
+  background:linear-gradient(180deg,#fffdf7,#f8f3e7);
+}
+.companionHeading{
+  padding-bottom:14px;
+  margin-bottom:16px;
+  border-bottom:1px solid #e6dfcf;
+}
+.companionHeading h2{
+  margin:5px 0 7px;
+  color:#173b2b;
+  font-family:Cinzel,Georgia,serif;
+  font-size:1.05rem;
+}
+.companionHeading p:last-child{
+  margin:0;
+  color:#6c786f;
+  font-size:.68rem;
+  line-height:1.5;
+}
+.companionGrid{margin-top:0!important}
+@media(max-width:620px){
+  .companionRegistration{padding:15px}
+}
