@@ -1,1 +1,1 @@
-Versión 2.0.1 activa - plano interactivo y corrección de build Netlify.
+Versión 2.1 activa - plano pro, buscador, pendientes y modo evento.

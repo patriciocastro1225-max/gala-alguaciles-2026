@@ -1032,3 +1032,167 @@ footer p { font-size: .85rem; }
   .floorStage2{width:72%;padding-left:8px;padding-right:8px}
   .floorLegend2{display:none}
 }
+
+
+/* ================================================================
+   VERSIÓN 2.1 — PLANO PRO + MODO EVENTO
+   ================================================================ */
+.floorToolbar21{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+  padding:12px;
+  border:1px solid #dfe6e2;
+  border-radius:12px;
+  background:#fff;
+}
+.floorToolbar21 .searchBox{min-width:300px;flex:1}
+.floorToolbar21 select{
+  min-height:40px;
+  padding:0 10px;
+  border:1px solid #d5ddd8;
+  background:#fff;
+}
+.liveToggle21{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#66736b;
+  font-size:.7rem;
+}
+.guestSearchResults21{
+  display:flex;
+  gap:7px;
+  overflow:auto;
+  margin:0 0 14px;
+  padding:8px 0;
+}
+.guestSearchResults21 button{
+  min-width:190px;
+  text-align:left;
+  padding:9px 11px;
+  border:1px solid #dce4df;
+  border-radius:9px;
+  background:#fff;
+}
+.guestSearchResults21 strong{
+  display:block;
+  font-size:.7rem;
+  color:#173b2b;
+}
+.guestSearchResults21 small{
+  display:block;
+  margin-top:3px;
+  color:#7a867f;
+  font-size:.58rem;
+}
+.interactiveFloorWorkspace.withUnassigned21{
+  grid-template-columns:minmax(0,1fr) 305px 285px;
+}
+.unassignedPanel21{
+  position:sticky;
+  top:86px;
+  min-height:520px;
+  padding:18px;
+  border:1px solid #dce4df;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 10px 30px rgba(19,44,33,.07);
+}
+.unassignedPanel21 h2{
+  margin:4px 0;
+  color:#173b2b;
+}
+.unassignedPanel21>div>p:last-child{
+  margin-top:0;
+  font-size:.66rem;
+  color:#7a867f;
+}
+.unassignedList21{
+  display:grid;
+  gap:8px;
+  max-height:620px;
+  overflow:auto;
+}
+.unassignedCard21{
+  padding:9px;
+  border:1px solid #e0e7e3;
+  border-radius:9px;
+  background:#fff;
+}
+.unassignedCard21 strong{
+  display:block;
+  font-size:.68rem;
+  color:#233d30;
+}
+.unassignedCard21 small{
+  display:block;
+  margin-top:2px;
+  font-size:.58rem;
+  color:#7a867f;
+}
+.unassignedCard21 select{
+  width:100%;
+  min-height:33px;
+  margin-top:7px;
+  border:1px solid #d5ddd8;
+  background:#fff;
+  font-size:.63rem;
+}
+.floorTable2.layoutLocked21{
+  cursor:pointer;
+  touch-action:auto;
+}
+.floorPlanSummary{
+  grid-template-columns:repeat(6,minmax(0,1fr));
+}
+.eventModeActive .pageHeading{
+  position:sticky;
+  top:0;
+  z-index:20;
+  margin-left:-6px;
+  margin-right:-6px;
+  padding:12px 6px;
+  background:rgba(247,249,248,.96);
+  backdrop-filter:blur(8px);
+}
+.eventModeActive .floorToolbar21{
+  position:sticky;
+  top:78px;
+  z-index:19;
+}
+.eventModeActive .interactiveFloor{
+  min-height:830px;
+}
+.eventModeActive .floorInspector2,
+.eventModeActive .unassignedPanel21{
+  top:140px;
+}
+@media(max-width:1400px){
+  .interactiveFloorWorkspace.withUnassigned21{
+    grid-template-columns:minmax(0,1fr) 300px;
+  }
+  .unassignedPanel21{
+    grid-column:1/-1;
+    position:static;
+  }
+  .unassignedList21{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    max-height:none;
+  }
+}
+@media(max-width:900px){
+  .floorPlanSummary{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .unassignedList21{
+    grid-template-columns:1fr 1fr;
+  }
+}
+@media(max-width:650px){
+  .floorToolbar21 .searchBox{min-width:100%}
+  .floorPlanSummary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .unassignedList21{grid-template-columns:1fr}
+}
