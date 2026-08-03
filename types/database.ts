@@ -18,6 +18,8 @@ export type GalaTable = {
   notes?: string | null;
   location?: string | null;
   color?: string | null;
+  x_pos?: number | null;
+  y_pos?: number | null;
   occupied?: number;
   available?: number;
 };

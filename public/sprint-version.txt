@@ -1,1 +1,1 @@
-Versión 1.2 activa - operación: correos, QR, etiquetas y check-in.
+Versión 2.0 activa - plano interactivo del salón.

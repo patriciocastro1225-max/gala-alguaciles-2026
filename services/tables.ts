@@ -81,3 +81,26 @@ export async function updateTablesBulk(
     await audit("UPDATE", "gala_table", id, payload);
   }
 }
+
+
+export async function updateTablePositions(
+  positions: Array<{ id: string; x_pos: number; y_pos: number }>
+) {
+  const client = requireSupabase();
+
+  for (const position of positions) {
+    const { error } = await client
+      .from("gala_tables")
+      .update({
+        x_pos: Math.max(2, Math.min(92, position.x_pos)),
+        y_pos: Math.max(12, Math.min(88, position.y_pos)),
+      })
+      .eq("id", position.id);
+
+    if (error) throw error;
+  }
+
+  await audit("UPDATE_LAYOUT", "gala_tables", "floor-plan", {
+    tables: positions.length,
+  });
+}
