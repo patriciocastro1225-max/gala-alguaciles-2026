@@ -24,11 +24,11 @@ export default function ConfirmationClient() {
         {receiptInReview ? (
           <p>SU COMPROBANTE DE TRANSFERENCIA FUE RECIBIDO Y QUEDÓ <strong>PENDIENTE DE VALIDACIÓN</strong> POR EL COMITÉ ORGANIZADOR.</p>
         ) : (
-          <p>SU PAGO CONTINÚA PENDIENTE. PODRÁ COMPLETARLO POSTERIORMENTE.</p>
+          <p><strong>SU PAGO ESTÁ PENDIENTE.</strong> INGRESE A SU PORTAL PARA <strong>PAGAR AHORA CON TARJETA DE CRÉDITO</strong> O, SI YA REALIZÓ UNA TRANSFERENCIA, <strong>SUBIR SU COMPROBANTE</strong>.</p>
         )}
         <p>SU ASISTENCIA HA QUEDADO REGISTRADA COMO CONFIRMADA.</p>
         <Link className="guestPrimary guestLinkButton" href={`/i/${encodeURIComponent(code)}?token=${encodeURIComponent(token)}`}>
-          IR A MI PORTAL
+          IR A MI PORTAL Y COMPLETAR EL PAGO
         </Link>
       </article>
     </main>
