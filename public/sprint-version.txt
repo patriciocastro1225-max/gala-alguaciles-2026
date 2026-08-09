@@ -1,1 +1,1 @@
-Sprint 3.0.2.4 activo - formulario en mayúsculas, pago público seguro e invitación solo administrativa.
+Sprint 3.0.2.5 activo - datos en mayúsculas, asistencia confirmada y consentimiento de privacidad reforzado.
