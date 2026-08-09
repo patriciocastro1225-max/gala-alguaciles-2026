@@ -1,1 +1,1 @@
-Sprint 3.0.2.3 activo - registro detallado e inmediato del acompañante.
+Sprint 3.0.2.4 activo - formulario en mayúsculas, pago público seguro e invitación solo administrativa.
