@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { registerAttendee } from "@/services/publicRegistration";
 
 const steps = [
-  "Datos personales",
-  "Información institucional",
-  "Participación",
-  "Alimentación",
-  "Pago",
-  "Confirmación",
+  "DATOS PERSONALES",
+  "INFORMACIÓN INSTITUCIONAL",
+  "PARTICIPACIÓN",
+  "ALIMENTACIÓN",
+  "PAGO",
+  "CONFIRMACIÓN",
 ];
 
 const initialForm = {
@@ -45,61 +45,50 @@ export default function RegistrationPage() {
 
   function validateCurrentStep() {
     if (step === 0 && (!form.full_name.trim() || !form.email.trim() || !form.phone.trim())) {
-      setError("Complete nombre, correo y teléfono.");
+      setError("COMPLETE NOMBRE, CORREO Y TELÉFONO.");
       return false;
     }
-
-    if (step === 2 && form.has_companion === "Sí") {
-      if (!form.companion_name.trim()) {
-        setError("Ingrese el nombre completo del acompañante.");
-        return false;
-      }
+    if (step === 2 && form.has_companion === "Sí" && !form.companion_name.trim()) {
+      setError("INGRESE EL NOMBRE COMPLETO DEL ACOMPAÑANTE.");
+      return false;
     }
-
     if (step === 5 && !form.consent) {
-      setError("Debe aceptar el uso de datos.");
+      setError("DEBE ACEPTAR EL USO DE DATOS.");
       return false;
     }
-
     setError("");
     return true;
   }
 
   async function next() {
     if (!validateCurrentStep()) return;
-
     if (step < steps.length - 1) {
       setStep((value) => value + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-
     setBusy(true);
     try {
       const companionSummary = form.has_companion === "Sí"
         ? [
-            `Acompañante: ${form.companion_name}`,
+            `ACOMPAÑANTE: ${form.companion_name}`,
             form.companion_rut ? `RUT: ${form.companion_rut}` : "",
-            form.companion_email ? `Correo: ${form.companion_email}` : "",
-            form.companion_phone ? `Celular: ${form.companion_phone}` : "",
-            form.companion_institution ? `Institución: ${form.companion_institution}` : "",
-            form.companion_position ? `Cargo: ${form.companion_position}` : "",
-            form.companion_dietary_notes ? `Alimentación: ${form.companion_dietary_notes}` : "",
+            form.companion_email ? `CORREO: ${form.companion_email}` : "",
+            form.companion_phone ? `CELULAR: ${form.companion_phone}` : "",
+            form.companion_institution ? `INSTITUCIÓN: ${form.companion_institution}` : "",
+            form.companion_position ? `CARGO: ${form.companion_position}` : "",
+            form.companion_dietary_notes ? `ALIMENTACIÓN: ${form.companion_dietary_notes}` : "",
           ].filter(Boolean).join(" | ")
         : "";
-
       const notes = [form.notes, companionSummary].filter(Boolean).join("\n\n");
       const result = await registerAttendee({
         ...form,
         companion_name: form.has_companion === "Sí" ? form.companion_name : "",
         notes,
       });
-
-      router.push(
-        `/inscripcion/confirmacion?code=${encodeURIComponent(result.registration_code)}&token=${encodeURIComponent(result.portal_token)}`
-      );
+      router.push(`/inscripcion/confirmacion?code=${encodeURIComponent(result.registration_code)}&token=${encodeURIComponent(result.portal_token)}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No fue posible enviar la inscripción.");
+      setError(err instanceof Error ? err.message.toUpperCase() : "NO FUE POSIBLE ENVIAR LA INSCRIPCIÓN.");
     } finally {
       setBusy(false);
     }
@@ -108,158 +97,37 @@ export default function RegistrationPage() {
   function changeCompanion(value: string) {
     update("has_companion", value);
     if (value === "No") {
-      setForm((current: any) => ({
-        ...current,
-        has_companion: "No",
-        companion_name: "",
-        companion_email: "",
-        companion_phone: "",
-        companion_rut: "",
-        companion_institution: "",
-        companion_position: "",
-        companion_dietary_notes: "",
-      }));
+      setForm((current: any) => ({ ...current, has_companion: "No", companion_name: "", companion_email: "", companion_phone: "", companion_rut: "", companion_institution: "", companion_position: "", companion_dietary_notes: "" }));
     }
   }
 
   return (
     <main className="guestExperience">
-      <header className="guestHeader">
-        <span className="guestSeal">II</span>
-        <div>
-          <strong>II Gran Gala Nacional</strong>
-          <small>Alguaciles de Chile · 2026</small>
-        </div>
-      </header>
-
+      <header className="guestHeader"><span className="guestSeal">II</span><div><strong>II GRAN GALA NACIONAL</strong><small>ALGUACILES DE CHILE · 2026</small></div></header>
       <section className="registrationShell">
         <aside className="registrationSteps">
-          {steps.map((name, index) => (
-            <div className={index === step ? "active" : index < step ? "done" : ""} key={name}>
-              <span>Paso {index + 1}</span>
-              <strong>{name}</strong>
-            </div>
-          ))}
+          {steps.map((name, index) => <div className={index === step ? "active" : index < step ? "done" : ""} key={name}><span>PASO {index + 1}</span><strong>{name}</strong></div>)}
         </aside>
-
         <article className="registrationCard">
-          <div className="registrationProgress">
-            <i style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
-          </div>
-          <p className="guestEyebrow">Paso {step + 1} de {steps.length}</p>
-          <h1>{steps[step]}</h1>
-
+          <div className="registrationProgress"><i style={{ width: `${((step + 1) / steps.length) * 100}%` }} /></div>
+          <p className="guestEyebrow">PASO {step + 1} DE {steps.length}</p><h1>{steps[step]}</h1>
           <div className="guestFormGrid">
-            {step === 0 && (
-              <>
-                <label className="fullField">Nombre completo
-                  <input value={form.full_name} onChange={(e) => update("full_name", e.target.value)} />
-                </label>
-                <label>Correo
-                  <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} />
-                </label>
-                <label>Celular
-                  <input value={form.phone} onChange={(e) => update("phone", e.target.value)} />
-                </label>
-              </>
-            )}
-
-            {step === 1 && (
-              <label className="fullField">Círculo
-                <input value={form.circle_name} onChange={(e) => update("circle_name", e.target.value)} placeholder="Ej.: Servicios Diplomáticos" />
-              </label>
-            )}
-
-            {step === 2 && (
-              <>
-                <label>Confirmación
-                  <select value={form.attendance_status} onChange={(e) => update("attendance_status", e.target.value)}>
-                    <option>Confirmado</option>
-                    <option>Pendiente</option>
-                    <option>Cancelado</option>
-                  </select>
-                </label>
-
-                <label>¿Asistirá con acompañante?
-                  <select value={form.has_companion} onChange={(e) => changeCompanion(e.target.value)}>
-                    <option value="No">No</option>
-                    <option value="Sí">Sí</option>
-                  </select>
-                </label>
-
-                {form.has_companion === "Sí" && (
-                  <section className="companionRegistration fullField">
-                    <div className="companionHeading">
-                      <p className="guestEyebrow">Datos del acompañante</p>
-                      <h2>Segunda persona de la inscripción</h2>
-                      <p>Complete sus antecedentes para registrarlo correctamente y considerar su cupo en la mesa.</p>
-                    </div>
-
-                    <div className="guestFormGrid companionGrid">
-                      <label className="fullField">Nombre completo del acompañante *
-                        <input value={form.companion_name} onChange={(e) => update("companion_name", e.target.value)} />
-                      </label>
-                      <label>RUT
-                        <input value={form.companion_rut} onChange={(e) => update("companion_rut", e.target.value)} />
-                      </label>
-                      <label>Correo
-                        <input type="email" value={form.companion_email} onChange={(e) => update("companion_email", e.target.value)} />
-                      </label>
-                      <label>Celular
-                        <input value={form.companion_phone} onChange={(e) => update("companion_phone", e.target.value)} />
-                      </label>
-                      <label>Institución
-                        <input value={form.companion_institution} onChange={(e) => update("companion_institution", e.target.value)} />
-                      </label>
-                      <label className="fullField">Cargo o relación con el invitado
-                        <input value={form.companion_position} onChange={(e) => update("companion_position", e.target.value)} />
-                      </label>
-                      <label className="fullField">Restricciones alimentarias del acompañante
-                        <textarea rows={3} value={form.companion_dietary_notes} onChange={(e) => update("companion_dietary_notes", e.target.value)} />
-                      </label>
-                    </div>
-                  </section>
-                )}
-              </>
-            )}
-
-            {step === 3 && (
-              <label className="fullField">Restricciones alimentarias del invitado principal
-                <textarea rows={5} value={form.dietary_notes} onChange={(e) => update("dietary_notes", e.target.value)} />
-              </label>
-            )}
-
-            {step === 4 && (
-              <label>Estado de pago
-                <select value={form.payment_status} onChange={(e) => update("payment_status", e.target.value)}>
-                  <option>Pendiente</option>
-                  <option>Pagado</option>
-                  <option>Invitación</option>
-                </select>
-              </label>
-            )}
-
-            {step === 5 && (
-              <>
-                <label className="fullField">Observaciones
-                  <textarea rows={5} value={form.notes} onChange={(e) => update("notes", e.target.value)} />
-                </label>
-                <label className="fullField guestConsent">
-                  <input type="checkbox" checked={form.consent} onChange={(e) => update("consent", e.target.checked)} />
-                  <span>Autorizo el uso de estos datos para la organización de la Gala 2026.</span>
-                </label>
-              </>
-            )}
+            {step === 0 && <><label className="fullField">NOMBRE COMPLETO<input value={form.full_name} onChange={(e) => update("full_name", e.target.value)} /></label><label>CORREO<input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} /></label><label>CELULAR<input value={form.phone} onChange={(e) => update("phone", e.target.value)} /></label></>}
+            {step === 1 && <label className="fullField">CÍRCULO<input value={form.circle_name} onChange={(e) => update("circle_name", e.target.value)} placeholder="EJ.: SERVICIOS DIPLOMÁTICOS" /></label>}
+            {step === 2 && <>
+              <label>CONFIRMACIÓN<select value={form.attendance_status} onChange={(e) => update("attendance_status", e.target.value)}><option value="Confirmado">CONFIRMADO</option><option value="Pendiente">PENDIENTE</option><option value="Cancelado">CANCELADO</option></select></label>
+              <label>¿ASISTIRÁ CON ACOMPAÑANTE?<select value={form.has_companion} onChange={(e) => changeCompanion(e.target.value)}><option value="No">NO</option><option value="Sí">SÍ</option></select></label>
+              {form.has_companion === "Sí" && <section className="companionRegistration fullField"><div className="companionHeading"><p className="guestEyebrow">DATOS DEL ACOMPAÑANTE</p><h2>SEGUNDA PERSONA DE LA INSCRIPCIÓN</h2><p>COMPLETE SUS ANTECEDENTES PARA REGISTRARLO CORRECTAMENTE Y CONSIDERAR SU CUPO EN LA MESA.</p></div><div className="guestFormGrid companionGrid">
+                <label className="fullField">NOMBRE COMPLETO DEL ACOMPAÑANTE *<input value={form.companion_name} onChange={(e) => update("companion_name", e.target.value)} /></label>
+                <label>RUT<input value={form.companion_rut} onChange={(e) => update("companion_rut", e.target.value)} /></label><label>CORREO<input type="email" value={form.companion_email} onChange={(e) => update("companion_email", e.target.value)} /></label><label>CELULAR<input value={form.companion_phone} onChange={(e) => update("companion_phone", e.target.value)} /></label><label>INSTITUCIÓN<input value={form.companion_institution} onChange={(e) => update("companion_institution", e.target.value)} /></label><label className="fullField">CARGO O RELACIÓN CON EL INVITADO<input value={form.companion_position} onChange={(e) => update("companion_position", e.target.value)} /></label><label className="fullField">RESTRICCIONES ALIMENTARIAS DEL ACOMPAÑANTE<textarea rows={3} value={form.companion_dietary_notes} onChange={(e) => update("companion_dietary_notes", e.target.value)} /></label>
+              </div></section>}
+            </>}
+            {step === 3 && <label className="fullField">RESTRICCIONES ALIMENTARIAS DEL INVITADO PRINCIPAL<textarea rows={5} value={form.dietary_notes} onChange={(e) => update("dietary_notes", e.target.value)} /></label>}
+            {step === 4 && <section className="fullField companionRegistration"><div className="companionHeading"><p className="guestEyebrow">ESTADO DE PAGO</p><h2>{form.payment_status === "Pagado" ? "PAGO REALIZADO" : "PAGO PENDIENTE"}</h2><p>LA OPCIÓN INVITACIÓN ES DE USO EXCLUSIVO DE LA ADMINISTRACIÓN.</p></div><div className="guestFormGrid"><label className="fullField">SELECCIONE SU SITUACIÓN<select value={form.payment_status} onChange={(e) => update("payment_status", e.target.value)}><option value="Pendiente">PENDIENTE</option><option value="Pagado">PAGADO POR TRANSFERENCIA</option></select></label>{form.payment_status === "Pendiente" && <div className="fullField"><p><strong>PAGAR AHORA</strong></p><p>PRÓXIMAMENTE PODRÁ PAGAR EN LÍNEA CON TARJETA O TRANSFERENCIA. EL SISTEMA ACTUALIZARÁ AUTOMÁTICAMENTE SU ESTADO A PAGADO.</p><button type="button" className="guestPrimary" disabled>PAGO EN LÍNEA · PRÓXIMAMENTE</button></div>}{form.payment_status === "Pagado" && <div className="fullField"><p><strong>COMPROBANTE DE TRANSFERENCIA</strong></p><p>EN LA SIGUIENTE ETAPA HABILITAREMOS LA CARGA SEGURA DEL COMPROBANTE PARA SU VALIDACIÓN.</p></div>}</div></section>}
+            {step === 5 && <><label className="fullField">OBSERVACIONES<textarea rows={5} value={form.notes} onChange={(e) => update("notes", e.target.value)} /></label><label className="fullField guestConsent"><input type="checkbox" checked={form.consent} onChange={(e) => update("consent", e.target.checked)} /><span>AUTORIZO EL USO DE ESTOS DATOS PARA LA ORGANIZACIÓN DE LA GALA 2026.</span></label></>}
           </div>
-
           {error && <div className="guestError">{error}</div>}
-
-          <div className="guestActions">
-            <button className="guestSecondary" disabled={step === 0 || busy} onClick={() => setStep((value) => value - 1)}>Anterior</button>
-            <button className="guestPrimary" disabled={busy} onClick={next}>
-              {busy ? "Enviando…" : step === steps.length - 1 ? "Enviar inscripción" : "Continuar"}
-            </button>
-          </div>
+          <div className="guestActions"><button className="guestSecondary" disabled={step === 0 || busy} onClick={() => setStep((value) => value - 1)}>ANTERIOR</button><button className="guestPrimary" disabled={busy} onClick={next}>{busy ? "ENVIANDO…" : step === steps.length - 1 ? "ENVIAR INSCRIPCIÓN" : "CONTINUAR"}</button></div>
         </article>
       </section>
     </main>
