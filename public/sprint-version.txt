@@ -1,1 +1,1 @@
-Sprint 3.0.2.5 activo - datos en mayúsculas, asistencia confirmada y consentimiento de privacidad reforzado.
+Sprint 3.0.2.6 activo - comprobantes de transferencia con carga segura y validación administrativa.
