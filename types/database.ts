@@ -57,6 +57,9 @@ export type Payment = {
   status: "Pagado" | "Pendiente" | "Parcial";
   payment_date: string | null;
   reference: string | null;
+  receipt_path?: string | null;
+  receipt_original_name?: string | null;
+  validation_status?: "Pendiente" | "Validado" | "Rechazado" | null;
   attendees?: { full_name: string; circles?: { name: string } | null } | null;
 };
 
