@@ -19,17 +19,12 @@ export async function registerAttendee(payload: any) {
   return Array.isArray(data) ? data[0] : data;
 }
 
-export async function uploadPaymentReceipt(file: File, attendeeId: string, portalToken: string) {
+export async function uploadPaymentReceipt(file: File, attendeeId: string, portalToken: string, amount: number) {
   if (!supabaseConfigured || !supabase) throw new Error("Supabase no está configurado.");
 
   const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
-  if (!allowedTypes.includes(file.type)) {
-    throw new Error("EL COMPROBANTE DEBE SER PDF, JPG, JPEG O PNG.");
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    throw new Error("EL COMPROBANTE NO PUEDE SUPERAR 5 MB.");
-  }
+  if (!allowedTypes.includes(file.type)) throw new Error("EL COMPROBANTE DEBE SER PDF, JPG, JPEG O PNG.");
+  if (file.size > 5 * 1024 * 1024) throw new Error("EL COMPROBANTE NO PUEDE SUPERAR 5 MB.");
 
   const extension = file.name.split(".").pop()?.toLowerCase() || "bin";
   const path = `pending/${attendeeId}/${Date.now()}.${extension}`;
@@ -45,6 +40,7 @@ export async function uploadPaymentReceipt(file: File, attendeeId: string, porta
     p_portal_token: portalToken,
     p_receipt_path: path,
     p_original_name: file.name,
+    p_amount: amount,
   });
 
   if (registerError) throw new Error(registerError.message);
