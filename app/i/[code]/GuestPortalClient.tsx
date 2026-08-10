@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import { QRCodeSVG } from "qrcode.react";
 import { getGuestPortal } from "@/services/publicRegistration";
 import styles from "./portal.module.css";
 
@@ -28,6 +29,7 @@ export default function GuestPortalClient() {
   const registrationConfirmed = data.attendance_status !== "Cancelado";
   const paymentLabel = invited ? "INVITACIÓN" : receiptReview ? "PENDIENTE DE VALIDACIÓN" : paid ? "PAGADO" : "PENDIENTE DE PAGO";
   const paymentClass = invited ? styles.badgeInvite : receiptReview ? styles.badgeReview : paid ? styles.badgePaid : styles.badgePending;
+  const qrValue = data.qr_code || data.registration_code;
 
   return (
     <main className={styles.page}>
@@ -57,8 +59,13 @@ export default function GuestPortalClient() {
 
           <article className={`${styles.card} ${styles.qr}`}>
             <h2>CÓDIGO DE ACREDITACIÓN</h2>
-            <div className={styles.qrBox}>{data.qr_code || data.registration_code}</div>
-            <small>CONSERVE ESTE CÓDIGO PARA SU ACREDITACIÓN EN EL EVENTO.</small>
+            <div className={styles.qrBox}>
+              <div className={styles.qrPaper}>
+                <QRCodeSVG value={String(qrValue)} size={220} level="H" includeMargin={false} />
+              </div>
+              <strong className={styles.registrationCode}>{data.registration_code}</strong>
+            </div>
+            <small>PRESENTE ESTE QR EL DÍA DEL EVENTO. EL CÓDIGO {data.registration_code} QUEDA COMO RESPALDO.</small>
           </article>
         </section>
 
