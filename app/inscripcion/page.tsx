@@ -15,6 +15,18 @@ const initialForm = {
   dietary_notes: "", payment_status: "Pendiente", notes: "", consent: false,
 };
 
+async function notifyOrganizers(payload: Record<string, unknown>) {
+  try {
+    await fetch("/api/notifications/registration", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    // Una falla de correo nunca debe impedir la inscripción o el pago.
+  }
+}
+
 export default function RegistrationPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -60,11 +72,46 @@ export default function RegistrationPage() {
       const companionSummary = form.has_companion === "Sí" ? [`ACOMPAÑANTE: ${form.companion_name}`, form.companion_rut ? `RUT: ${form.companion_rut}` : "", form.companion_email ? `CORREO: ${form.companion_email}` : "", form.companion_phone ? `CELULAR: ${form.companion_phone}` : "", form.companion_institution ? `INSTITUCIÓN: ${form.companion_institution}` : "", form.companion_position ? `CARGO: ${form.companion_position}` : "", form.companion_dietary_notes ? `ALIMENTACIÓN: ${form.companion_dietary_notes}` : ""].filter(Boolean).join(" | ") : "";
       const notes = [form.notes, companionSummary, `VALOR POR PERSONA: ${money(paymentConfig.dinner_price)}`, `TOTAL ESPERADO: ${money(totalAmount)}`].filter(Boolean).join("\n\n");
       let result = registrationResult;
+      let newRegistration = false;
       if (!result) {
         result = await registerAttendee({ ...form, attendance_status: "Confirmado", payment_status: "Pendiente", companion_name: form.has_companion === "Sí" ? form.companion_name : "", notes });
         setRegistrationResult(result);
+        newRegistration = true;
       }
-      if (paymentChoice === "Transferencia" && receiptFile) await uploadPaymentReceipt(receiptFile, result.attendee_id, result.portal_token, totalAmount);
+
+      if (newRegistration) {
+        await notifyOrganizers({
+          type: "registration",
+          registration_code: result.registration_code,
+          portal_token: result.portal_token,
+          full_name: form.full_name,
+          email: form.email,
+          phone: form.phone,
+          circle_name: form.circle_name,
+          companion_name: form.has_companion === "Sí" ? form.companion_name : "",
+          people,
+          amount: totalAmount,
+          payment_method: paymentChoice === "Transferencia" ? "TRANSFERENCIA · COMPROBANTE PENDIENTE" : "TARJETA · PENDIENTE",
+        });
+      }
+
+      if (paymentChoice === "Transferencia" && receiptFile) {
+        await uploadPaymentReceipt(receiptFile, result.attendee_id, result.portal_token, totalAmount);
+        await notifyOrganizers({
+          type: "payment_receipt",
+          registration_code: result.registration_code,
+          portal_token: result.portal_token,
+          full_name: form.full_name,
+          email: form.email,
+          phone: form.phone,
+          circle_name: form.circle_name,
+          companion_name: form.has_companion === "Sí" ? form.companion_name : "",
+          people,
+          amount: totalAmount,
+          payment_method: "TRANSFERENCIA · COMPROBANTE PENDIENTE DE VALIDACIÓN",
+        });
+      }
+
       router.push(`/inscripcion/confirmacion?code=${encodeURIComponent(result.registration_code)}&token=${encodeURIComponent(result.portal_token)}&payment=revision`);
     } catch (err) { setError(err instanceof Error ? err.message.toUpperCase() : "NO FUE POSIBLE ENVIAR LA INSCRIPCIÓN."); }
     finally { setBusy(false); }
