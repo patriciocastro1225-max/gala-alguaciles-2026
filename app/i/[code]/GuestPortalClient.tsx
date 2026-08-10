@@ -105,7 +105,7 @@ export default function GuestPortalClient() {
 
         <footer className={styles.footer}>
           <div><strong>II GRAN GALA NACIONAL DE LOS ALGUACILES DE CHILE 2026</strong><br/><span>25 DE NOVIEMBRE DE 2026 · CLUB PALESTINO, LAS CONDES</span></div>
-          <div><strong className={styles.help}>¿NECESITA AYUDA?</strong><br/><span>CONTACTE A SU CÍRCULO O AL COMITÉ ORGANIZADOR.</span></div>
+          <div><strong className={styles.help}>¿NECESITA AYUDA?</strong><br/><span>CONTACTE AL COMITÉ ORGANIZADOR AL +56 9 9330 8539.</span></div>
         </footer>
       </div>
     </main>
