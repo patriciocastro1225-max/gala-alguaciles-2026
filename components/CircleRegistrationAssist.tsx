@@ -9,6 +9,7 @@ export default function CircleRegistrationAssist() {
 
     let active = true;
     let names: string[] = [];
+    let observer: MutationObserver | null = null;
 
     const attach = () => {
       const labels = Array.from(document.querySelectorAll("label"));
@@ -16,23 +17,26 @@ export default function CircleRegistrationAssist() {
         label.textContent?.trim().toLocaleUpperCase("es-CL").startsWith("CÍRCULO")
       );
       const input = circleLabel?.querySelector("input") as HTMLInputElement | null;
-      if (!input) return;
+      if (!input) return false;
+
+      // Evita volver a modificar el mismo input en cada mutación del DOM.
+      if (input.dataset.circleAssist === "1") return true;
 
       let datalist = document.getElementById("gala-circle-options") as HTMLDataListElement | null;
       if (!datalist) {
         datalist = document.createElement("datalist");
         datalist.id = "gala-circle-options";
+
+        for (const name of names) {
+          const option = document.createElement("option");
+          option.value = name;
+          datalist.appendChild(option);
+        }
+
         document.body.appendChild(datalist);
       }
 
-      datalist.replaceChildren(
-        ...names.map((name) => {
-          const option = document.createElement("option");
-          option.value = name;
-          return option;
-        })
-      );
-
+      input.dataset.circleAssist = "1";
       input.setAttribute("list", datalist.id);
       input.setAttribute("autocomplete", "off");
       input.placeholder = "ESCRIBA PARA BUSCAR SU CÍRCULO O UNIDAD";
@@ -46,6 +50,10 @@ export default function CircleRegistrationAssist() {
         help.style.opacity = "0.72";
         circleLabel?.appendChild(help);
       }
+
+      // Una vez encontrado y preparado el campo, ya no necesitamos observar el DOM.
+      observer?.disconnect();
+      return true;
     };
 
     listPublicCircles()
@@ -61,13 +69,15 @@ export default function CircleRegistrationAssist() {
         attach();
       });
 
-    const observer = new MutationObserver(attach);
+    observer = new MutationObserver(() => {
+      attach();
+    });
     observer.observe(document.body, { childList: true, subtree: true });
     attach();
 
     return () => {
       active = false;
-      observer.disconnect();
+      observer?.disconnect();
     };
   }, []);
 
