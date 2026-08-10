@@ -30,15 +30,31 @@ export async function deleteCircle(id: string) {
 }
 
 /**
+ * Catálogo completo para el buscador de inscripción.
+ * Incluye todos los Círculos / unidades cargados, estén o no confirmados todavía.
+ */
+export async function listRegistrationCircles(): Promise<Pick<Circle, "id" | "name">[]> {
+  const client = requireSupabase();
+  const { data, error } = await client
+    .from("circles")
+    .select("id,name")
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as Pick<Circle, "id" | "name">[];
+}
+
+/**
  * Consulta pública utilizada por la portada.
- * Solo expone los campos necesarios para mostrar los Círculos participantes.
+ * Muestra únicamente los Círculos que ya tienen participación confirmada,
+ * evitando renderizar todo el padrón nacional.
  */
 export async function listPublicCircles(): Promise<Circle[]> {
   const client = requireSupabase();
   const { data, error } = await client
     .from("circles")
     .select("id,name,city,president,confirmed,created_at")
-    .order("confirmed", { ascending: false })
+    .eq("confirmed", true)
     .order("city", { ascending: true, nullsFirst: false })
     .order("name", { ascending: true });
 
