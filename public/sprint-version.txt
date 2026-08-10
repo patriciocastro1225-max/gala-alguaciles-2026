@@ -1,1 +1,1 @@
-Sprint 3.0.3.0 activo - portal personal premium con diseño institucional y flujo de pagos integrado.
+Sprint 3.0.3.1 activo - valor de la cena y datos bancarios editables, monto dinámico por persona y transferencia con total esperado.
