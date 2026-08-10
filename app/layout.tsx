@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import CircleRegistrationAssist from "@/components/CircleRegistrationAssist";
 
 export const metadata: Metadata = {
   title: "II Gran Gala Nacional de los Alguaciles de Chile 2026",
@@ -12,7 +13,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        {children}
+        <CircleRegistrationAssist />
+      </body>
     </html>
   );
 }
