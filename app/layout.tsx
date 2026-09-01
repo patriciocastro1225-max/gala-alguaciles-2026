@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import CircleRegistrationAssist from "@/components/CircleRegistrationAssist";
+import FormalSportFix from "@/components/FormalSportFix";
 
 export const metadata: Metadata = {
   title: "II Gran Gala Nacional de los Alguaciles de Chile 2026",
@@ -16,6 +17,7 @@ export default function RootLayout({
       <body>
         {children}
         <CircleRegistrationAssist />
+        <FormalSportFix />
       </body>
     </html>
   );
