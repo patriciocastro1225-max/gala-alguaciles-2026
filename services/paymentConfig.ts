@@ -11,7 +11,7 @@ export type PaymentConfig = {
 };
 
 export const defaultPaymentConfig: PaymentConfig = {
-  dinner_price: 43000,
+  dinner_price: 45000,
   bank_name: "",
   bank_account_type: "",
   bank_account_number: "",
@@ -43,7 +43,7 @@ export async function saveAdminPaymentConfig(config: PaymentConfig) {
   const { error } = await supabase
     .from("event_config")
     .update({
-      dinner_price: Number(config.dinner_price) || 43000,
+      dinner_price: Number(config.dinner_price) || 45000,
       bank_name: config.bank_name || null,
       bank_account_type: config.bank_account_type || null,
       bank_account_number: config.bank_account_number || null,
