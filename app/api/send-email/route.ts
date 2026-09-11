@@ -12,6 +12,12 @@ function escapeHtml(value: string) {
   });
 }
 
+function qrImageUrl(value: string) {
+  // Imagen QR generada para el correo. El contenido sigue siendo el código único
+  // almacenado en Supabase, por lo que el check-in continúa leyendo el mismo valor.
+  return `https://quickchart.io/qr?text=${encodeURIComponent(value)}&size=260&margin=2&ecLevel=H`;
+}
+
 export async function POST(request: NextRequest) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
@@ -41,11 +47,15 @@ export async function POST(request: NextRequest) {
   for (const person of body.recipients.slice(0, 50)) {
     if (!person.email) continue;
 
+    // En el texto sustituimos [QR] por una indicación, porque el QR real se muestra
+    // inmediatamente debajo como imagen escaneable.
     const text = body.message
       .replaceAll("[Nombre]", person.name)
       .replaceAll("[Mesa]", person.table)
       .replaceAll("[Círculo]", person.circle)
-      .replaceAll("[QR]", person.qr);
+      .replaceAll("[QR]", "Ver código QR de acreditación a continuación");
+
+    const qrUrl = qrImageUrl(person.qr);
 
     const html = `
       <div style="font-family:Arial,sans-serif;max-width:640px;margin:auto;border:1px solid #d5c08b;background:#fff;padding:34px;color:#18241d">
@@ -54,9 +64,11 @@ export async function POST(request: NextRequest) {
           <h2 style="margin:7px 0 0;color:#173b2b">II Gran Gala Nacional de los Alguaciles de Chile 2026</h2>
         </div>
         <p style="white-space:pre-line;line-height:1.7">${escapeHtml(text)}</p>
-        <div style="margin:24px 0;padding:16px;border:1px solid #e3d5ae;background:#faf7ef;text-align:center">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#8a6a2d">Código único de acreditación</div>
-          <div style="font-family:monospace;font-size:18px;font-weight:700;margin-top:8px">${escapeHtml(person.qr)}</div>
+        <div style="margin:24px 0;padding:22px 16px;border:1px solid #e3d5ae;background:#faf7ef;text-align:center">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#8a6a2d">Código QR personal de acreditación</div>
+          <img src="${qrUrl}" width="260" height="260" alt="Código QR de acreditación ${escapeHtml(person.qr)}" style="display:block;width:260px;height:260px;max-width:100%;margin:16px auto 10px;background:#ffffff;border:10px solid #ffffff" />
+          <div style="font-size:12px;color:#5d665f;margin-top:8px">Presente este QR al momento de la acreditación.</div>
+          <div style="font-family:monospace;font-size:14px;font-weight:700;margin-top:10px;color:#173b2b">${escapeHtml(person.qr)}</div>
         </div>
         <p style="font-size:13px;color:#81652c">25 de noviembre de 2026 · 20:00 horas · Club Palestino</p>
       </div>`;
