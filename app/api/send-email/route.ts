@@ -13,9 +13,19 @@ function escapeHtml(value: string) {
 }
 
 function qrImageUrl(value: string) {
-  // Imagen QR generada para el correo. El contenido sigue siendo el código único
-  // almacenado en Supabase, por lo que el check-in continúa leyendo el mismo valor.
   return `https://quickchart.io/qr?text=${encodeURIComponent(value)}&size=260&margin=2&ecLevel=H`;
+}
+
+function googleCalendarUrl() {
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: "II Gran Gala Nacional de los Alguaciles de Chile 2026",
+    dates: "20261125T230000Z/20261126T050000Z",
+    details: "II Gran Gala Nacional de los Alguaciles de Chile 2026. Tenida: Formal Sport.",
+    location: "Club Palestino, Av. Presidente Kennedy 9351, Las Condes, Santiago, Chile",
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
 export async function POST(request: NextRequest) {
@@ -43,12 +53,12 @@ export async function POST(request: NextRequest) {
   }
 
   const results = [];
+  const googleUrl = googleCalendarUrl();
+  const icsUrl = "https://grangala.cl/api/calendar";
 
   for (const person of body.recipients.slice(0, 50)) {
     if (!person.email) continue;
 
-    // En el texto sustituimos [QR] por una indicación, porque el QR real se muestra
-    // inmediatamente debajo como imagen escaneable.
     const text = body.message
       .replaceAll("[Nombre]", person.name)
       .replaceAll("[Mesa]", person.table)
@@ -64,6 +74,14 @@ export async function POST(request: NextRequest) {
           <h2 style="margin:7px 0 0;color:#173b2b">II Gran Gala Nacional de los Alguaciles de Chile 2026</h2>
         </div>
         <p style="white-space:pre-line;line-height:1.7">${escapeHtml(text)}</p>
+
+        <div style="margin:24px 0;padding:18px;border:1px solid #e3d5ae;background:#f8f5ec;text-align:center">
+          <div style="font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:#8a6a2d;margin-bottom:10px">Guarde la Gala en su agenda</div>
+          <a href="${googleUrl}" style="display:inline-block;margin:4px;padding:11px 16px;background:#173b2b;color:#ffffff;text-decoration:none;font-weight:700;border-radius:4px">Agregar a Google Calendar</a>
+          <a href="${icsUrl}" style="display:inline-block;margin:4px;padding:11px 16px;background:#b8954d;color:#ffffff;text-decoration:none;font-weight:700;border-radius:4px">Agregar a Apple / Outlook</a>
+          <div style="font-size:12px;color:#6d746f;margin-top:10px">25 de noviembre de 2026 · 20:00 horas · Club Palestino</div>
+        </div>
+
         <div style="margin:24px 0;padding:22px 16px;border:1px solid #e3d5ae;background:#faf7ef;text-align:center">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#8a6a2d">Código QR personal de acreditación</div>
           <img src="${qrUrl}" width="260" height="260" alt="Código QR de acreditación ${escapeHtml(person.qr)}" style="display:block;width:260px;height:260px;max-width:100%;margin:16px auto 10px;background:#ffffff;border:10px solid #ffffff" />
