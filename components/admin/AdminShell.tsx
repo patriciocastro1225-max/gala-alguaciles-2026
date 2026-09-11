@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { usePathname, useRouter } from "next/navigation";
+import CommunicationTemplatePersistence from "@/components/admin/CommunicationTemplatePersistence";
 import {
   Archive, BarChart3, Bell, CircleDollarSign, ClipboardCheck, CreditCard, FileText, Gauge, LayoutDashboard, LayoutGrid, Radio,
   LogOut, Mail, Menu, ShieldCheck, Star, TableProperties, UserRoundCheck, UsersRound, WalletCards, X
@@ -61,6 +62,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="adminApp">
+      {pathname === "/admin/comunicaciones" && <CommunicationTemplatePersistence />}
       <aside className={open ? "adminSidebar open" : "adminSidebar"}>
         <div className="sidebarBrand">
           <span className="sidebarSeal">II</span>
