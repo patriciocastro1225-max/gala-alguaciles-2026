@@ -224,7 +224,8 @@ export default function TablesPage() {
 
             <div className="liveTableGrid">
               {tables.map((table) => {
-                const count = attendees.filter((attendee) => attendee.table_id === table.id).length;
+                const tableGuests = attendees.filter((attendee) => attendee.table_id === table.id);
+                const count = tableGuests.length;
                 const percentage = Math.min(100, (count / table.capacity) * 100);
 
                 return (
@@ -232,11 +233,11 @@ export default function TablesPage() {
                     key={table.id}
                     className={`${active?.id === table.id ? "active " : ""}${count >= table.capacity ? "full" : percentage >= 70 ? "limited" : ""}`}
                     onClick={() => setSelected(table.id)}
-                    style={{ borderTopColor: table.color ?? "#C8A14D" }}
+                    style={{ borderTopColor: table.color ?? "#C8A14D", minHeight: 178 }}
                   >
                     <span>Mesa {table.table_number}</span>
                     <strong>{table.name}</strong>
-                    <small>{count} / {table.capacity}</small>
+                    <small style={{ color: "#e7d7ae", fontWeight: 700 }}>{count} / {table.capacity}</small>
                     <i>
                       <b
                         style={{
@@ -245,6 +246,16 @@ export default function TablesPage() {
                         }}
                       />
                     </i>
+                    <span style={{ display: "block", marginTop: 10, textAlign: "left", color: "#f7f5ee", fontSize: 12.5, lineHeight: 1.45 }}>
+                      {tableGuests.slice(0, 4).map((attendee, index) => (
+                        <span key={attendee.id} style={{ display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {index + 1}. {attendee.full_name}
+                        </span>
+                      ))}
+                      {tableGuests.length > 4 && (
+                        <span style={{ display: "block", color: "#cfc7b4" }}>… y {tableGuests.length - 4} más</span>
+                      )}
+                    </span>
                   </button>
                 );
               })}
@@ -256,11 +267,18 @@ export default function TablesPage() {
             </div>
           </div>
 
-          <aside className="tableInspector">
+          <aside className="tableInspector" style={{ color: "#f7f5ee" }}>
             <div className="tableInspectorHeading">
-              <div>
-                <p className="panelEyebrow">Mesa seleccionada</p>
-                <h2>{active?.name ?? "Sin mesas"}</h2>
+              <div style={{ minWidth: 0 }}>
+                <p className="panelEyebrow" style={{ color: "#d7d0bf" }}>Mesa seleccionada</p>
+                <h2 style={{ color: "#ffffff", fontSize: 34, lineHeight: 1.06, margin: "8px 0 0", overflowWrap: "anywhere" }}>
+                  {active ? `Mesa ${active.table_number}` : "Sin mesas"}
+                </h2>
+                {active && (
+                  <strong style={{ display: "block", color: "#f4ead2", fontSize: 18, lineHeight: 1.25, marginTop: 8 }}>
+                    {active.name}
+                  </strong>
+                )}
               </div>
 
               {active && (
@@ -270,26 +288,34 @@ export default function TablesPage() {
               )}
             </div>
 
-            <p>{active?.zone} · {assigned.length}/{active?.capacity ?? 0} cupos</p>
-            {active?.location && <p className="tableMeta">Ubicación: {active.location}</p>}
-            {active?.responsible && <p className="tableMeta">Responsable: {active.responsible}</p>}
-            {active?.notes && <p className="tableNotes">{active.notes}</p>}
+            <p style={{ color: "#ddd5c4", fontWeight: 700 }}>{active?.zone} · {assigned.length}/{active?.capacity ?? 0} cupos</p>
+            {active?.location && <p className="tableMeta" style={{ color: "#c9c2b3" }}>Ubicación: {active.location}</p>}
+            {active?.responsible && <p className="tableMeta" style={{ color: "#c9c2b3" }}>Responsable: {active.responsible}</p>}
+            {active?.notes && <p className="tableNotes" style={{ color: "#d8d1c3" }}>{active.notes}</p>}
 
             <div className="assignedGuests">
-              {assigned.map((attendee) => (
-                <div key={attendee.id}>
-                  <span>
-                    <strong>{attendee.full_name}</strong>
-                    <small>{attendee.circles?.name ?? "Sin círculo"}</small>
+              {assigned.map((attendee, index) => (
+                <div key={attendee.id} style={{ display: "grid", gridTemplateColumns: "28px minmax(0,1fr) auto", gap: 10, alignItems: "center", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,.11)" }}>
+                  <span style={{ color: "#c8a14d", fontWeight: 800, fontSize: 13 }}>{index + 1}</span>
+                  <span style={{ minWidth: 0 }}>
+                    <strong style={{ display: "block", color: "#ffffff", fontSize: 15, lineHeight: 1.25, overflowWrap: "anywhere" }}>{attendee.full_name}</strong>
+                    <small style={{ display: "block", color: "#bdb6a8", marginTop: 3, fontSize: 12.5, lineHeight: 1.25 }}>{attendee.circles?.name ?? "Sin círculo"}</small>
                   </span>
-                  <button disabled={busy === attendee.id} onClick={() => move(attendee, null)}>
+                  <button
+                    disabled={busy === attendee.id}
+                    onClick={() => move(attendee, null)}
+                    style={{ color: "#ff9c8e", fontWeight: 800, whiteSpace: "nowrap" }}
+                  >
                     Retirar
                   </button>
                 </div>
               ))}
+              {!assigned.length && (
+                <p style={{ color: "#bdb6a8", padding: "16px 0" }}>Esta mesa todavía no tiene asistentes asignados.</p>
+              )}
             </div>
 
-            <hr />
+            <hr style={{ borderColor: "rgba(255,255,255,.13)" }} />
 
             <label className="searchBox compact">
               <Search size={17} />
