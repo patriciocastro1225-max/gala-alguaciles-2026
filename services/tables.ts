@@ -3,104 +3,56 @@ import { audit, requireSupabase } from "./helpers";
 
 export async function listTables(): Promise<GalaTable[]> {
   const client = requireSupabase();
-  const { data, error } = await client
-    .from("table_occupancy")
-    .select("*")
-    .order("table_number");
+  const { data, error } = await client.from("table_occupancy").select("*").order("table_number");
   if (error) throw error;
   return (data ?? []) as GalaTable[];
 }
 
 export async function listTableAttendees(): Promise<Attendee[]> {
   const client = requireSupabase();
-  const { data, error } = await client
-    .from("attendees")
-    .select("*, circles(name), gala_tables(name, table_number)")
-    .neq("attendance_status", "Cancelado")
-    .order("full_name");
+  const { data, error } = await client.from("attendees").select("*, circles(name), gala_tables(name, table_number)").neq("attendance_status", "Cancelado").order("full_name");
   if (error) throw error;
   return (data ?? []) as Attendee[];
 }
 
 export async function assignTable(attendeeId: string, tableId: string | null) {
   const client = requireSupabase();
-  const { data, error } = await client
-    .from("attendees")
-    .update({ table_id: tableId })
-    .eq("id", attendeeId)
-    .select("*, circles(name), gala_tables(name, table_number)")
-    .single();
+
+  if (tableId) {
+    const [{ data: attendee, error: attendeeError }, { data: table, error: tableError }] = await Promise.all([
+      client.from("attendees").select("id,seats_reserved,table_id").eq("id", attendeeId).single(),
+      client.from("table_occupancy").select("id,name,capacity,occupied,available").eq("id", tableId).single(),
+    ]);
+    if (attendeeError) throw attendeeError;
+    if (tableError) throw tableError;
+    const seats = Number(attendee?.seats_reserved ?? 1);
+    const alreadyHere = attendee?.table_id === tableId;
+    const available = Number(table?.available ?? 0) + (alreadyHere ? seats : 0);
+    if (seats > available) {
+      throw new Error(`${attendee?.seats_reserved === 10 ? "La mesa completa" : `Esta inscripción necesita ${seats} cupos`} y “${table?.name}” solo tiene ${available} disponibles.`);
+    }
+  }
+
+  const { data, error } = await client.from("attendees").update({ table_id: tableId }).eq("id", attendeeId).select("*, circles(name), gala_tables(name, table_number)").single();
   if (error) throw error;
-  await audit("ASSIGN_TABLE", "attendee", attendeeId, { table_id: tableId });
+  await audit("ASSIGN_TABLE", "attendee", attendeeId, { table_id: tableId, seats_reserved: data.seats_reserved ?? 1 });
   return data as Attendee;
 }
 
-export async function updateTable(
-  id: string,
-  payload: Pick<GalaTable, "name" | "capacity" | "zone" | "status" | "responsible" | "notes" | "location" | "color">
-) {
-  const client = requireSupabase();
-  const { data, error } = await client
-    .from("gala_tables")
-    .update(payload)
-    .eq("id", id)
-    .select("*")
-    .single();
-  if (error) {
-    if (error.code === "23505") throw new Error("Ya existe una mesa con ese nombre o número.");
-    if (error.code === "23514") throw new Error("La zona, el estado o la capacidad no son válidos.");
-    throw error;
-  }
-  await audit("UPDATE", "gala_table", id, payload);
-  return data as GalaTable;
+export async function updateTable(id: string,payload: Pick<GalaTable,"name"|"capacity"|"zone"|"status"|"responsible"|"notes"|"location"|"color">) {
+  const client=requireSupabase();
+  const {data,error}=await client.from("gala_tables").update(payload).eq("id",id).select("*").single();
+  if(error){if(error.code==="23505")throw new Error("Ya existe una mesa con ese nombre o número.");if(error.code==="23514")throw new Error("La zona, el estado o la capacidad no son válidos.");throw error;}
+  await audit("UPDATE","gala_table",id,payload);return data as GalaTable;
 }
 
-
-export async function updateTablesBulk(
-  tables: Array<Pick<GalaTable, "id" | "name" | "capacity" | "zone" | "status" | "responsible" | "notes" | "location" | "color">>
-) {
-  const client = requireSupabase();
-
-  for (const table of tables) {
-    const { id, ...payload } = table;
-    const { error } = await client
-      .from("gala_tables")
-      .update(payload)
-      .eq("id", id);
-
-    if (error) {
-      if (error.code === "23505") {
-        throw new Error(`Ya existe otra mesa con el nombre “${payload.name}”.`);
-      }
-      if (error.code === "23514") {
-        throw new Error(`La configuración de la mesa “${payload.name}” no es válida.`);
-      }
-      throw error;
-    }
-
-    await audit("UPDATE", "gala_table", id, payload);
-  }
+export async function updateTablesBulk(tables:Array<Pick<GalaTable,"id"|"name"|"capacity"|"zone"|"status"|"responsible"|"notes"|"location"|"color">>){
+ const client=requireSupabase();
+ for(const table of tables){const{id,...payload}=table;const{error}=await client.from("gala_tables").update(payload).eq("id",id);if(error){if(error.code==="23505")throw new Error(`Ya existe otra mesa con el nombre “${payload.name}”.`);if(error.code==="23514")throw new Error(`La configuración de la mesa “${payload.name}” no es válida.`);throw error;}await audit("UPDATE","gala_table",id,payload);}
 }
 
-
-export async function updateTablePositions(
-  positions: Array<{ id: string; x_pos: number; y_pos: number }>
-) {
-  const client = requireSupabase();
-
-  for (const position of positions) {
-    const { error } = await client
-      .from("gala_tables")
-      .update({
-        x_pos: Math.max(2, Math.min(92, position.x_pos)),
-        y_pos: Math.max(12, Math.min(88, position.y_pos)),
-      })
-      .eq("id", position.id);
-
-    if (error) throw error;
-  }
-
-  await audit("UPDATE_LAYOUT", "gala_tables", "floor-plan", {
-    tables: positions.length,
-  });
+export async function updateTablePositions(positions:Array<{id:string;x_pos:number;y_pos:number}>){
+ const client=requireSupabase();
+ for(const position of positions){const{error}=await client.from("gala_tables").update({x_pos:Math.max(2,Math.min(92,position.x_pos)),y_pos:Math.max(12,Math.min(88,position.y_pos))}).eq("id",position.id);if(error)throw error;}
+ await audit("UPDATE_LAYOUT","gala_tables","floor-plan",{tables:positions.length});
 }
