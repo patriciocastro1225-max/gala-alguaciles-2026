@@ -30,13 +30,14 @@ export type Attendee = {
   email: string | null;
   phone: string | null;
   companion_name: string | null;
+  seats_reserved?: 1 | 2 | 10;
   companion_checked_in?: boolean;
   companion_checkin_at?: string | null;
   access_notes?: string | null;
   institution?: string | null;
   position_title?: string | null;
   protocol_category?: string | null;
-  payment_status: "Pagado" | "Pendiente" | "Parcial" | "Invitación";
+  payment_status: "Pagado" | "Pendiente" | "Parcial" | "Invitación" | "Pendiente de validación" | "En revisión" | "Validado";
   attendance_status: "Confirmado" | "Pendiente" | "Cancelado";
   checked_in: boolean;
   checkin_at: string | null;
