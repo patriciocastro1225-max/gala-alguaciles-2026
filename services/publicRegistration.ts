@@ -13,6 +13,7 @@ export async function registerAttendee(payload: any) {
     p_dietary_notes: payload.dietary_notes || null,
     p_payment_status: payload.payment_status,
     p_notes: payload.notes || null,
+    p_seats_reserved: Number(payload.seats_reserved || (payload.companion_name ? 2 : 1)),
   });
 
   if (error) throw new Error(error.message);
