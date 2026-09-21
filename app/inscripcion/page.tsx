@@ -28,7 +28,7 @@ export default function RegistrationPage() {
   const [registrationResult, setRegistrationResult] = useState<any>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const people = form.has_companion === "Sí" ? 2 : 1;
+  const people = form.participation_type === "Mesa completa" ? 10 : form.participation_type === "Acompañante" ? 2 : 1;
   const totalAmount = paymentConfig.dinner_price * people;
 
   useEffect(() => { getPublicPaymentConfig().then(setPaymentConfig).catch(() => setPaymentConfig(defaultPaymentConfig)); }, []);
