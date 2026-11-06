@@ -30,7 +30,7 @@ export type Attendee = {
   email: string | null;
   phone: string | null;
   companion_name: string | null;
-  seats_reserved?: 1 | 2 | 10;
+  seats_reserved?: number;
   companion_checked_in?: boolean;
   companion_checkin_at?: string | null;
   access_notes?: string | null;
