@@ -1,4 +1,5 @@
 import { requireSupabase } from "./helpers";
+import { getAdminPaymentConfig } from "./paymentConfig";
 
 export type FinancialAttendee = {
   attendee_id: string;
@@ -7,6 +8,7 @@ export type FinancialAttendee = {
   attendance_status: string;
   circle_id: string | null;
   circle_name: string | null;
+  seats_reserved: number;
   paid_amount: number;
   expected_amount: number;
   balance: number;
@@ -20,7 +22,19 @@ export async function listFinancialSummary(): Promise<FinancialAttendee[]> {
     .order("full_name");
 
   if (error) throw error;
-  return (data ?? []) as FinancialAttendee[];
+  const [{ data: attendees, error: attendeeError }, config] = await Promise.all([
+    client.from("attendees").select("id,seats_reserved"),
+    getAdminPaymentConfig(),
+  ]);
+  if (attendeeError) throw attendeeError;
+  const seatsById = new Map((attendees ?? []).map(a => [a.id, Math.max(1, Number(a.seats_reserved) || 1)]));
+  const unitPrice = Number(config.dinner_price) || 45000;
+  return (data ?? []).map(row => {
+    const seats = seatsById.get(row.attendee_id) ?? 1;
+    const expected = row.payment_status === "Invitación" ? 0 : seats * unitPrice;
+    const paid = Number(row.paid_amount) || 0;
+    return { ...row, seats_reserved: seats, expected_amount: expected, paid_amount: paid, balance: Math.max(0, expected - paid) };
+  }) as FinancialAttendee[];
 }
 
 export async function getAdhesionAmount(): Promise<number> {
