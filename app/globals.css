@@ -2360,3 +2360,8 @@ footer p { font-size: .85rem; }
 @media(max-width:620px){
   .companionRegistration{padding:15px}
 }
+
+/* La edición de nombres es administrativa y nunca debe aparecer en credenciales impresas. */
+@media print {
+  .qrAdminEditControls { display: none !important; }
+}
