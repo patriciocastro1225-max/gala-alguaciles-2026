@@ -66,6 +66,7 @@ export type Payment = {
 
 export type DashboardMetrics = {
   registered: number;
+  total_attendees: number;
   confirmed: number;
   checked_in: number;
   payment_pending: number;
