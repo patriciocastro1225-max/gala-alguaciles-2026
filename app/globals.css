@@ -2401,3 +2401,14 @@ footer p { font-size: .85rem; }
 .qrEventDetails strong{font-size:13px;letter-spacing:.07em;color:#e9cf8c}
 .qrEventDetails span{font-size:13px;line-height:1.35}
 @media print{.qrEventDetails{break-inside:avoid;page-break-inside:avoid}}
+
+/* Etiquetas 92 x 60 mm y reverso. Centrado simétrico en carta. */
+.letterLabelsPage .letterSheet{grid-template-columns:repeat(2,92mm);column-gap:4mm;padding-left:13.95mm;padding-right:13.95mm}
+.letterLabelsPage .letterCutLabel{width:92mm}
+.letterLabelsPage .letterBackLabel .letterLabelInfo strong{font-size:13pt;line-height:1.28;font-style:italic}
+.letterLabelsPage .letterBackLabel .letterLabelInfo{padding:0 2mm}
+@media print{
+ body[data-label-print-side="front"] .letterBackSheets{display:none!important}
+ body[data-label-print-side="back"] .letterSheets:not(.letterBackSheets){display:none!important}
+ .letterLabelsPage .letterSheet{grid-template-columns:repeat(2,92mm)!important;column-gap:4mm!important;padding-left:13.95mm!important;padding-right:13.95mm!important}
+}
