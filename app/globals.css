@@ -2365,3 +2365,25 @@ footer p { font-size: .85rem; }
 @media print {
   .qrAdminEditControls { display: none !important; }
 }
+
+/* Etiquetas masivas: 2 columnas x 4 filas, 94 x 60 mm, carta 215.9 x 279.4 mm */
+.letterSheets{display:flex;flex-direction:column;align-items:center;gap:20px;margin:20px auto}
+.letterSheet{box-sizing:border-box;width:215.9mm;height:279.4mm;padding:15.2mm 11.95mm;display:grid;grid-template-columns:repeat(2,94mm);grid-template-rows:repeat(4,60mm);column-gap:4mm;row-gap:3mm;background:#fff;box-shadow:0 3px 16px #0002}
+.letterCutLabel{box-sizing:border-box;width:94mm;height:60mm;border:0.3mm dashed #999;display:grid;grid-template-columns:minmax(0,1fr) 32mm;align-items:center;overflow:hidden;padding:3mm;color:#132b20;background:white}
+.letterLabelInfo{min-width:0;display:flex;flex-direction:column;gap:2mm;font-family:Arial,sans-serif}
+.letterLabelBrand{font-family:Georgia,serif;font-size:8pt;font-weight:bold;color:#916d27;border-bottom:.3mm solid #b79a58;padding-bottom:2mm}
+.letterLabelInfo strong{font-family:Georgia,serif;font-size:12pt;line-height:1.1;overflow-wrap:anywhere}
+.letterLabelInfo span{font-size:7pt;line-height:1.2;overflow-wrap:anywhere}
+.letterLabelInfo b{font-size:8pt}
+.letterLabelQr{display:flex;align-items:center;justify-content:center;flex-direction:column;min-width:0}
+.letterLabelQr svg{width:27mm;height:27mm}
+.letterLabelQr small{font-size:5.5pt;max-width:30mm;overflow-wrap:anywhere;text-align:center}
+@media print{
+ @page{size:letter;margin:0}
+ html,body{width:215.9mm!important;margin:0!important;padding:0!important;background:white!important}
+ .letterLabelsPage .letterLabelsToolbar,.letterLabelsPage .pageHeading,.letterLabelsPage .dataError{display:none!important}
+ .letterLabelsPage,.letterLabelsPage .letterSheets{display:block!important;margin:0!important;padding:0!important;width:215.9mm!important}
+ .letterLabelsPage .letterSheet{margin:0!important;box-shadow:none!important;break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
+ .letterLabelsPage .letterSheet:last-child{break-after:auto;page-break-after:auto}
+ .letterLabelsPage .letterCutLabel{break-inside:avoid;page-break-inside:avoid}
+}
