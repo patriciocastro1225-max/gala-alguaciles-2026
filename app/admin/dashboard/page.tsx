@@ -43,6 +43,7 @@ export default function DashboardPage() {
             <section className="analyticsKpis">
               <article><UsersRound /><span>Inscritos</span><strong>{data.registered}</strong><small>Registros reales</small></article>
               <article><UsersRound /><span>Asistentes</span><strong>{data.total_attendees}</strong><small>Cupos reservados, sin cancelados</small></article>
+              <article><UsersRound /><span>Invitados de cortesía</span><strong>{data.invited_attendees}</strong><small>{data.invited_registrations} inscripciones · Sin cobro</small></article>
               <article><UserCheck /><span>Confirmados</span><strong>{data.confirmed}</strong><small>{data.checked_in} ya ingresaron</small></article>
               <article><CircleDollarSign /><span>Recaudación</span><strong>{money(data.collected)}</strong><small>{data.payment_pending} pagos pendientes</small></article>
               <article><TableProperties /><span>Mesas</span><strong>{data.total_tables}</strong><small>{data.assigned_seats} de {data.total_capacity} asientos asignados</small></article>
