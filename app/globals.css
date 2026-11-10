@@ -2387,3 +2387,11 @@ footer p { font-size: .85rem; }
  .letterLabelsPage .letterSheet:last-child{break-after:auto;page-break-after:auto}
  .letterLabelsPage .letterCutLabel{break-inside:avoid;page-break-inside:avoid}
 }
+
+/* Etiquetas de identificación sin QR: nombre y círculo a ancho completo. */
+.letterLabelsPage .letterCutLabel{grid-template-columns:minmax(0,1fr);padding:5mm 6mm}
+.letterLabelsPage .letterLabelInfo{height:100%;justify-content:center;align-items:center;text-align:center;gap:3mm}
+.letterLabelsPage .letterLabelBrand{font-size:9pt;width:100%;padding-bottom:3mm}
+.letterLabelsPage .letterLabelInfo strong{font-size:19pt;line-height:1.08;overflow-wrap:anywhere}
+.letterLabelsPage .letterLabelInfo span{font-size:12pt;line-height:1.15;font-weight:600;overflow-wrap:anywhere}
+.letterLabelsPage .letterLabelInfo b{font-size:10pt;color:#765a22}
