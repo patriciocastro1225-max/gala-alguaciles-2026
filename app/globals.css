@@ -2395,3 +2395,9 @@ footer p { font-size: .85rem; }
 .letterLabelsPage .letterLabelInfo strong{font-size:19pt;line-height:1.08;overflow-wrap:anywhere}
 .letterLabelsPage .letterLabelInfo span{font-size:12pt;line-height:1.15;font-weight:600;overflow-wrap:anywhere}
 .letterLabelsPage .letterLabelInfo b{font-size:10pt;color:#765a22}
+
+/* Datos del evento visibles en cada credencial QR, también al imprimir. */
+.qrEventDetails{display:flex;flex-direction:column;align-items:center;gap:5px;margin:16px auto 20px;padding:13px 10px;border-top:1px solid rgba(212,180,104,.5);border-bottom:1px solid rgba(212,180,104,.5);text-align:center;color:#f5edda}
+.qrEventDetails strong{font-size:13px;letter-spacing:.07em;color:#e9cf8c}
+.qrEventDetails span{font-size:13px;line-height:1.35}
+@media print{.qrEventDetails{break-inside:avoid;page-break-inside:avoid}}
