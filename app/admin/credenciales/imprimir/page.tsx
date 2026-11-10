@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
 import { Printer } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { requireSupabase } from "@/services/helpers";
@@ -38,7 +37,7 @@ export default function PrintLetterLabels(){
  }catch(e){if(live)setError(e instanceof Error?e.message:"No fue posible cargar las etiquetas.");}finally{if(live)setLoading(false);}})();return()=>{live=false};},[]);
  return <AdminShell><main className="adminPage letterLabelsPage">
   <section className="pageHeading letterLabelsToolbar"><div><p className="adminEyebrow">Impresión en papel carta</p><h1>Etiquetas para recortar</h1><p>8 etiquetas por hoja, de 9,4 × 6 cm. Incluye todos los cupos y nombres actualizados.</p></div><button className="adminAction primary" disabled={loading||!!error||labels.length===0} onClick={()=>window.print()}><Printer size={18}/> Imprimir todas ({labels.length})</button></section>
-  {loading&&<p>Cargando todos los códigos QR…</p>}{error&&<div className="dataError">{error}</div>}
-  {!loading&&!error&&<><p className="letterLabelsToolbar">{labels.length} etiquetas · {Math.ceil(labels.length/8)} hojas tamaño carta. Imprima al 100%, sin ajustar a página y sin encabezados ni pies.</p><div className="letterSheets">{Array.from({length:Math.ceil(labels.length/8)},(_,page)=><section className="letterSheet" key={page}>{labels.slice(page*8,page*8+8).map(label=><article className="letterCutLabel" key={label.qr}><div className="letterLabelInfo"><div className="letterLabelBrand">II GRAN GALA NACIONAL 2026</div><strong>{label.name}</strong><span>{label.circle}</span><b>MESA: {label.table}</b></div><div className="letterLabelQr"><QRCodeSVG value={label.qr} size={112} level="H" marginSize={1}/><small>{label.qr}</small></div></article>)}</section>)}</div></>}
+  {loading&&<p>Cargando etiquetas…</p>}{error&&<div className="dataError">{error}</div>}
+  {!loading&&!error&&<><p className="letterLabelsToolbar">{labels.length} etiquetas · {Math.ceil(labels.length/8)} hojas tamaño carta. Imprima al 100%, sin ajustar a página y sin encabezados ni pies.</p><div className="letterSheets">{Array.from({length:Math.ceil(labels.length/8)},(_,page)=><section className="letterSheet" key={page}>{labels.slice(page*8,page*8+8).map(label=><article className="letterCutLabel" key={label.qr}><div className="letterLabelInfo"><div className="letterLabelBrand">II GRAN GALA NACIONAL 2026</div><strong>{label.name}</strong><span>{label.circle}</span><b>MESA: {label.table}</b></div></article>)}</section>)}</div></>}
  </main></AdminShell>;
 }
