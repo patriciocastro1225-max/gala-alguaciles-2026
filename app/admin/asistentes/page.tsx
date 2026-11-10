@@ -10,7 +10,7 @@ import type { Attendee } from "@/types/database";
 
 const empty = {
   full_name: "", email: "", phone: "", circle_id: "",
-  companion_name: "", payment_status: "Pendiente",
+  companion_name: "", seats_reserved: 1, payment_status: "Pendiente",
   attendance_status: "Pendiente", dietary_notes: "", notes: "",
 };
 
@@ -33,6 +33,7 @@ export default function AttendeesPage() {
     setForm({
       full_name: row.full_name, email: row.email ?? "", phone: row.phone ?? "",
       circle_id: row.circle_id ?? "", companion_name: row.companion_name ?? "",
+      seats_reserved: Math.max(1, Number(row.seats_reserved) || (row.companion_name ? 2 : 1)),
       payment_status: row.payment_status, attendance_status: row.attendance_status,
       dietary_notes: row.dietary_notes ?? "", notes: row.notes ?? "",
     });
@@ -41,6 +42,9 @@ export default function AttendeesPage() {
 
   async function save() {
     if (!form.full_name.trim()) return;
+    const count = Number(form.seats_reserved);
+    if (!Number.isInteger(count) || count < 1 || count > 12) { alert("Los cupos deben estar entre 1 y 12."); return; }
+    if (form.companion_name.trim() && count < 2) { alert("Una inscripción con acompañante requiere al menos 2 cupos."); return; }
     setSaving(true);
     const payload = {
       ...form,
@@ -48,6 +52,7 @@ export default function AttendeesPage() {
       email: form.email || null,
       phone: form.phone || null,
       companion_name: form.companion_name || null,
+      seats_reserved: count,
       dietary_notes: form.dietary_notes || null,
       notes: form.notes || null,
     };
@@ -117,7 +122,9 @@ export default function AttendeesPage() {
             <label>Correo<input type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label>
             <label>Teléfono<input value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></label>
             <label>Círculo<select value={form.circle_id} onChange={e=>setForm({...form,circle_id:e.target.value})}><option value="">Sin Círculo</option>{(circles.data??[]).map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-            <label>Acompañante<input value={form.companion_name} onChange={e=>setForm({...form,companion_name:e.target.value})}/></label>
+            <label>Acompañante<input value={form.companion_name} onChange={e=>setForm({...form,companion_name:e.target.value,seats_reserved:e.target.value.trim()?Math.max(2,Number(form.seats_reserved)||1):form.seats_reserved})}/></label>
+            <label>Cupos reservados<select value={form.seats_reserved} onChange={e=>setForm({...form,seats_reserved:Number(e.target.value)})}>{Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n} disabled={Boolean(form.companion_name.trim())&&n<2}>{n} {n===1?"persona":"personas"}</option>)}</select></label>
+            {form.payment_status==="Invitación"&&<p className="fullField">Cortesía: {form.seats_reserved} {Number(form.seats_reserved)===1?"asistente":"asistentes"} · $0 a pagar. Cada cupo tendrá su QR individual.</p>}
             <label>Asistencia<select value={form.attendance_status} onChange={e=>setForm({...form,attendance_status:e.target.value})}><option>Confirmado</option><option>Pendiente</option><option>Cancelado</option></select></label>
             <label>Pago<select value={form.payment_status} onChange={e=>setForm({...form,payment_status:e.target.value})}><option>Pagado</option><option>Pendiente</option><option>Parcial</option><option>Invitación</option></select></label>
             <label>Restricciones alimentarias<input value={form.dietary_notes} onChange={e=>setForm({...form,dietary_notes:e.target.value})}/></label>
