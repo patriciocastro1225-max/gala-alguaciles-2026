@@ -5,7 +5,7 @@ export async function listPayments(): Promise<Payment[]> {
   const client = requireSupabase();
   const { data, error } = await client
     .from("payments")
-    .select("*, attendees(full_name, circles(name))")
+    .select("*, attendees(full_name, email, phone, circles(name))")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as Payment[];
@@ -16,7 +16,7 @@ export async function savePayment(payload: Partial<Payment>, id?: string) {
   const query = id
     ? client.from("payments").update(payload).eq("id", id)
     : client.from("payments").insert(payload);
-  const { data, error } = await query.select("*, attendees(full_name, circles(name))").single();
+  const { data, error } = await query.select("*, attendees(full_name, email, phone, circles(name))").single();
   if (error) throw error;
 
   if (payload.attendee_id && payload.status) {
