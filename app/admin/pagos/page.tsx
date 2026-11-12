@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle2, CircleDollarSign, Eye, Pencil, Plus, Search, Trash2, X, XCircle } from "lucide-react";
+import { CheckCircle2, CircleDollarSign, Eye, Mail, MessageCircle, Pencil, Plus, Search, Trash2, X, XCircle } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { listAttendees } from "@/services/attendees";
@@ -19,6 +19,25 @@ export default function PaymentsPage(){
   const [editing,setEditing]=useState<string|null>(null);
   const [form,setForm]=useState<any>(empty);
   const [message,setMessage]=useState("");
+  const [contactPayment,setContactPayment]=useState<Payment|null>(null);
+  const [contactText,setContactText]=useState("");
+  const [contactSubject,setContactSubject]=useState("Observación sobre su transferencia - II Gran Gala Nacional 2026");
+  function openContact(row:Payment){
+    setContactPayment(row);
+    setContactText(`Estimado/a ${row.attendees?.full_name??"asistente"}:
+
+Le contactamos desde el Comité Organizador de la II Gran Gala Nacional de los Alguaciles de Chile 2026 porque hemos detectado una observación en la transferencia o comprobante asociado a su inscripción.
+
+Le agradeceremos revisar los antecedentes y comunicarse con nosotros para regularizar la situación.
+
+Atentamente,
+Comité Organizador
+II Gran Gala Nacional 2026`);
+  }
+  const contactPhone=(contactPayment?.attendees?.phone??"").replace(/[^0-9]/g,"");
+  const whatsappPhone=contactPhone.startsWith("56")?contactPhone:contactPhone.length===9?"56"+contactPhone:contactPhone;
+  function emailContact(){const email=contactPayment?.attendees?.email;if(!email)return;window.location.href=`mailto:${email}?subject=${encodeURIComponent(contactSubject)}&body=${encodeURIComponent(contactText)}`;}
+  function whatsappContact(){if(!whatsappPhone)return;window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(contactText)}`,"_blank","noopener,noreferrer");}
   const rows=useMemo(()=>(payments.data??[]).filter(r=>`${r.attendees?.full_name??""} ${r.reference??""} ${r.receipt_original_name??""}`.toLowerCase().includes(query.toLowerCase())),[payments.data,query]);
   const collected=rows.filter(r=>r.status==="Pagado"||r.status==="Parcial").reduce((s,r)=>s+r.amount,0);
 
@@ -48,18 +67,34 @@ export default function PaymentsPage(){
       <div className="toolbar"><label className="searchBox"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar pago o comprobante..."/></label></div>
       <div className="adminTableWrap"><table className="adminTable"><thead><tr><th>Asistente</th><th>Círculo</th><th>Monto</th><th>Método</th><th>Estado</th><th>Validación</th><th>Comprobante</th><th>Fecha</th><th>Acciones</th></tr></thead>
       <tbody>{payments.loading&&<tr><td colSpan={9}>Cargando pagos…</td></tr>}{rows.map(row=><tr key={row.id}>
-        <td><strong>{row.attendees?.full_name??"Asistente eliminado"}</strong></td><td>{row.attendees?.circles?.name??"—"}</td><td>{money(row.amount)}</td><td>{row.method}</td>
+        <td><strong>{row.attendees?.full_name??"Asistente eliminado"}</strong><div style={{fontSize:12,marginTop:5}}>{row.attendees?.email&&<div><a href={`mailto:${row.attendees.email}`}>{row.attendees.email}</a></div>}{row.attendees?.phone&&<div><a href={`tel:${row.attendees.phone}`}>{row.attendees.phone}</a></div>}{!row.attendees?.email&&!row.attendees?.phone&&<span>Sin datos de contacto</span>}</div></td><td>{row.attendees?.circles?.name??"—"}</td><td>{money(row.amount)}</td><td>{row.method}</td>
         <td><span className={row.status==="Pagado"?"statusConfirmed":row.status==="Parcial"?"statusPartial":"statusPending"}>{row.status}</span></td>
         <td><span className={row.validation_status==="Validado"?"statusConfirmed":row.validation_status==="Rechazado"?"statusCancelled":"statusPending"}>{row.validation_status??"—"}</span></td>
         <td>{row.receipt_path?<button className="adminAction" onClick={()=>viewReceipt(row)}><Eye size={16}/> Ver</button>:"—"}</td>
         <td>{row.payment_date??"—"}</td>
-        <td><span className="rowActions">
+        <td><span className="rowActions"><button title="Informar observación al asistente" onClick={()=>openContact(row)}><MessageCircle size={17}/></button>
           {row.receipt_path&&row.validation_status!=="Validado"&&<button title="Validar comprobante" onClick={()=>validateReceipt(row,"Validado")}><CheckCircle2 size={17}/></button>}
           {row.receipt_path&&row.validation_status!=="Rechazado"&&<button title="Rechazar comprobante" onClick={()=>validateReceipt(row,"Rechazado")}><XCircle size={17}/></button>}
           <button onClick={()=>open(row)}><Pencil size={17}/></button><button onClick={()=>remove(row.id)}><Trash2 size={17}/></button>
         </span></td>
       </tr>)}</tbody></table></div>
     </section>
+    {contactPayment&&<div className="modalLayer"><div className="formModal">
+      <div className="modalHeader"><h2>Informar observación de pago</h2><button onClick={()=>setContactPayment(null)} aria-label="Cerrar"><X/></button></div>
+      <p><strong>{contactPayment.attendees?.full_name??"Asistente"}</strong></p>
+      <p>Correo: {contactPayment.attendees?.email??"No registrado"}</p>
+      <p>Teléfono: {contactPayment.attendees?.phone??"No registrado"}</p>
+      <div className="formGrid">
+        <label className="fullField">Asunto<input value={contactSubject} onChange={e=>setContactSubject(e.target.value)}/></label>
+        <label className="fullField">Mensaje<textarea rows={9} value={contactText} onChange={e=>setContactText(e.target.value)}/></label>
+      </div>
+      <p>El mensaje se abrirá en su correo o WhatsApp para que lo revise y envíe. Esta acción no cambia el estado del pago.</p>
+      <div className="modalActions">
+        <button className="adminAction" onClick={()=>setContactPayment(null)}>Cerrar</button>
+        <button className="adminAction" disabled={!contactPayment.attendees?.email} onClick={emailContact}><Mail size={16}/> Preparar correo</button>
+        <button className="adminAction primary" disabled={!whatsappPhone} onClick={whatsappContact}><MessageCircle size={16}/> Abrir WhatsApp</button>
+      </div>
+    </div></div>}
     {modal&&<div className="modalLayer"><div className="formModal">
       <div className="modalHeader"><h2>{editing?"Editar pago":"Registrar pago"}</h2><button onClick={()=>setModal(false)}><X/></button></div>
       <div className="formGrid">
