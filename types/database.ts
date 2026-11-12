@@ -69,6 +69,7 @@ export type DashboardMetrics = {
   total_attendees: number;
   invited_attendees: number;
   invited_registrations: number;
+  circles_summary: { circle: string; registrations: number; people: number }[];
   confirmed: number;
   checked_in: number;
   payment_pending: number;
