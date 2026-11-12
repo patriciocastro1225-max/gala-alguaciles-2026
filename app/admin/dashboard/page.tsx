@@ -49,6 +49,19 @@ export default function DashboardPage() {
               <article><TableProperties /><span>Mesas</span><strong>{data.total_tables}</strong><small>{data.assigned_seats} de {data.total_capacity} asientos asignados</small></article>
             </section>
 
+            <section className="managementPanel" style={{marginTop:24,padding:20}}>
+              <h3>Inscritos por círculo</h3>
+              <p>Personas inscritas, incluidos acompañantes y cupos de mesas completas. No considera inscripciones canceladas.</p>
+              <div className="adminTableWrap">
+                <table className="adminTable">
+                  <thead><tr><th>Círculo</th><th>Inscripciones</th><th>Personas</th></tr></thead>
+                  <tbody>
+                    {data.circles_summary.map(group=><tr key={group.circle}><td><strong>{group.circle}</strong></td><td>{group.registrations}</td><td><strong>{group.people}</strong></td></tr>)}
+                    <tr><td><strong>TOTAL</strong></td><td><strong>{data.circles_summary.reduce((sum,g)=>sum+g.registrations,0)}</strong></td><td><strong>{data.circles_summary.reduce((sum,g)=>sum+g.people,0)}</strong></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
             <section className="productionStatus">
               <h3>Estado operativo</h3>
               <div>
