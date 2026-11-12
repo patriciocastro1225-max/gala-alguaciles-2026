@@ -61,7 +61,7 @@ export type Payment = {
   receipt_path?: string | null;
   receipt_original_name?: string | null;
   validation_status?: "Pendiente" | "Validado" | "Rechazado" | null;
-  attendees?: { full_name: string; circles?: { name: string } | null } | null;
+  attendees?: { full_name: string; email?: string | null; phone?: string | null; circles?: { name: string } | null } | null;
 };
 
 export type DashboardMetrics = {
