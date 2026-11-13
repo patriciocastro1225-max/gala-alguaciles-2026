@@ -4,16 +4,29 @@ import { Printer, RefreshCw, TableProperties, UsersRound } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { listTableAttendees, listTables } from "@/services/tables";
+import { requireSupabase } from "@/services/helpers";
+type Seat = { attendee_id:string; seat_number:number; guest_name:string; checked_in:boolean };
+type ReportGuest = { id:string; name:string; circle:string; checked_in:boolean };
 
 async function load() {
-  const [tables, attendees] = await Promise.all([listTables(), listTableAttendees()]);
-  return { tables, attendees };
+  const client = requireSupabase();
+  const [tables, attendees, seatsResult] = await Promise.all([
+    listTables(),
+    listTableAttendees(),
+    client.from("attendee_seats").select("attendee_id,seat_number,guest_name,checked_in").order("seat_number")
+  ]);
+  if(seatsResult.error) throw seatsResult.error;
+  const seats=(seatsResult.data??[]) as Seat[];
+  const byAttendee=new Map<string,Seat[]>();
+  for(const seat of seats){const group=byAttendee.get(seat.attendee_id)??[];group.push(seat);byAttendee.set(seat.attendee_id,group);}
+  return { tables, attendees, byAttendee };
 }
 
 export default function TableReportPage() {
   const source = useAsyncData(load, []);
   const tables = source.data?.tables ?? [];
   const attendees = source.data?.attendees ?? [];
+  const byAttendee=source.data?.byAttendee ?? new Map<string,Seat[]>();
 
   return (
     <AdminShell>
@@ -30,9 +43,24 @@ export default function TableReportPage() {
           </div>
         </section>
 
+        {source.error&&<div className="dataError">{source.error}</div>}
         <section className="tableReportSheets22">
           {tables.map((table) => {
-            const guests = attendees.filter((a) => a.table_id === table.id);
+            const registrations = attendees.filter((a) => a.table_id === table.id);
+            const guests:ReportGuest[] = registrations.flatMap(a=>{
+              const seats=byAttendee.get(a.id)??[];
+              if(seats.length)return seats.map(s=>({
+                id:`${a.id}-${s.seat_number}`,name:s.guest_name,
+                circle:a.circles?.name??"Sin círculo",checked_in:s.checked_in
+              }));
+              const count=Math.max(1,Number(a.seats_reserved)||1);
+              return Array.from({length:count},(_,i)=>({
+                id:`${a.id}-${i+1}`,
+                name:i===0?a.full_name:i===1&&a.companion_name?a.companion_name:`Invitado ${i+1} de ${a.full_name}`,
+                circle:a.circles?.name??"Sin círculo",
+                checked_in:i===0?Boolean(a.checked_in):false
+              }));
+            });
             return (
               <article className="tableSheet22" key={table.id}>
                 <header>
@@ -52,8 +80,8 @@ export default function TableReportPage() {
                   {guests.map((guest) => (
                     <li key={guest.id}>
                       <span>
-                        <strong>{guest.full_name}</strong>
-                        <small>{guest.circles?.name ?? "Sin círculo"}</small>
+                        <strong>{guest.name}</strong>
+                        <small>{guest.circle}</small>
                       </span>
                       <span>{guest.checked_in ? "✓ Ingresó" : "Pendiente"}</span>
                     </li>
