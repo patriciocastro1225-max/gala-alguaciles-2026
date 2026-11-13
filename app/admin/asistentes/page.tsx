@@ -141,7 +141,7 @@ export default function AttendeesPage() {
                   <td><select aria-label={`Mesa para ${row.full_name}`} value={row.table_id??""} disabled={seatBusy===row.id} onChange={e=>void changeTable(row,e.target.value)}><option value="">Sin asignar</option>{tables.map(t=><option key={t.id} value={t.id}>{t.name} ({t.available??t.capacity} libres)</option>)}</select></td>
                   <td><code>{row.qr_code}</code></td>
                   <td><span className="rowActions"><button onClick={()=>openEdit(row)}><Pencil size={17}/></button><button onClick={()=>remove(row.id)}><Trash2 size={17}/></button></span></td>
-                </tr>)}{rows.filter(row=>expanded.includes(row.id)).flatMap(row=>(seatsByAttendee.get(row.id)??[]).map(s=><tr key={s.qr_code}><td style={{paddingLeft:28}}>Cupo {s.seat_number}: <strong>{s.guest_name}</strong></td><td>{row.circles?.name??"Sin círculo"}</td><td>{row.attendance_status}</td><td>{row.payment_status}</td><td>{row.gala_tables?.name??"Sin asignar"}</td><td><code>{s.qr_code}</code></td><td>Invitado de {row.full_name}</td></tr>))}</tbody>
+                </tr>)}{rows.filter(row=>expanded.includes(row.id)).flatMap(row=>(seatsByAttendee.get(row.id)??[]).map(s=><tr key={s.qr_code}><td style={{paddingLeft:28}}>Cupo {s.seat_number}: <strong>{s.guest_name}</strong></td><td>{row.circles?.name??"Sin círculo"}</td><td>{row.attendance_status}</td><td>{row.payment_status}</td><td>{row.gala_tables?.name??"Sin asignar"}</td><td><code>{s.qr_code}</code></td><td>Invitado de {row.full_name}</td></tr>))}
               </tbody>
             </table>
           </div>
