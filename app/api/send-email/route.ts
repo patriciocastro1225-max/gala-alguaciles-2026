@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 type Seat = { seat_number: number; guest_name: string; guest_type: string; qr_code: string };
 type Recipient = { attendee_id?: string; email: string; name: string; table: string; circle: string; qr: string; seats?: Seat[] };
@@ -22,10 +23,18 @@ async function loadSeats(attendeeId:string|undefined, fallback:Recipient):Promis
 }
 
 export async function POST(request:NextRequest){
+ const token=request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
+ const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
+ const anon=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+ if(!token||!url||!anon)return NextResponse.json({error:"Debe iniciar sesión para enviar comunicaciones."},{status:401});
+ const authClient=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false}});
+ const {data:auth,error:authError}=await authClient.auth.getUser(token);
+ if(authError||!auth.user)return NextResponse.json({error:"Sesión inválida o expirada. Ingrese nuevamente."},{status:401});
+
  const apiKey=process.env.RESEND_API_KEY;const from=process.env.EMAIL_FROM;
  if(!apiKey||!from)return NextResponse.json({error:"Falta configurar RESEND_API_KEY y EMAIL_FROM en Netlify."},{status:503});
  const body=await request.json() as {subject?:string;message?:string;recipients?:Recipient[]};
- if(!body.subject?.trim()||!body.message?.trim()||!body.recipients?.length)return NextResponse.json({error:"Faltan asunto, mensaje o destinatarios."},{status:400});
+ if(!body.subject?.trim()||!body.message?.trim()||(!Array.isArray(body.recipients)||!body.recipients.length))return NextResponse.json({error:"Faltan asunto, mensaje o destinatarios."},{status:400});
  const results=[];const googleUrl=googleCalendarUrl();const icsUrl="https://grangala.cl/api/calendar";
  for(const person of body.recipients.slice(0,50)){
   if(!person.email)continue;
