@@ -7,8 +7,8 @@ import { supabase, supabaseConfigured } from "@/lib/supabase";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@gala2026.cl");
-  const [password, setPassword] = useState("Gala2026!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,12 +41,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    if (email === "admin@gala2026.cl" && password === "Gala2026!") {
-      sessionStorage.setItem("gala-admin", "1");
-      router.push("/admin/dashboard");
-    } else {
-      setMessage("Credenciales de demostración incorrectas.");
-    }
+    setMessage("El acceso administrativo requiere conexión segura con Supabase. Intente nuevamente más tarde.");
     setLoading(false);
   }
 
@@ -81,11 +76,7 @@ export default function AdminLoginPage() {
           <a className="forgotPasswordLink" href="/admin/recuperar-clave">¿Olvidaste tu contraseña?</a>
         )}
 
-        {!supabaseConfigured && (
-          <p className="demoCredentials">
-            Demo: admin@gala2026.cl · Gala2026!
-          </p>
-        )}
+
       </section>
     </main>
   );
