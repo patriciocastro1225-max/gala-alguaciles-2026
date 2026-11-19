@@ -12,6 +12,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
+import { requireSupabase } from "@/services/helpers";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { listAttendees } from "@/services/attendees";
 import { listTables } from "@/services/tables";
@@ -172,9 +173,12 @@ export default function CommunicationsPage() {
     setMessage("");
 
     try {
+      const {data:sessionData}=await requireSupabase().auth.getSession();
+      const accessToken=sessionData.session?.access_token;
+      if(!accessToken)throw new Error("Su sesión expiró. Ingrese nuevamente.");
       const response = await fetch("/api/send-email", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({
           subject,
           message: body,
