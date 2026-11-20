@@ -2412,3 +2412,23 @@ footer p { font-size: .85rem; }
  body[data-label-print-side="back"] .letterSheets:not(.letterBackSheets){display:none!important}
  .letterLabelsPage .letterSheet{grid-template-columns:repeat(2,92mm)!important;column-gap:4mm!important;padding-left:13.95mm!important;padding-right:13.95mm!important}
 }
+
+/* Reporte por mesas: evita la primera hoja vacía/cortada y mantiene cada mesa unida. */
+@media print {
+  @page { size: letter portrait; margin: 12mm; }
+  html, body { width: auto !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  .tableReportPage22, .tableReportPage22 .tableReportSheets22 {
+    display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important;
+  }
+  .tableReportPage22 .tableSheet22 {
+    display: block !important; box-sizing: border-box; width: 100% !important;
+    margin: 0 !important; padding: 5mm 0 !important;
+    break-before: auto; page-break-before: auto;
+    break-after: page; page-break-after: always;
+    break-inside: avoid; page-break-inside: avoid;
+    border: none !important; box-shadow: none !important;
+  }
+  .tableReportPage22 .tableSheet22:last-child { break-after: auto; page-break-after: auto; }
+  .tableReportPage22 .tableSheet22 li { break-inside: avoid; page-break-inside: avoid; }
+  .tableReportPage22 .noPrint22 { display: none !important; }
+}
