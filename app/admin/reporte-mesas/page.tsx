@@ -1,6 +1,6 @@
 "use client";
 
-import { Printer, RefreshCw, TableProperties, UsersRound } from "lucide-react";
+import { Download, Printer, RefreshCw, TableProperties, UsersRound } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { listTableAttendees, listTables } from "@/services/tables";
@@ -28,6 +28,38 @@ export default function TableReportPage() {
   const attendees = source.data?.attendees ?? [];
   const byAttendee=source.data?.byAttendee ?? new Map<string,Seat[]>();
 
+  function exportExcel() {
+    if (!source.data || source.error) return;
+    const clean = (value: unknown) => {
+      const raw = String(value ?? "").replace(/[\\r\\n\\t]+/g, " ").trim();
+      const safe = /^[=+@-]/.test(raw) ? "'" + raw : raw;
+      return '"' + safe.replace(/"/g, '""') + '"';
+    };
+    const rows: (string | number)[][] = [["Mesa Nº", "Mesa", "Zona", "Cupo", "Capacidad", "Invitado", "Círculo", "Ingreso"]];
+    for (const table of [...tables].sort((a,b)=>Number(a.table_number)-Number(b.table_number))) {
+      let seatIndex = 0;
+      for (const a of attendees.filter(a=>a.table_id===table.id)) {
+        const seats=byAttendee.get(a.id)??[];
+        const names=seats.length
+          ? seats.map(s=>({name:s.guest_name,checked:s.checked_in}))
+          : Array.from({length:Math.max(1,Number(a.seats_reserved)||1)},(_,i)=>({
+              name:i===0?a.full_name:i===1&&a.companion_name?a.companion_name:`Invitado ${i+1} de ${a.full_name}`,
+              checked:i===0?Boolean(a.checked_in):false
+            }));
+        for (const guest of names) {
+          rows.push([table.table_number,table.name,table.zone,++seatIndex,table.capacity,guest.name,a.circles?.name??"Sin círculo",guest.checked?"Ingresó":"Pendiente"]);
+        }
+      }
+      if (!seatIndex) rows.push([table.table_number,table.name,table.zone,"",table.capacity,"Sin invitados asignados","",""]);
+    }
+    const csv="\\uFEFF"+rows.map(row=>row.map(clean).join(";")).join("\\r\\n");
+    const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
+    const link=document.createElement("a");
+    link.href=url;link.download="gran-gala-listado-por-mesas.csv";
+    document.body.appendChild(link);link.click();link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <AdminShell>
       <main className="adminPage tableReportPage22">
@@ -39,7 +71,8 @@ export default function TableReportPage() {
           </div>
           <div className="tablePageActions">
             <button className="adminAction" onClick={source.reload}><RefreshCw size={17}/> Actualizar</button>
-            <button className="adminAction primary" onClick={() => window.print()}><Printer size={17}/> Imprimir</button>
+            <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportExcel}><Download size={17}/> Exportar a Excel</button>
+            <button className="adminAction primary" disabled={!source.data || Boolean(source.error)} onClick={() => window.print()}><Printer size={17}/> Imprimir</button>
           </div>
         </section>
 
