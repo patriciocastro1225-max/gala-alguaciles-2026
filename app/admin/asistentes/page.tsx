@@ -26,6 +26,8 @@ export default function AttendeesPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<any>(empty);
   const [saving, setSaving] = useState(false);
+  const [saveError,setSaveError]=useState("");
+  const [paidAmount,setPaidAmount]=useState(0);
   const [seats,setSeats]=useState<SeatRow[]>([]);
   const [tables,setTables]=useState<GalaTable[]>([]);
   const [seatError,setSeatError]=useState("");
@@ -55,7 +57,10 @@ export default function AttendeesPage() {
   ), [attendees.data, query]);
 
   function openNew() { setEditing(null); setForm(empty); setModal(true); }
-  function openEdit(row: Attendee) {
+  async function openEdit(row: Attendee) {
+    setSaveError("");
+    const {data}=await requireSupabase().from("payments").select("amount,status").eq("attendee_id",row.id);
+    setPaidAmount((data??[]).filter(p=>p.status==="Pagado"||p.status==="Parcial").reduce((s,p)=>s+Number(p.amount??0),0));
     setEditing(row.id);
     setForm({
       full_name: row.full_name, email: row.email ?? "", phone: row.phone ?? "",
@@ -72,6 +77,13 @@ export default function AttendeesPage() {
     const count = Number(form.seats_reserved);
     if (!Number.isInteger(count) || count < 1 || count > 12) { alert("Los cupos deben estar entre 1 y 12."); return; }
     if (form.companion_name.trim() && count < 2) { alert("Una inscripción con acompañante requiere al menos 2 cupos."); return; }
+    const otherCount=(attendees.data??[]).filter(a=>a.id!==editing&&a.attendance_status!=="Cancelado").reduce((s,a)=>s+Math.max(1,Number(a.seats_reserved)||1),0);
+    if(form.attendance_status!=="Cancelado"&&otherCount+count>175){setSaveError("AFORO MÁXIMO DE 175 PERSONAS. NO SE PUEDE AGREGAR ESTE CUPO.");return;}
+    const previous=(attendees.data??[]).find(a=>a.id===editing);
+    if(previous&&count>Number(previous.seats_reserved||1)){
+      if(!confirm("Se aumentará la reserva a "+count+" personas. Total esperado: $"+(count*45000).toLocaleString("es-CL")+". Pago registrado: $"+paidAmount.toLocaleString("es-CL")+". Los QR deben generarse automáticamente. El pago no se duplicará. ¿Continuar?"))return;
+    }
+    setSaveError("");
     setSaving(true);
     const payload = {
       ...form,
@@ -89,7 +101,8 @@ export default function AttendeesPage() {
       setModal(false);
       await attendees.reload();
       await reloadSeats();
-    } finally { setSaving(false); }
+    } catch(e) {setSaveError(e instanceof Error?e.message:"No se pudo guardar.");}
+    finally { setSaving(false); }
   }
 
   async function remove(id: string) {
@@ -156,12 +169,14 @@ export default function AttendeesPage() {
             <label>Círculo<select value={form.circle_id} onChange={e=>setForm({...form,circle_id:e.target.value})}><option value="">Sin Círculo</option>{(circles.data??[]).map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
             <label>Acompañante<input value={form.companion_name} onChange={e=>setForm({...form,companion_name:e.target.value,seats_reserved:e.target.value.trim()?Math.max(2,Number(form.seats_reserved)||1):form.seats_reserved})}/></label>
             <label>Cupos reservados<select value={form.seats_reserved} onChange={e=>setForm({...form,seats_reserved:Number(e.target.value)})}>{Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n} disabled={Boolean(form.companion_name.trim())&&n<2}>{n} {n===1?"persona":"personas"}</option>)}</select></label>
+            {editing&&<p className="fullField">Total esperado: ${(Number(form.seats_reserved)*45000).toLocaleString("es-CL")} pesos · Pagos registrados: ${paidAmount.toLocaleString("es-CL")} pesos. Agregar un acompañante no duplica el pago.</p>}
             {form.payment_status==="Invitación"&&<p className="fullField">Cortesía: {form.seats_reserved} {Number(form.seats_reserved)===1?"asistente":"asistentes"} · $0 a pagar. Cada cupo tendrá su QR individual.</p>}
             <label>Asistencia<select value={form.attendance_status} onChange={e=>setForm({...form,attendance_status:e.target.value})}><option>Confirmado</option><option>Pendiente</option><option>Cancelado</option></select></label>
             <label>Pago<select value={form.payment_status} onChange={e=>setForm({...form,payment_status:e.target.value})}><option>Pagado</option><option>Pendiente</option><option>Parcial</option><option>Invitación</option></select></label>
             <label>Restricciones alimentarias<input value={form.dietary_notes} onChange={e=>setForm({...form,dietary_notes:e.target.value})}/></label>
             <label className="fullField">Notas<textarea rows={3} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})}/></label>
           </div>
+          {saveError&&<div className="dataError">{saveError}</div>}
           <div className="modalActions"><button className="adminAction" onClick={()=>setModal(false)}>Cancelar</button><button className="adminAction primary" disabled={saving} onClick={save}>{saving ? "Guardando…" : "Guardar"}</button></div>
         </div></div>}
       </main>
