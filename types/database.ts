@@ -26,6 +26,7 @@ export type GalaTable = {
 
 export type Attendee = {
   id: string;
+  registration_code?: string | null;
   full_name: string;
   email: string | null;
   phone: string | null;
