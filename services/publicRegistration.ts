@@ -1,6 +1,7 @@
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 
 export async function registerAttendee(payload: any) {
+  throw new Error("EVENTO COMPLETO. LAS INSCRIPCIONES ESTÁN CERRADAS.");
   if (!supabaseConfigured || !supabase) throw new Error("Supabase no está configurado.");
 
   const { data, error } = await supabase.rpc("register_gala_attendee", {
