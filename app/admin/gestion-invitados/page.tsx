@@ -50,6 +50,7 @@ export default function GuestManagementPage() {
         !q ||
         a.full_name.toLowerCase().includes(q) ||
         (a.email ?? "").toLowerCase().includes(q) ||
+        (a.registration_code ?? "").toLowerCase().includes(q) ||
         (a.phone ?? "").toLowerCase().includes(q) ||
         (a.circles?.name ?? "").toLowerCase().includes(q) ||
         (a.gala_tables?.name ?? "").toLowerCase().includes(q);
@@ -166,7 +167,7 @@ export default function GuestManagementPage() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar nombre, correo, teléfono, círculo o mesa..."
+              placeholder="Buscar número de inscripción, nombre, correo, teléfono, círculo o mesa..."
             />
           </label>
 
@@ -198,6 +199,7 @@ export default function GuestManagementPage() {
             <div className="guestTableRow22" key={attendee.id}>
               <div>
                 <strong>{attendee.full_name}</strong>
+                <small><strong>Inscripción: {attendee.registration_code || "Sin número"}</strong></small>
                 <small>{attendee.email ?? "Sin correo"} · {attendee.phone ?? "Sin teléfono"}</small>
               </div>
 
@@ -234,6 +236,7 @@ export default function GuestManagementPage() {
                 <div>
                   <p className="adminEyebrow">Ficha del invitado</p>
                   <h2>{selected.full_name}</h2>
+                  <p><strong>N.º de inscripción: {selected.registration_code || "Sin número"}</strong></p>
                 </div>
                 <button onClick={() => setSelected(null)}><X /></button>
               </div>
