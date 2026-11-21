@@ -1,24 +1,7 @@
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 
-export async function registerAttendee(payload: any) {
+export async function registerAttendee(_payload: any): Promise<never> {
   throw new Error("EVENTO COMPLETO. LAS INSCRIPCIONES ESTÁN CERRADAS.");
-  if (!supabaseConfigured || !supabase) throw new Error("Supabase no está configurado.");
-
-  const { data, error } = await supabase.rpc("register_gala_attendee", {
-    p_full_name: payload.full_name,
-    p_email: payload.email,
-    p_phone: payload.phone,
-    p_circle_name: payload.circle_name || null,
-    p_attendance_status: payload.attendance_status,
-    p_companion_name: payload.companion_name || null,
-    p_dietary_notes: payload.dietary_notes || null,
-    p_payment_status: payload.payment_status,
-    p_notes: payload.notes || null,
-    p_seats_reserved: Number(payload.seats_reserved || (payload.companion_name ? 2 : 1)),
-  });
-
-  if (error) throw new Error(error.message);
-  return Array.isArray(data) ? data[0] : data;
 }
 
 export async function uploadPaymentReceipt(file: File, attendeeId: string, portalToken: string, amount: number) {
