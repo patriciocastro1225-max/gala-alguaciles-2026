@@ -1,109 +1,18 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { registerAttendee, uploadPaymentReceipt } from "@/services/publicRegistration";
-import { supabase } from "@/lib/supabase";
-import { defaultPaymentConfig, getPublicPaymentConfig, type PaymentConfig } from "@/services/paymentConfig";
-
-const steps = ["DATOS PERSONALES", "INFORMACIÓN INSTITUCIONAL", "PARTICIPACIÓN", "ALIMENTACIÓN", "PAGO", "CONFIRMACIÓN"];
-const upper = (value: string) => value.toLocaleUpperCase("es-CL");
-const money = (value: number) => new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(value);
-
-const initialForm = {
-  full_name: "", email: "", phone: "", circle_name: "", attendance_status: "Confirmado", participation_type: "Individual", seats_requested: 1, has_companion: "No",
-  companion_name: "", companion_email: "", companion_phone: "", companion_rut: "", companion_is_alguacil: "No", companion_circle_name: "", companion_position: "", companion_dietary_notes: "",
-  dietary_notes: "", payment_status: "Pendiente", notes: "", consent: false,
-};
-
-async function notifyOrganizers(payload: Record<string, unknown>) {
-  try { await fetch("/api/notifications/registration", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch {}
-}
-
-export default function RegistrationPage() {
-  const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState<any>(initialForm);
-  const [paymentConfig, setPaymentConfig] = useState<PaymentConfig>(defaultPaymentConfig);
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [registrationResult, setRegistrationResult] = useState<any>(null);
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [available, setAvailable] = useState<number | null>(null);
-  const people = Number(form.seats_requested) || 1;
-  const totalAmount = paymentConfig.dinner_price * people;
-
-  useEffect(() => { getPublicPaymentConfig().then(setPaymentConfig).catch(() => setPaymentConfig(defaultPaymentConfig)); }, []);
-  useEffect(() => {
-    let mounted = true;
-    async function refreshCapacity() {
-      if (!supabase) return;
-      const { data, error } = await supabase.rpc("gala_available_seats");
-      if (mounted && !error) setAvailable(Number(data));
-    }
-    refreshCapacity();
-    const timer = setInterval(refreshCapacity, 30000);
-    return () => { mounted = false; clearInterval(timer); };
-  }, []);
-  const update = (key: string, value: any) => setForm((current: any) => ({ ...current, [key]: value }));
-  const updateUpper = (key: string, value: string) => update(key, upper(value));
-
-  function validateCurrentStep() {
-    if (step === 0 && (!form.full_name.trim() || !form.email.trim() || !form.phone.trim())) { setError("COMPLETE NOMBRE, CORREO Y TELÉFONO."); return false; }
-    if (step === 2 && form.participation_type === "Acompañante" && !form.companion_name.trim()) { setError("INGRESE EL NOMBRE COMPLETO DEL ACOMPAÑANTE."); return false; }
-    if (step === 2 && form.participation_type === "Acompañante" && form.companion_is_alguacil === "Sí" && (!form.companion_circle_name.trim() || !form.companion_position.trim())) { setError("SI EL ACOMPAÑANTE ES ALGUACIL, INDIQUE SU CÍRCULO Y CARGO."); return false; }
-    if (step === 4 && !receiptFile) { setError("PARA CONTINUAR, DEBE REALIZAR LA TRANSFERENCIA Y ADJUNTAR EL COMPROBANTE."); return false; }
-    if (step === 5 && !form.consent) { setError("DEBE ACEPTAR LA POLÍTICA DE PRIVACIDAD Y EL TRATAMIENTO DE DATOS."); return false; }
-    setError(""); return true;
-  }
-
-  function chooseReceipt(file: File | null) {
-    if (!file) { setReceiptFile(null); return; }
-    const allowed = ["application/pdf", "image/jpeg", "image/png"];
-    if (!allowed.includes(file.type)) { setReceiptFile(null); setError("EL COMPROBANTE DEBE SER PDF, JPG, JPEG O PNG."); return; }
-    if (file.size > 5 * 1024 * 1024) { setReceiptFile(null); setError("EL COMPROBANTE NO PUEDE SUPERAR 5 MB."); return; }
-    setReceiptFile(file); setError("");
-  }
-
-  async function next() {
-    setError("INSCRIPCIONES CERRADAS. EVENTO COMPLETO.");
-    return;
-    if (available !== null && available < people) {
-      setError(available === 0 ? "EVENTO COMPLETO. NO QUEDAN CUPOS DISPONIBLES." : "SOLO QUEDAN " + available + " CUPOS DISPONIBLES.");
-      return;
-    }
-    if (!validateCurrentStep()) return;
-    if (step < steps.length - 1) { setStep(v => v + 1); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
-    setBusy(true);
-    try {
-      const companionSummary = form.participation_type === "Acompañante" ? [
-        `ACOMPAÑANTE: ${form.companion_name}`, form.companion_rut ? `RUT: ${form.companion_rut}` : "", form.companion_email ? `CORREO: ${form.companion_email}` : "", form.companion_phone ? `CELULAR: ${form.companion_phone}` : "", `¿ES ALGUACIL?: ${form.companion_is_alguacil.toUpperCase()}`,
-        form.companion_is_alguacil === "Sí" ? `CÍRCULO: ${form.companion_circle_name}` : `CÍRCULO: ${form.circle_name} (ACOMPAÑANTE)`, form.companion_is_alguacil === "Sí" && form.companion_position ? `CARGO: ${form.companion_position}` : "", form.companion_dietary_notes ? `ALIMENTACIÓN: ${form.companion_dietary_notes}` : ""
-      ].filter(Boolean).join(" | ") : "";
-      const notes = [form.notes, companionSummary, `MODALIDAD: ${people >= 10 ? "Mesa completa / grupo" : people === 2 ? "Titular y acompañante" : "Reserva de cupos"}`, `CUPOS RESERVADOS: ${people}`, `VALOR POR PERSONA: ${money(paymentConfig.dinner_price)}`, `TOTAL ESPERADO: ${money(totalAmount)}`].filter(Boolean).join("\n\n");
-      let result = registrationResult;
-      let newRegistration = false;
-      if (!result) { result = await registerAttendee({ ...form, attendance_status: "Confirmado", payment_status: "Pendiente", companion_name: form.participation_type === "Acompañante" ? form.companion_name : "", seats_reserved: people, notes }); setRegistrationResult(result); newRegistration = true; }
-      if (newRegistration) await notifyOrganizers({ type: "registration", registration_code: result.registration_code, portal_token: result.portal_token, full_name: form.full_name, email: form.email, phone: form.phone, circle_name: form.circle_name, companion_name: form.participation_type === "Acompañante" ? form.companion_name : "", people, amount: totalAmount, payment_method: "TRANSFERENCIA · COMPROBANTE PENDIENTE DE VALIDACIÓN" });
-      if (receiptFile) {
-        await uploadPaymentReceipt(receiptFile, result.attendee_id, result.portal_token, totalAmount);
-        await notifyOrganizers({ type: "payment_receipt", registration_code: result.registration_code, portal_token: result.portal_token, full_name: form.full_name, email: form.email, phone: form.phone, circle_name: form.circle_name, companion_name: form.participation_type === "Acompañante" ? form.companion_name : "", people, amount: totalAmount, payment_method: "TRANSFERENCIA · COMPROBANTE PENDIENTE DE VALIDACIÓN" });
-      }
-      router.push(`/inscripcion/confirmacion?code=${encodeURIComponent(result.registration_code)}&token=${encodeURIComponent(result.portal_token)}&payment=revision`);
-    } catch (err) { setError(err instanceof Error ? err.message.toUpperCase() : "NO FUE POSIBLE ENVIAR LA INSCRIPCIÓN."); }
-    finally { setBusy(false); }
-  }
-
-  function changeParticipation(value: string) { const count=Number(value); setForm((c:any)=>({...c, seats_requested:count, participation_type:count===2?"Acompañante":count>=10?"Mesa completa":"Individual", has_companion:count===2?"Sí":"No", ...(count!==2?{companion_name:"",companion_email:"",companion_phone:"",companion_rut:"",companion_is_alguacil:"No",companion_circle_name:"",companion_position:"",companion_dietary_notes:""}:{})})); }
-  function changeCompanionAlguacil(value:string) { setForm((c:any)=>({...c,companion_is_alguacil:value,companion_circle_name:value==="Sí"?c.companion_circle_name:"",companion_position:value==="Sí"?c.companion_position:""})); }
-
-  if (true) return <main className="guestExperience"><header className="guestHeader"><span className="guestSeal">II</span><div><strong>II GRAN GALA NACIONAL</strong><small>ALGUACILES DE CHILE · 2026</small></div></header><section className="registrationShell" style={{display:"block",maxWidth:750,margin:"60px auto"}}><article className="registrationCard" style={{textAlign:"center",padding:"65px 28px"}}><p className="guestEyebrow">II GRAN GALA NACIONAL DE LOS ALGUACILES DE CHILE 2026</p><h1>EVENTO COMPLETO</h1><p>LAS INSCRIPCIONES SE ENCUENTRAN CERRADAS.</p><p>MUCHAS GRACIAS POR SU INTERÉS. LAS INSCRIPCIONES SE ENCUENTRAN CERRADAS.</p></article></section></main>;
-  return <main className="guestExperience"><header className="guestHeader"><span className="guestSeal">II</span><div><strong>II GRAN GALA NACIONAL</strong><small>ALGUACILES DE CHILE · 2026</small></div></header><section className="registrationShell"><aside className="registrationSteps">{steps.map((name,index)=><div className={index===step?"active":index<step?"done":""} key={name}><span>PASO {index+1}</span><strong>{name}</strong></div>)}</aside><article className="registrationCard"><div className="registrationProgress"><i style={{width:`${((step+1)/steps.length)*100}%`}}/></div><p className="guestEyebrow">PASO {step+1} DE {steps.length}</p><h1>{steps[step]}</h1><div className="guestFormGrid">
-  {step===0&&<><label className="fullField">NOMBRE COMPLETO<input value={form.full_name} onChange={e=>updateUpper("full_name",e.target.value)}/></label><label>CORREO<input type="email" value={form.email} onChange={e=>update("email",e.target.value)}/></label><label>CELULAR<input value={form.phone} onChange={e=>update("phone",e.target.value)}/></label></>}
-  {step===1&&<label className="fullField">CÍRCULO<input value={form.circle_name} onChange={e=>updateUpper("circle_name",e.target.value)} placeholder="EJ.: SERVICIOS DIPLOMÁTICOS"/></label>}
-  {step===2&&<>{available!==null&&<p className="fullField">CUPOS DISPONIBLES: <strong>{available}</strong> DE 175</p>}<div className="fullField companionRegistration"><div className="companionHeading"><p className="guestEyebrow">ASISTENCIA</p><h2>CONFIRMADA</h2><p>AL COMPLETAR ESTA INSCRIPCIÓN, SU ASISTENCIA A LA GALA QUEDARÁ REGISTRADA COMO CONFIRMADA.</p></div></div><label className="fullField">CANTIDAD DE CUPOS (1 A 12)<select value={people} onChange={e=>changeParticipation(e.target.value)}>{Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n} disabled={available!==null&&n>available}>{n} {n===1?"PERSONA":"PERSONAS"} · {money(paymentConfig.dinner_price*n)}</option>)}</select></label>{people>=3&&<section className="companionRegistration fullField"><div className="companionHeading"><p className="guestEyebrow">RESERVA DE GRUPO</p><h2>{people} CUPOS RESERVADOS</h2><p>LA RESERVA QUEDARÁ A NOMBRE DEL TITULAR. LOS DEMÁS INVITADOS PODRÁN IDENTIFICARSE POSTERIORMENTE. SE GENERARÁN {people} ACCESOS QR INDIVIDUALES. LA ASIGNACIÓN DE MESA QUEDA SUJETA A LA CAPACIDAD DISPONIBLE.</p></div></section>}{form.participation_type==="Acompañante"&&<section className="companionRegistration fullField"><div className="companionHeading"><p className="guestEyebrow">DATOS DEL ACOMPAÑANTE</p><h2>SEGUNDA PERSONA DE LA INSCRIPCIÓN</h2></div><div className="guestFormGrid companionGrid"><label className="fullField">NOMBRE COMPLETO DEL ACOMPAÑANTE *<input value={form.companion_name} onChange={e=>updateUpper("companion_name",e.target.value)}/></label><label>RUT<input value={form.companion_rut} onChange={e=>updateUpper("companion_rut",e.target.value)}/></label><label>CORREO<input type="email" value={form.companion_email} onChange={e=>update("companion_email",e.target.value)}/></label><label>CELULAR<input value={form.companion_phone} onChange={e=>update("companion_phone",e.target.value)}/></label><label className="fullField">¿EL ACOMPAÑANTE ES ALGUACIL?<select value={form.companion_is_alguacil} onChange={e=>changeCompanionAlguacil(e.target.value)}><option value="No">NO</option><option value="Sí">SÍ</option></select></label>{form.companion_is_alguacil==="Sí"&&<><label>CÍRCULO DEL ACOMPAÑANTE *<input value={form.companion_circle_name} onChange={e=>updateUpper("companion_circle_name",e.target.value)} placeholder="SELECCIONE O ESCRIBA SU CÍRCULO"/></label><label>CARGO DEL ACOMPAÑANTE *<input value={form.companion_position} onChange={e=>updateUpper("companion_position",e.target.value)} placeholder="EJ.: PRESIDENTE, SECRETARIO, ALGUACIL"/></label></>}{form.companion_is_alguacil!=="Sí"&&<div className="fullField"><p>SE REGISTRARÁ COMO <strong>ACOMPAÑANTE</strong> ASOCIADO AL MISMO CÍRCULO DEL INVITADO PRINCIPAL: <strong>{form.circle_name || "CÍRCULO DEL INVITADO"}</strong>.</p></div>}<label className="fullField">RESTRICCIONES ALIMENTARIAS DEL ACOMPAÑANTE<textarea rows={3} value={form.companion_dietary_notes} onChange={e=>updateUpper("companion_dietary_notes",e.target.value)}/></label></div></section>}</>}
-  {step===3&&<label className="fullField">RESTRICCIONES ALIMENTARIAS DEL INVITADO PRINCIPAL<textarea rows={5} value={form.dietary_notes} onChange={e=>updateUpper("dietary_notes",e.target.value)}/></label>}
-  {step===4&&<section className="fullField companionRegistration"><div className="companionHeading"><p className="guestEyebrow">PAGO POR TRANSFERENCIA</p><h2>{money(totalAmount)}</h2><p>VALOR DE LA CENA: <strong>{money(paymentConfig.dinner_price)} POR PERSONA</strong>. {`INSCRIPCIÓN PARA ${people} ${people===1?"PERSONA":"PERSONAS"}.`}</p><p>REALICE LA TRANSFERENCIA POR EL MONTO INDICADO Y LUEGO ADJUNTE SU COMPROBANTE PARA COMPLETAR LA INSCRIPCIÓN.</p></div><div className="guestFormGrid"><div className="fullField"><p><strong>DATOS PARA TRANSFERENCIA</strong></p><p><strong>MONTO A TRANSFERIR:</strong> {money(totalAmount)}</p>{paymentConfig.bank_account_holder&&<p><strong>TITULAR:</strong> {paymentConfig.bank_account_holder}</p>}{paymentConfig.bank_name&&<p><strong>BANCO:</strong> {paymentConfig.bank_name}</p>}{paymentConfig.bank_account_type&&<p><strong>TIPO DE CUENTA:</strong> {paymentConfig.bank_account_type}</p>}{paymentConfig.bank_account_number&&<p><strong>N° DE CUENTA:</strong> {paymentConfig.bank_account_number}</p>}{paymentConfig.bank_rut&&<p><strong>RUT:</strong> {paymentConfig.bank_rut}</p>}{paymentConfig.bank_email&&<p><strong>EMAIL:</strong> {paymentConfig.bank_email}</p>}<p><strong>SUBIR COMPROBANTE DE TRANSFERENCIA *</strong></p><p>FORMATOS PERMITIDOS: PDF, JPG, JPEG O PNG. TAMAÑO MÁXIMO: 5 MB.</p><input type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onChange={e=>chooseReceipt(e.target.files?.[0]??null)}/>{receiptFile&&<p><strong>ARCHIVO SELECCIONADO:</strong> {receiptFile.name.toUpperCase()}</p>}<p>UNA VEZ ENVIADO, EL PAGO QUEDARÁ COMO <strong>PENDIENTE DE VALIDACIÓN</strong> HASTA QUE EL COMITÉ REVISE EL COMPROBANTE.</p></div></div></section>}
-  {step===5&&<><label className="fullField">OBSERVACIONES<textarea rows={5} value={form.notes} onChange={e=>updateUpper("notes",e.target.value)}/></label><div className="fullField companionRegistration"><div className="companionHeading"><p className="guestEyebrow">PRIVACIDAD Y DATOS PERSONALES</p><h2>CONSENTIMIENTO</h2><p>LOS DATOS SERÁN UTILIZADOS EXCLUSIVAMENTE PARA LA GESTIÓN Y ORGANIZACIÓN DE LA II GRAN GALA NACIONAL DE LOS ALGUACILES DE CHILE 2026.</p></div><label className="guestConsent"><input type="checkbox" checked={form.consent} onChange={e=>update("consent",e.target.checked)}/><span>HE LEÍDO Y ACEPTO LA POLÍTICA DE PRIVACIDAD Y AUTORIZO EL TRATAMIENTO DE MIS DATOS PERSONALES PARA GESTIONAR MI INSCRIPCIÓN, PARTICIPACIÓN, PAGO, UBICACIÓN EN MESAS Y COMUNICACIONES RELACIONADAS CON LA II GRAN GALA NACIONAL DE LOS ALGUACILES DE CHILE 2026.</span></label></div></>}
-</div>{error&&<div className="guestError">{error}</div>}<div className="guestActions"><button className="guestSecondary" disabled={step===0||busy} onClick={()=>setStep(v=>v-1)}>ANTERIOR</button><button className="guestPrimary" disabled={busy} onClick={next}>{busy?"ENVIANDO…":step===steps.length-1?"ENVIAR INSCRIPCIÓN":"CONTINUAR"}</button></div></article></section></main>;
+export default function RegistrationClosedPage() {
+  return (
+    <main className="guestExperience">
+      <header className="guestHeader">
+        <span className="guestSeal">II</span>
+        <div><strong>II GRAN GALA NACIONAL</strong><small>ALGUACILES DE CHILE · 2026</small></div>
+      </header>
+      <section className="registrationShell" style={{display:"block",maxWidth:750,margin:"60px auto"}}>
+        <article className="registrationCard" style={{textAlign:"center",padding:"65px 28px"}}>
+          <p className="guestEyebrow">II GRAN GALA NACIONAL DE LOS ALGUACILES DE CHILE 2026</p>
+          <h1>EVENTO COMPLETO</h1>
+          <p>INSCRIPCIONES CERRADAS</p>
+          <p>Muchas gracias por su interés y comprensión.</p>
+        </article>
+      </section>
+    </main>
+  );
 }
