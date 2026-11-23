@@ -19,7 +19,8 @@ export default function QRPage(){
  async function credentialFile(){
   if(!seat||!selected)throw new Error("Seleccione un QR.");
   const canvas=document.createElement("canvas");canvas.width=900;canvas.height=1220;
-  const ctx=canvas.getContext("2d");if(!ctx)throw new Error("No se pudo preparar la imagen.");
+  const context=canvas.getContext("2d");if(!context)throw new Error("No se pudo preparar la imagen.");
+  const ctx:CanvasRenderingContext2D=context;
   ctx.fillStyle="#071f16";ctx.fillRect(0,0,900,1220);
   ctx.textAlign="center";
   ctx.fillStyle="#d8bc76";ctx.font="bold 30px Arial";ctx.fillText("CREDENCIAL OFICIAL",450,82);
