@@ -5,7 +5,7 @@ import { CheckCircle2, CircleDollarSign, Eye, Mail, MessageCircle, Pencil, Plus,
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { listAttendees } from "@/services/attendees";
-import { deletePayment, getPaymentReceiptUrl, listPayments, savePayment, validatePaymentReceipt } from "@/services/payments";
+import { deletePayment, getPaymentReceiptUrl, listPayments, savePayment, uploadAdminPaymentReceipt, validatePaymentReceipt } from "@/services/payments";
 import type { Payment } from "@/types/database";
 
 const money=(n:number)=>new Intl.NumberFormat("es-CL",{style:"currency",currency:"CLP",maximumFractionDigits:0}).format(n);
@@ -15,6 +15,9 @@ export default function PaymentsPage(){
   const payments=useAsyncData(listPayments,[]);
   const attendees=useAsyncData(listAttendees,[]);
   const [query,setQuery]=useState("");
+  const [receiptFile,setReceiptFile]=useState<File|null>(null);
+  const [saving,setSaving]=useState(false);
+  const [formError,setFormError]=useState("");
   const [modal,setModal]=useState(false);
   const [editing,setEditing]=useState<string|null>(null);
   const [form,setForm]=useState<any>(empty);
@@ -41,8 +44,21 @@ II Gran Gala Nacional 2026`);
   const rows=useMemo(()=>(payments.data??[]).filter(r=>`${r.attendees?.full_name??""} ${r.reference??""} ${r.receipt_original_name??""}`.toLowerCase().includes(query.toLowerCase())),[payments.data,query]);
   const collected=rows.filter(r=>r.status==="Pagado"||r.status==="Parcial").reduce((s,r)=>s+r.amount,0);
 
-  function open(row?:Payment){setEditing(row?.id??null);setForm(row?{attendee_id:row.attendee_id,amount:row.amount,method:row.method,status:row.status,payment_date:row.payment_date??"",reference:row.reference??""}:empty);setModal(true);}
-  async function save(){await savePayment({...form,payment_date:form.payment_date||null,reference:form.reference||null},editing??undefined);setModal(false);await Promise.all([payments.reload(),attendees.reload()]);}
+  function open(row?:Payment){setReceiptFile(null);setFormError("");setEditing(row?.id??null);setForm(row?{attendee_id:row.attendee_id,amount:row.amount,method:row.method,status:row.status,payment_date:row.payment_date??"",reference:row.reference??""}:empty);setModal(true);}
+  async function save(){
+    if(saving)return;
+    setSaving(true);setFormError("");
+    try{
+      const row=await savePayment({...form,payment_date:form.payment_date||null,reference:form.reference||null},editing??undefined);
+      if(receiptFile)await uploadAdminPaymentReceipt(row.id,row.attendee_id,receiptFile);
+      setModal(false);setReceiptFile(null);
+      await Promise.all([payments.reload(),attendees.reload()]);
+      setMessage(receiptFile?"Pago y comprobante guardados correctamente.":"Pago guardado correctamente.");
+    }catch(error){
+      setFormError(error instanceof Error?error.message:"No fue posible guardar el pago o comprobante.");
+      await payments.reload();
+    }finally{setSaving(false);}
+  }
   async function remove(id:string){if(confirm("¿Eliminar este pago?")){await deletePayment(id);await payments.reload();}}
   async function viewReceipt(row:Payment){if(!row.receipt_path)return;try{const url=await getPaymentReceiptUrl(row.receipt_path);window.open(url,"_blank","noopener,noreferrer");}catch(error){setMessage(error instanceof Error?error.message:"No fue posible abrir el comprobante.");}}
   async function validateReceipt(row:Payment,decision:"Validado"|"Rechazado"){
@@ -104,8 +120,10 @@ II Gran Gala Nacional 2026`);
         <label>Estado<select value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option>Pagado</option><option>Pendiente</option><option>Parcial</option></select></label>
         <label>Fecha<input type="date" value={form.payment_date} onChange={e=>setForm({...form,payment_date:e.target.value})}/></label>
         <label>Referencia<input value={form.reference} onChange={e=>setForm({...form,reference:e.target.value})}/></label>
+        <label className="fullField">Adjuntar comprobante (opcional: PDF, JPG o PNG, máximo 5 MB)<input type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onChange={e=>setReceiptFile(e.target.files?.[0]??null)}/></label>
       </div>
-      <div className="modalActions"><button className="adminAction" onClick={()=>setModal(false)}>Cancelar</button><button className="adminAction primary" disabled={!form.attendee_id} onClick={save}>Guardar</button></div>
+      {formError&&<div className="dataError">{formError}</div>}
+      <div className="modalActions"><button className="adminAction" disabled={saving} onClick={()=>setModal(false)}>Cancelar</button><button className="adminAction primary" disabled={!form.attendee_id||saving} onClick={save}>{saving?"Guardando...":"Guardar"}</button></div>
     </div></div>}
   </main></AdminShell>;
 }
