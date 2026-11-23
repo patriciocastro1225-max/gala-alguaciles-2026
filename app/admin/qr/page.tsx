@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Mail, Printer, Search, UsersRound } from "lucide-react";
+import { Download, Mail, MessageCircle, Printer, Search, UsersRound } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -15,6 +15,63 @@ type Seat={seat_number:number;guest_name:string;guest_type:string;qr_code:string
 export default function QRPage(){
  const source=useAsyncData(listAttendees,[]);
  const [query,setQuery]=useState("");const [selectedId,setSelectedId]=useState("");const [seats,setSeats]=useState<Seat[]>([]);const [seatNumber,setSeatNumber]=useState(1);const [message,setMessage]=useState("");const [loadingSeats,setLoadingSeats]=useState(false);const [editingName,setEditingName]=useState(false);const [guestName,setGuestName]=useState("");const [savingName,setSavingName]=useState(false);
+ const [sharingQr,setSharingQr]=useState(false);
+ async function credentialFile(){
+  if(!seat||!selected)throw new Error("Seleccione un QR.");
+  const canvas=document.createElement("canvas");canvas.width=900;canvas.height=1220;
+  const ctx=canvas.getContext("2d");if(!ctx)throw new Error("No se pudo preparar la imagen.");
+  ctx.fillStyle="#071f16";ctx.fillRect(0,0,900,1220);
+  ctx.textAlign="center";
+  ctx.fillStyle="#d8bc76";ctx.font="bold 30px Arial";ctx.fillText("CREDENCIAL OFICIAL",450,82);
+  ctx.fillStyle="#ffffff";ctx.font="bold 40px Arial";ctx.fillText("Gran Gala Nacional 2026",450,145);
+  ctx.fillStyle="#d8bc76";ctx.fillRect(70,188,760,2);
+  const svg=document.querySelector(".realQr svg");
+  if(!svg)throw new Error("No se encontró el QR en pantalla.");
+  const raw=new XMLSerializer().serializeToString(svg);
+  const url=URL.createObjectURL(new Blob([raw],{type:"image/svg+xml;charset=utf-8"}));
+  try{
+   const qr=new Image();await new Promise<void>((resolve,reject)=>{qr.onload=()=>resolve();qr.onerror=()=>reject(new Error("No se pudo generar el QR."));qr.src=url;});
+   ctx.fillStyle="#ffffff";ctx.fillRect(215,225,470,470);ctx.drawImage(qr,235,245,430,430);
+  }finally{URL.revokeObjectURL(url);}
+  function wrap(text:string,y:number,maxWidth:number,lineHeight:number,font:string,color:string){
+   ctx.font=font;ctx.fillStyle=color;const words=text.split(/\s+/);let line="";let pos=y;
+   for(const word of words){const test=line?line+" "+word:word;if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,450,pos);pos+=lineHeight;line=word;}else line=test;}
+   if(line)ctx.fillText(line,450,pos);return pos+lineHeight;
+  }
+  let y=wrap(seat.guest_name.toUpperCase(),765,790,54,"bold 43px Georgia","#ffffff");
+  y=wrap(seat.guest_type+" · "+(selected.circles?.name??"Invitado institucional"),y+12,790,34,"25px Arial","#d4e1d9");
+  ctx.fillStyle="#d8bc76";ctx.fillRect(70,y+35,760,2);
+  y=wrap("MIÉRCOLES 25 DE NOVIEMBRE DE 2026 · 20:00 HORAS",y+95,790,36,"bold 26px Arial","#d8bc76");
+  y=wrap("CLUB PALESTINO",y+22,790,38,"bold 31px Arial","#ffffff");
+  y=wrap("Av. Presidente Kennedy N.º 9351, Las Condes, Santiago",y+10,790,30,"22px Arial","#ffffff");
+  y=wrap("TENIDA: FORMAL SPORT",y+26,790,34,"bold 27px Arial","#d8bc76");
+  wrap("Mesa: "+(selected.gala_tables?.name??"Sin asignar"),y+28,790,28,"23px Arial","#ffffff");
+  const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("No se pudo exportar la imagen.")),"image/png"));
+  const safe=seat.guest_name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,65);
+  return new File([blob],`Gala-QR-${safe}-Cupo-${seat.seat_number}.png`,{type:"image/png"});
+ }
+ async function shareQr(){
+  setSharingQr(true);setMessage("");
+  try{
+   const file=await credentialFile();
+   const caption=`Credencial de ${seat?.guest_name} para la Gran Gala Nacional 2026, 25 de noviembre, 20:00 h, Club Palestino.`;
+   if(navigator.share&&navigator.canShare?.({files:[file]})){
+    await navigator.share({files:[file],title:"Credencial Gran Gala Nacional 2026",text:caption});
+    setMessage("Seleccione WhatsApp y el contacto para enviar esta credencial.");
+   }else{
+    const url=URL.createObjectURL(file);const a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    window.open("https://wa.me/?text="+encodeURIComponent(caption)," _blank".trim(),"noopener,noreferrer");
+    setMessage("Se descargó la credencial PNG y se abrió WhatsApp. Adjunte la imagen descargada al chat antes de enviarla.");
+   }
+  }catch(e){if(e instanceof Error&&e.name!=="AbortError")setMessage(e.message);}
+  finally{setSharingQr(false);}
+ }
+ async function downloadQr(){
+  setSharingQr(true);setMessage("");
+  try{const file=await credentialFile();const url=URL.createObjectURL(file);const a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);setMessage("Credencial descargada en PNG.");}
+  catch(e){setMessage(e instanceof Error?e.message:"No se pudo descargar la credencial.");}
+  finally{setSharingQr(false);}
+ }
  const [importNames,setImportNames]=useState<string[]>([]);
  const [importError,setImportError]=useState("");
  const [importBusy,setImportBusy]=useState(false);
@@ -82,7 +139,7 @@ export default function QRPage(){
  return <AdminShell><main className="adminPage">
   <section className="pageHeading"><div><p className="adminEyebrow">Credenciales verificables</p><h1>Códigos QR reales</h1><p>Cada persona que ocupa un cupo tiene un QR individual almacenado en Supabase.</p></div></section>
   <section className="qrWorkspace"><article className="qrListPanel"><label className="searchBox"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar titular o acompañante..."/></label><div className="qrGuestList">{filtered.map(g=>{const count=Number(g.seats_reserved??(g.companion_name?2:1));return <button key={g.id} className={selected?.id===g.id?"qrGuest active":"qrGuest"} onClick={()=>{setSelectedId(g.id);setSeatNumber(1)}}><span>{g.full_name.charAt(0)}</span><div><strong>{g.full_name}</strong><small>{g.circles?.name??"Sin círculo"} · {g.gala_tables?.name??"Sin mesa"}</small></div><i className="statusConfirmed">{count} {count===1?"QR":"QR"}</i></button>})}</div></article>
-  <article className="credentialCard">{selected&&seat?<><div className="credentialTop"><span>II</span><div><small>Credencial oficial</small><strong>Gran Gala Nacional 2026</strong></div></div>{seats.length>1&&<div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center",margin:"18px 0"}}>{seats.map(s=><button key={s.seat_number} className={s.seat_number===seat.seat_number?"adminAction primary":"adminAction"} onClick={()=>{setSeatNumber(s.seat_number);setEditingName(false);setMessage("");}}>{s.guest_type==="Titular"?"Titular":`Cupo ${s.seat_number}`}</button>)}</div>}<div className="realQr"><QRCodeSVG value={seat.qr_code} size={220} level="H" marginSize={3}/></div><h2>{seat.guest_name}</h2><p>{seat.guest_type} · {selected.circles?.name??"Invitado institucional"}</p><div className="qrEventDetails"><strong>MIÉRCOLES 25 DE NOVIEMBRE DE 2026 · 20:00 HORAS</strong><span>CLUB PALESTINO</span><span>Av. Presidente Kennedy N.º 9351, Las Condes, Santiago</span><strong>TENIDA: FORMAL SPORT</strong></div><dl><div><dt>Mesa</dt><dd>{selected.gala_tables?.name??"Sin asignar"}</dd></div><div><dt>Código QR</dt><dd>{seat.qr_code}</dd></div><div><dt>Ingreso</dt><dd>{seat.checked_in?"Registrado":"Pendiente"}</dd></div></dl><div className="credentialActions"><button className="adminAction" onClick={()=>window.print()}><Printer size={17}/> Imprimir</button><button className="adminAction primary" onClick={email}><Mail size={17}/> Enviar todos los QR</button></div>{selected&&seats.length>0&&<section style={{marginTop:22,padding:16,border:"1px solid #b89a5a",borderRadius:10}}>
+  <article className="credentialCard">{selected&&seat?<><div className="credentialTop"><span>II</span><div><small>Credencial oficial</small><strong>Gran Gala Nacional 2026</strong></div></div>{seats.length>1&&<div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center",margin:"18px 0"}}>{seats.map(s=><button key={s.seat_number} className={s.seat_number===seat.seat_number?"adminAction primary":"adminAction"} onClick={()=>{setSeatNumber(s.seat_number);setEditingName(false);setMessage("");}}>{s.guest_type==="Titular"?"Titular":`Cupo ${s.seat_number}`}</button>)}</div>}<div className="realQr"><QRCodeSVG value={seat.qr_code} size={220} level="H" marginSize={3}/></div><h2>{seat.guest_name}</h2><p>{seat.guest_type} · {selected.circles?.name??"Invitado institucional"}</p><div className="qrEventDetails"><strong>MIÉRCOLES 25 DE NOVIEMBRE DE 2026 · 20:00 HORAS</strong><span>CLUB PALESTINO</span><span>Av. Presidente Kennedy N.º 9351, Las Condes, Santiago</span><strong>TENIDA: FORMAL SPORT</strong></div><dl><div><dt>Mesa</dt><dd>{selected.gala_tables?.name??"Sin asignar"}</dd></div><div><dt>Código QR</dt><dd>{seat.qr_code}</dd></div><div><dt>Ingreso</dt><dd>{seat.checked_in?"Registrado":"Pendiente"}</dd></div></dl><div className="credentialActions"><button className="adminAction" onClick={()=>window.print()}><Printer size={17}/> Imprimir</button><button className="adminAction primary" disabled={sharingQr} onClick={shareQr}><MessageCircle size={17}/> {sharingQr?"Preparando...":"Enviar este QR por WhatsApp"}</button><button className="adminAction" disabled={sharingQr} onClick={downloadQr}><Download size={17}/> Descargar este QR</button><button className="adminAction" onClick={email}><Mail size={17}/> Enviar todos los QR</button></div>{selected&&seats.length>0&&<section style={{marginTop:22,padding:16,border:"1px solid #b89a5a",borderRadius:10}}>
  <h3>Recuperar nombres desde Excel</h3>
  <p>Seleccione un Excel (.xlsx, .xls) con una columna de nombres. Fila 1 = QR del cupo 2, fila 2 = QR del cupo 3, etc. NO incluya al titular. Puede incluir encabezado «Nombre».</p>
  <input type="file" accept=".xlsx,.xls,.csv" disabled={importBusy} onChange={e=>{void readNames(e.target.files?.[0]);e.target.value="";}}/>
