@@ -20,6 +20,7 @@ export default function PaymentsPage(){
   const [formError,setFormError]=useState("");
   const [modal,setModal]=useState(false);
   const [editing,setEditing]=useState<string|null>(null);
+  const [savedPaymentId,setSavedPaymentId]=useState<string|null>(null);
   const [form,setForm]=useState<any>(empty);
   const [message,setMessage]=useState("");
   const [contactPayment,setContactPayment]=useState<Payment|null>(null);
@@ -44,18 +45,22 @@ II Gran Gala Nacional 2026`);
   const rows=useMemo(()=>(payments.data??[]).filter(r=>`${r.attendees?.full_name??""} ${r.reference??""} ${r.receipt_original_name??""}`.toLowerCase().includes(query.toLowerCase())),[payments.data,query]);
   const collected=rows.filter(r=>r.status==="Pagado"||r.status==="Parcial").reduce((s,r)=>s+r.amount,0);
 
-  function open(row?:Payment){setReceiptFile(null);setFormError("");setEditing(row?.id??null);setForm(row?{attendee_id:row.attendee_id,amount:row.amount,method:row.method,status:row.status,payment_date:row.payment_date??"",reference:row.reference??""}:empty);setModal(true);}
+  function open(row?:Payment){setSavedPaymentId(null);setReceiptFile(null);setFormError("");setEditing(row?.id??null);setForm(row?{attendee_id:row.attendee_id,amount:row.amount,method:row.method,status:row.status,payment_date:row.payment_date??"",reference:row.reference??""}:empty);setModal(true);}
   async function save(){
     if(saving)return;
     setSaving(true);setFormError("");
     try{
-      const row=await savePayment({...form,payment_date:form.payment_date||null,reference:form.reference||null},editing??undefined);
+      const row=savedPaymentId
+        ? (payments.data??[]).find(p=>p.id===savedPaymentId)
+        : await savePayment({...form,payment_date:form.payment_date||null,reference:form.reference||null},editing??undefined);
+      if(!row)throw new Error("El pago fue registrado. Cierre esta ventana y edítelo desde la lista para adjuntar el comprobante.");
+      setSavedPaymentId(row.id);
       if(receiptFile)await uploadAdminPaymentReceipt(row.id,row.attendee_id,receiptFile);
-      setModal(false);setReceiptFile(null);
+      setModal(false);setReceiptFile(null);setSavedPaymentId(null);
       await Promise.all([payments.reload(),attendees.reload()]);
       setMessage(receiptFile?"Pago y comprobante guardados correctamente.":"Pago guardado correctamente.");
     }catch(error){
-      setFormError(error instanceof Error?error.message:"No fue posible guardar el pago o comprobante.");
+      setFormError((savedPaymentId?"El pago ya fue guardado; no vuelva a registrarlo. ":"")+(error instanceof Error?error.message:"No fue posible guardar el pago o comprobante."));
       await payments.reload();
     }finally{setSaving(false);}
   }
@@ -123,6 +128,7 @@ II Gran Gala Nacional 2026`);
         <label className="fullField">Adjuntar comprobante (opcional: PDF, JPG o PNG, máximo 5 MB)<input type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onChange={e=>setReceiptFile(e.target.files?.[0]??null)}/></label>
       </div>
       {formError&&<div className="dataError">{formError}</div>}
+      {savedPaymentId&&<p>El pago ya quedó registrado. Si falla el comprobante, cierre esta ventana y edite el mismo pago; no se creará otro.</p>}
       <div className="modalActions"><button className="adminAction" disabled={saving} onClick={()=>setModal(false)}>Cancelar</button><button className="adminAction primary" disabled={!form.attendee_id||saving} onClick={save}>{saving?"Guardando...":"Guardar"}</button></div>
     </div></div>}
   </main></AdminShell>;
