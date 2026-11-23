@@ -77,8 +77,6 @@ export default function AttendeesPage() {
     const count = Number(form.seats_reserved);
     if (!Number.isInteger(count) || count < 1 || count > 12) { alert("Los cupos deben estar entre 1 y 12."); return; }
     if (form.companion_name.trim() && count < 2) { alert("Una inscripción con acompañante requiere al menos 2 cupos."); return; }
-    const otherCount=(attendees.data??[]).filter(a=>a.id!==editing&&a.attendance_status!=="Cancelado").reduce((s,a)=>s+Math.max(1,Number(a.seats_reserved)||1),0);
-    if(form.attendance_status!=="Cancelado"&&otherCount+count>175){setSaveError("AFORO MÁXIMO DE 175 PERSONAS. NO SE PUEDE AGREGAR ESTE CUPO.");return;}
     const previous=(attendees.data??[]).find(a=>a.id===editing);
     if(previous&&count>Number(previous.seats_reserved||1)){
       if(!confirm("Se aumentará la reserva a "+count+" personas. Total esperado: $"+(count*45000).toLocaleString("es-CL")+". Pago registrado: $"+paidAmount.toLocaleString("es-CL")+". Los QR deben generarse automáticamente. El pago no se duplicará. ¿Continuar?"))return;
