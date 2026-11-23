@@ -39,18 +39,25 @@ export default function AdminShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [operator,setOperator]=useState(false);
+  const [verified,setVerified]=useState(false);
 
   useEffect(() => {
     async function verify() {
       if (supabaseConfigured && supabase) {
         const { data } = await supabase.auth.getSession();
-        if (!data.session) router.replace("/admin");
+        if (!data.session) {router.replace("/admin");return;}
+        const isOperator=data.session.user.email?.toLowerCase()==="pcastro@brastore.cl";
+        setOperator(isOperator);
+        if(isOperator && pathname!=="/admin/checkin") {router.replace("/admin/checkin");return;}
+        setVerified(true);
         return;
       }
       if (sessionStorage.getItem("gala-admin") !== "1") router.replace("/admin");
+      else setVerified(true);
     }
     verify();
-  }, [router]);
+  }, [router,pathname]);
 
   async function logout() {
     if (supabaseConfigured && supabase) {
@@ -60,6 +67,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
     router.push("/admin");
   }
 
+  if(!verified)return <div className="adminApp"><p style={{padding:32}}>Verificando permisos de acceso…</p></div>;
   return (
     <div className="adminApp">
       {pathname === "/admin/comunicaciones" && <CommunicationTemplatePersistence />}
@@ -72,7 +80,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
 
         <div className="sidebarScrollArea">
           <nav>
-          {items.map(({ label, icon: Icon, href, enabled }) => {
+          {items.filter(item=>!operator||item.href==="/admin/checkin").map(({ label, icon: Icon, href, enabled }) => {
             const active = pathname === href;
             return (
               <button
