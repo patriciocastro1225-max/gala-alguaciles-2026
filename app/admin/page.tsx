@@ -17,7 +17,7 @@ export default function AdminLoginPage() {
     async function verifySession() {
       if (supabaseConfigured && supabase) {
         const { data } = await supabase.auth.getSession();
-        if (data.session) router.replace("/admin/dashboard");
+        if (data.session) router.replace(data.session.user.email?.toLowerCase()==="pcastro@brastore.cl"?"/admin/checkin":"/admin/dashboard");
       } else if (sessionStorage.getItem("gala-admin") === "1") {
         router.replace("/admin/dashboard");
       }
@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
         setLoading(false);
         return;
       }
-      router.push("/admin/dashboard");
+      router.push(email.trim().toLowerCase()==="pcastro@brastore.cl"?"/admin/checkin":"/admin/dashboard");
       return;
     }
 
