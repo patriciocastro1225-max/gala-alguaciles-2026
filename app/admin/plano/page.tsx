@@ -30,14 +30,17 @@ import {
   listTables,
   updateTablePositions,
 } from "@/services/tables";
+import { requireSupabase } from "@/services/helpers";
 import type { Attendee, GalaTable } from "@/types/database";
 
 async function load() {
-  const [tables, attendees] = await Promise.all([
+  const [tables, attendees, seatResult] = await Promise.all([
     listTables(),
     listTableAttendees(),
+    requireSupabase().from("attendee_seats").select("attendee_id,seat_number,guest_name,checked_in"),
   ]);
-  return { tables, attendees };
+  if(seatResult.error) throw seatResult.error;
+  return { tables, attendees, seats:seatResult.data??[] };
 }
 
 type Position = { x: number; y: number };
@@ -70,6 +73,10 @@ export default function FloorPlanPage() {
 
   const tables = source.data?.tables ?? [];
   const attendees = source.data?.attendees ?? [];
+  const seatRows=source.data?.seats??[];
+  const count=(a:Attendee)=>Math.max(1,Number(a.seats_reserved ?? (a.companion_name?2:1)),seatRows.filter(s=>s.attendee_id===a.id).length);
+  const total=(rows:Attendee[])=>rows.reduce((n,a)=>n+count(a),0);
+  const checkedCount=(rows:Attendee[])=>rows.reduce((n,a)=>{const s=seatRows.filter(x=>x.attendee_id===a.id);return n+(s.length?s.filter(x=>x.checked_in).length:Number(Boolean(a.checked_in)));},0);
 
   useEffect(() => {
     if (!tables.length || dirty) return;
@@ -132,17 +139,17 @@ export default function FloorPlanPage() {
   }, [attendees, query]);
 
   const metrics = useMemo(() => {
-    const confirmed = attendees.filter((a) => a.attendance_status === "Confirmado").length;
-    const checked = attendees.filter((a) => a.checked_in).length;
-    const assignedCount = attendees.filter((a) => a.table_id).length;
+    const confirmed = total(attendees.filter((a) => a.attendance_status === "Confirmado"));
+    const checked = checkedCount(attendees.filter(a=>a.attendance_status==="Confirmado"));
+    const assignedCount = total(attendees.filter((a) => a.table_id));
     return {
       confirmed,
       checked,
       assigned: assignedCount,
-      unassigned: attendees.length - assignedCount,
+      unassigned: total(attendees) - assignedCount,
       attendancePct: confirmed ? Math.round((checked / confirmed) * 100) : 0,
     };
-  }, [attendees]);
+  }, [attendees, seatRows]);
 
   function beginMove(event: PointerEvent<HTMLButtonElement>, table: GalaTable) {
     if (layoutLocked) {
@@ -219,8 +226,8 @@ export default function FloorPlanPage() {
       setMessage("");
       const target = tables.find((table) => table.id === tableId);
       if (target) {
-        const occupied = attendees.filter((person) => person.table_id === target.id).length;
-        if (occupied >= target.capacity && attendee.table_id !== target.id) {
+        const occupied = total(attendees.filter((person) => person.table_id === target.id));
+        if (occupied + count(attendee) > target.capacity && attendee.table_id !== target.id) {
           throw new Error(`${target.name} está completa.`);
         }
       }
@@ -368,9 +375,9 @@ export default function FloorPlanPage() {
             {tables.map((table) => {
               const position = positions[table.id] ?? initialPosition(table);
               const guests = attendees.filter((attendee) => attendee.table_id === table.id);
-              const checked = guests.filter((attendee) => attendee.checked_in).length;
-              const full = guests.length >= table.capacity;
-              const occupancy = table.capacity ? guests.length / table.capacity : 0;
+              const occupied = total(guests);
+              const full = occupied >= table.capacity;
+              const occupancy = table.capacity ? occupied / table.capacity : 0;
               const state = full ? "full" : occupancy >= 0.7 ? "limited" : "available";
 
               return (
@@ -390,9 +397,8 @@ export default function FloorPlanPage() {
                   onDrop={(event) => dropGuest(event, table)}
                 >
                   {!layoutLocked && <Grip className="floorTableGrip" size={13} />}
-                  <span>Mesa {table.table_number}</span>
-                  <strong>{table.name}</strong>
-                  <small>{guests.length}/{table.capacity} · {checked} ingresados</small>
+                  <span style={{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",width:150,textAlign:"center",fontSize:12,fontWeight:800,lineHeight:1.15,whiteSpace:"normal",color:"#fff",background:"#29251f",borderRadius:4,padding:"3px 4px"}}>{table.name}</span>
+                  <strong style={{fontSize:24,lineHeight:1}}>{occupied}</strong>
                 </button>
               );
             })}
@@ -412,10 +418,10 @@ export default function FloorPlanPage() {
             {active && (
               <>
                 <div className="floorInspectorMeta">
-                  <span>Mesa {active.table_number}</span>
+                  
                   <span>{active.zone}</span>
-                  <span>{assigned.length}/{active.capacity} cupos</span>
-                  <span>{assigned.filter((a) => a.checked_in).length} acreditados</span>
+                  <span>{total(assigned)}/{active.capacity} cupos</span>
+                  <span>{checkedCount(assigned)} acreditados</span>
                 </div>
 
                 <div className="floorGuestList">
@@ -436,7 +442,8 @@ export default function FloorPlanPage() {
                       <span className="guestDragHandle"><Grip size={14} /></span>
                       <div>
                         <strong>{attendee.full_name}</strong>
-                        <small>{attendee.circles?.name ?? "Sin círculo"}</small>
+                        <small>{attendee.circles?.name ?? "Sin círculo"} · {count(attendee)} cupo(s)</small>
+                        {seatRows.filter(s=>s.attendee_id===attendee.id&&s.seat_number>1).map(s=><small key={s.seat_number} style={{display:"block"}}>↳ {s.guest_name}</small>)}
                       </div>
 
                       {attendee.checked_in && <CheckCircle2 className="guestChecked" size={18} />}
@@ -450,7 +457,7 @@ export default function FloorPlanPage() {
                         <option value="">Sin mesa</option>
                         {tables.map((table) => (
                           <option key={table.id} value={table.id}>
-                            {table.table_number}. {table.name}
+                            {table.name}
                           </option>
                         ))}
                       </select>
@@ -466,7 +473,7 @@ export default function FloorPlanPage() {
               <div>
                 <p className="panelEyebrow">Pendientes</p>
                 <h2>Sin mesa</h2>
-                <p>{unassigned.length} invitado(s)</p>
+                <p>{total(unassigned)} invitado(s)</p>
               </div>
 
               <div className="unassignedList21">
@@ -493,7 +500,7 @@ export default function FloorPlanPage() {
                           value={table.id}
                           disabled={(table.occupied ?? 0) >= table.capacity}
                         >
-                          {table.table_number}. {table.name}
+                          {table.name}
                         </option>
                       ))}
                     </select>
