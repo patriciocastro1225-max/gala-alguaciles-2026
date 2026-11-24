@@ -27,6 +27,9 @@ export default function TableReportPage() {
   const tables = source.data?.tables ?? [];
   const attendees = source.data?.attendees ?? [];
   const byAttendee=source.data?.byAttendee ?? new Map<string,Seat[]>();
+  const counts=new Map<string,number>();
+  for(const a of attendees){if(!a.table_id)continue;const count=byAttendee.get(a.id)?.length||Math.max(1,Number(a.seats_reserved)||1);counts.set(a.table_id,(counts.get(a.table_id)??0)+count);}
+  const orderedTables=[...tables].sort((a,b)=>(counts.get(b.id)??0)-(counts.get(a.id)??0)||Number(a.table_number)-Number(b.table_number));
 
   function exportExcel() {
     if (!source.data || source.error) return;
@@ -36,7 +39,7 @@ export default function TableReportPage() {
       return '"' + safe.replace(/"/g, '""') + '"';
     };
     const rows: (string | number)[][] = [["Mesa Nº", "Mesa", "Zona", "Cupo", "Capacidad", "Invitado", "Círculo", "Ingreso"]];
-    for (const table of [...tables].sort((a,b)=>Number(a.table_number)-Number(b.table_number))) {
+    for (const table of orderedTables) {
       let seatIndex = 0;
       for (const a of attendees.filter(a=>a.table_id===table.id)) {
         const seats=byAttendee.get(a.id)??[];
@@ -67,7 +70,7 @@ export default function TableReportPage() {
           <div>
             <p className="adminEyebrow">Distribución definitiva</p>
             <h1>Listado por mesa</h1>
-            <p>Nómina imprimible de invitados para respaldo físico durante la Gala.</p>
+            <p>Nómina imprimible de invitados, ordenada por cantidad de personas de mayor a menor.</p>
           </div>
           <div className="tablePageActions">
             <button className="adminAction" onClick={source.reload}><RefreshCw size={17}/> Actualizar</button>
@@ -78,7 +81,7 @@ export default function TableReportPage() {
 
         {source.error&&<div className="dataError">{source.error}</div>}
         <section className="tableReportSheets22">
-          {tables.map((table) => {
+          {orderedTables.map((table) => {
             const registrations = attendees.filter((a) => a.table_id === table.id);
             const guests:ReportGuest[] = registrations.flatMap(a=>{
               const seats=byAttendee.get(a.id)??[];
