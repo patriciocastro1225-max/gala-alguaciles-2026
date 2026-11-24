@@ -1,5 +1,6 @@
 "use client";
 
+import * as XLSX from "xlsx";
 import { Download, Printer, RefreshCw, TableProperties, UsersRound } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -33,11 +34,6 @@ export default function TableReportPage() {
 
   function exportExcel() {
     if (!source.data || source.error) return;
-    const clean = (value: unknown) => {
-      const raw = String(value ?? "").replace(/[\\r\\n\\t]+/g, " ").trim();
-      const safe = /^[=+@-]/.test(raw) ? "'" + raw : raw;
-      return '"' + safe.replace(/"/g, '""') + '"';
-    };
     const rows: (string | number)[][] = [["Mesa Nº", "Mesa", "Zona", "Cupo", "Capacidad", "Invitado", "Círculo", "Ingreso"]];
     for (const table of orderedTables) {
       let seatIndex = 0;
@@ -55,12 +51,12 @@ export default function TableReportPage() {
       }
       if (!seatIndex) rows.push([table.table_number,table.name,table.zone,"",table.capacity,"Sin invitados asignados","",""]);
     }
-    const csv="\\uFEFF"+rows.map(row=>row.map(clean).join(";")).join("\\r\\n");
-    const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
-    const link=document.createElement("a");
-    link.href=url;link.download="gran-gala-listado-por-mesas.csv";
-    document.body.appendChild(link);link.click();link.remove();
-    URL.revokeObjectURL(url);
+    const sheet=XLSX.utils.aoa_to_sheet(rows);
+    sheet["!cols"]=[{wch:10},{wch:35},{wch:18},{wch:9},{wch:12},{wch:48},{wch:48},{wch:16}];
+    sheet["!autofilter"]={ref:sheet["!ref"]??"A1:H1"};
+    const book=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book,sheet,"Listado por mesas");
+    XLSX.writeFile(book,"gran-gala-listado-por-mesas.xlsx");
   }
 
   return (
