@@ -37,7 +37,7 @@ export default function TableReportPage() {
 
   function exportGuests() {
     if (!source.data || source.error) return;
-    const names=attendees.filter(a=>a.attendance_status!=="Cancelado" && source.data?.invitationIds.has(a.id)).flatMap(a=>{
+    const names=attendees.filter(a=>a.attendance_status!=="Cancelado" && (a.payment_status==="Invitación" || source.data?.invitationIds.has(a.id))).flatMap(a=>{
       const seats=byAttendee.get(a.id)??[];
       return seats.length ? seats.map(s=>s.guest_name) : Array.from({length:Math.max(1,Number(a.seats_reserved)||1)},(_,i)=>i===0?a.full_name:i===1&&a.companion_name?a.companion_name:`Invitado ${i+1} de ${a.full_name}`);
     }).sort((a,b)=>a.localeCompare(b,"es",{sensitivity:"base"}));
