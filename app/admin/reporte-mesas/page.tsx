@@ -11,16 +11,19 @@ type ReportGuest = { id:string; name:string; circle:string; checked_in:boolean }
 
 async function load() {
   const client = requireSupabase();
-  const [tables, attendees, seatsResult] = await Promise.all([
+  const [tables, attendees, seatsResult, invitationResult] = await Promise.all([
     listTables(),
     listTableAttendees(),
-    client.from("attendee_seats").select("attendee_id,seat_number,guest_name,checked_in").order("seat_number")
+    client.from("attendee_seats").select("attendee_id,seat_number,guest_name,checked_in").order("seat_number"),
+    client.from("payments").select("attendee_id").eq("method","Invitación")
   ]);
   if(seatsResult.error) throw seatsResult.error;
   const seats=(seatsResult.data??[]) as Seat[];
   const byAttendee=new Map<string,Seat[]>();
   for(const seat of seats){const group=byAttendee.get(seat.attendee_id)??[];group.push(seat);byAttendee.set(seat.attendee_id,group);}
-  return { tables, attendees, byAttendee };
+  if(invitationResult.error) throw invitationResult.error;
+  const invitationIds=new Set((invitationResult.data??[]).map(p=>p.attendee_id));
+  return { tables, attendees, byAttendee, invitationIds };
 }
 
 export default function TableReportPage() {
@@ -34,7 +37,7 @@ export default function TableReportPage() {
 
   function exportGuests() {
     if (!source.data || source.error) return;
-    const names=attendees.filter(a=>a.attendance_status!=="Cancelado").flatMap(a=>{
+    const names=attendees.filter(a=>a.attendance_status!=="Cancelado" && source.data?.invitationIds.has(a.id)).flatMap(a=>{
       const seats=byAttendee.get(a.id)??[];
       return seats.length ? seats.map(s=>s.guest_name) : Array.from({length:Math.max(1,Number(a.seats_reserved)||1)},(_,i)=>i===0?a.full_name:i===1&&a.companion_name?a.companion_name:`Invitado ${i+1} de ${a.full_name}`);
     }).sort((a,b)=>a.localeCompare(b,"es",{sensitivity:"base"}));
@@ -86,7 +89,7 @@ export default function TableReportPage() {
           <div className="tablePageActions">
             <button className="adminAction" onClick={source.reload}><RefreshCw size={17}/> Actualizar</button>
             <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportExcel}><Download size={17}/> Exportar a Excel</button>
-            <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportGuests}><Download size={17}/> Exportar solo invitados</button>
+            <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportGuests}><Download size={17}/> Exportar invitaciones de cortesía</button>
             <button className="adminAction primary" disabled={!source.data || Boolean(source.error)} onClick={() => window.print()}><Printer size={17}/> Imprimir</button>
           </div>
         </section>
