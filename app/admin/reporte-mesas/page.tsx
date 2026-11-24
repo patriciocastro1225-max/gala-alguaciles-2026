@@ -50,6 +50,23 @@ export default function TableReportPage() {
     XLSX.writeFile(book,"gran-gala-solo-invitados.xlsx");
   }
 
+  function printTableSigns() {
+    if (!source.data || source.error) return;
+    const win=window.open("","_blank");
+    if(!win){window.alert("Permita las ventanas emergentes para imprimir los letreros.");return;}
+    const escapeHtml=(s:string)=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    const signs=[...tables].sort((a,b)=>Number(a.table_number)-Number(b.table_number));
+    const pages=Array.from({length:Math.ceil(signs.length/2)},(_,i)=>{
+      const pair=signs.slice(i*2,i*2+2);
+      return '<section class="sheet">'+pair.map(t=>'<div class="sign"><div class="name" style="font-size:'+ (t.name.length>45?30:t.name.length>28?38:t.name.length>16?48:64)+'pt">'+escapeHtml(t.name)+'</div></div>').join("")+'</section>';
+    }).join("");
+    win.document.open();
+    win.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Letreros de mesas</title><style>@page{size:letter portrait;margin:0}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#111}.sheet{width:215.9mm;height:279.4mm;break-after:page;page-break-after:always;overflow:hidden}.sheet:last-child{break-after:auto;page-break-after:auto}.sign{height:139.7mm;width:215.9mm;display:flex;align-items:center;justify-content:center;text-align:center;padding:12mm 10mm}.sign:first-child{border-bottom:1px dashed #aaa}.name{font-weight:800;line-height:1.08;overflow-wrap:anywhere;max-width:100%}@media screen{body{background:#ddd}.sheet{background:white;margin:12px auto}}</style></head><body>'+pages+'</body></html>');
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
   function exportExcel() {
     if (!source.data || source.error) return;
     const rows: (string | number)[][] = [["Mesa Nº", "Mesa", "Zona", "Cupo", "Capacidad", "Invitado", "Círculo", "Ingreso"]];
@@ -91,6 +108,7 @@ export default function TableReportPage() {
             <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportExcel}><Download size={17}/> Exportar a Excel</button>
             <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportGuests}><Download size={17}/> Exportar invitaciones de cortesía</button>
             <button className="adminAction primary" disabled={!source.data || Boolean(source.error)} onClick={() => window.print()}><Printer size={17}/> Imprimir</button>
+            <button className="adminAction primary" disabled={!source.data || Boolean(source.error)} onClick={printTableSigns}><Printer size={17}/> Imprimir letreros de mesas</button>
           </div>
         </section>
 
