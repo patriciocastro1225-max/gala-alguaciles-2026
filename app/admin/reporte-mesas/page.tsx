@@ -32,6 +32,21 @@ export default function TableReportPage() {
   for(const a of attendees){if(!a.table_id)continue;const count=byAttendee.get(a.id)?.length||Math.max(1,Number(a.seats_reserved)||1);counts.set(a.table_id,(counts.get(a.table_id)??0)+count);}
   const orderedTables=[...tables].sort((a,b)=>(counts.get(b.id)??0)-(counts.get(a.id)??0)||Number(a.table_number)-Number(b.table_number));
 
+  function exportGuests() {
+    if (!source.data || source.error) return;
+    const names=attendees.filter(a=>a.attendance_status!=="Cancelado").flatMap(a=>{
+      const seats=byAttendee.get(a.id)??[];
+      return seats.length ? seats.map(s=>s.guest_name) : Array.from({length:Math.max(1,Number(a.seats_reserved)||1)},(_,i)=>i===0?a.full_name:i===1&&a.companion_name?a.companion_name:`Invitado ${i+1} de ${a.full_name}`);
+    }).sort((a,b)=>a.localeCompare(b,"es",{sensitivity:"base"}));
+    const rows=[["Nº","Nombre del invitado"],...names.map((name,i)=>[i+1,name])];
+    const sheet=XLSX.utils.aoa_to_sheet(rows);
+    sheet["!cols"]=[{wch:8},{wch:60}];
+    sheet["!autofilter"]={ref:sheet["!ref"]??"A1:B1"};
+    const book=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book,sheet,"Invitados");
+    XLSX.writeFile(book,"gran-gala-solo-invitados.xlsx");
+  }
+
   function exportExcel() {
     if (!source.data || source.error) return;
     const rows: (string | number)[][] = [["Mesa Nº", "Mesa", "Zona", "Cupo", "Capacidad", "Invitado", "Círculo", "Ingreso"]];
@@ -71,6 +86,7 @@ export default function TableReportPage() {
           <div className="tablePageActions">
             <button className="adminAction" onClick={source.reload}><RefreshCw size={17}/> Actualizar</button>
             <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportExcel}><Download size={17}/> Exportar a Excel</button>
+            <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportGuests}><Download size={17}/> Exportar solo invitados</button>
             <button className="adminAction primary" disabled={!source.data || Boolean(source.error)} onClick={() => window.print()}><Printer size={17}/> Imprimir</button>
           </div>
         </section>
