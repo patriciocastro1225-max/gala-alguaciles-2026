@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import * as XLSX from "xlsx";
 import { Download, Printer, RefreshCw, TableProperties, UsersRound } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
@@ -7,7 +8,7 @@ import { useAsyncData } from "@/hooks/useAsyncData";
 import { listTableAttendees, listTables } from "@/services/tables";
 import { requireSupabase } from "@/services/helpers";
 type Seat = { attendee_id:string; seat_number:number; guest_name:string; checked_in:boolean };
-type ReportGuest = { id:string; name:string; circle:string; checked_in:boolean };
+type ReportGuest = { position:string; id:string; name:string; circle:string; checked_in:boolean };
 const guestPosition = (name:string, attendee:{full_name:string;position_title?:string|null}) => name.trim().toLocaleLowerCase("es") === attendee.full_name.trim().toLocaleLowerCase("es") ? attendee.position_title?.trim() || "" : "";
 
 async function load() {
@@ -28,6 +29,7 @@ async function load() {
 }
 
 export default function TableReportPage() {
+  const [showPositions, setShowPositions] = useState(false);
   const source = useAsyncData(load, []);
   const tables = source.data?.tables ?? [];
   const attendees = source.data?.attendees ?? [];
@@ -112,6 +114,9 @@ export default function TableReportPage() {
             <p>Nómina imprimible de invitados, ordenada por cantidad de personas de mayor a menor.</p>
           </div>
           <div className="tablePageActions">
+            <button className="adminAction" aria-pressed={showPositions} onClick={() => setShowPositions(!showPositions)}>
+              <UsersRound size={17}/>{showPositions ? "Ocultar cargos" : "Ver asistentes y cargos"}
+            </button>
             <button className="adminAction" onClick={source.reload}><RefreshCw size={17}/> Actualizar</button>
             <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportExcel}><Download size={17}/> Exportar Excel con cargos y RUT</button>
             <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportGuests}><Download size={17}/> Exportar invitaciones de cortesía</button>
@@ -127,12 +132,13 @@ export default function TableReportPage() {
             const guests:ReportGuest[] = registrations.flatMap(a=>{
               const seats=byAttendee.get(a.id)??[];
               if(seats.length)return seats.map(s=>({
-                id:`${a.id}-${s.seat_number}`,name:s.guest_name,
+                id:`${a.id}-${s.seat_number}`,name:s.guest_name, position:guestPosition(s.guest_name,a),
                 circle:a.circles?.name??"Sin círculo",checked_in:s.checked_in
               }));
               const count=Math.max(1,Number(a.seats_reserved)||1);
               return Array.from({length:count},(_,i)=>({
                 id:`${a.id}-${i+1}`,
+                position:i===0 ? a.position_title?.trim() || "" : "",
                 name:i===0?a.full_name:i===1&&a.companion_name?a.companion_name:`Invitado ${i+1} de ${a.full_name}`,
                 circle:a.circles?.name??"Sin círculo",
                 checked_in:i===0?Boolean(a.checked_in):false
@@ -158,6 +164,7 @@ export default function TableReportPage() {
                     <li key={guest.id}>
                       <span>
                         <strong>{guest.name}</strong>
+                        {showPositions && <small>{guest.position || "Sin cargo registrado"}</small>}
                         <small>{guest.circle}</small>
                       </span>
                       <span>{guest.checked_in ? "✓ Ingresó" : "Pendiente"}</span>
