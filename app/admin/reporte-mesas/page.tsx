@@ -7,7 +7,7 @@ import { useAsyncData } from "@/hooks/useAsyncData";
 import { listTableAttendees, listTables } from "@/services/tables";
 import { requireSupabase } from "@/services/helpers";
 type Seat = { attendee_id:string; seat_number:number; guest_name:string; checked_in:boolean };
-type ReportGuest = { id:string; name:string; circle:string; position:string; checked_in:boolean };
+type ReportGuest = { id:string; name:string; circle:string; checked_in:boolean };
 const guestPosition = (name:string, attendee:{full_name:string;position_title?:string|null}) => name.trim().toLocaleLowerCase("es") === attendee.full_name.trim().toLocaleLowerCase("es") ? attendee.position_title?.trim() || "" : "";
 
 async function load() {
@@ -77,7 +77,7 @@ export default function TableReportPage() {
 
   function exportExcel() {
     if (!source.data || source.error) return;
-    const rows: (string | number)[][] = [["Mesa Nº", "Mesa", "Zona", "Cupo", "Capacidad", "Invitado", "Cargo", "Círculo", "Ingreso"]];
+    const rows: (string | number)[][] = [["Mesa Nº", "Mesa", "Zona", "Cupo", "Capacidad", "Invitado", "Cargo", "RUT", "Círculo", "Ingreso"]];
     for (const table of orderedTables) {
       let seatIndex = 0;
       for (const a of attendees.filter(a=>a.table_id===table.id)) {
@@ -89,14 +89,14 @@ export default function TableReportPage() {
               checked:i===0?Boolean(a.checked_in):false
             }));
         for (const guest of names) {
-          rows.push([table.table_number,table.name,table.zone,++seatIndex,table.capacity,guest.name,guestPosition(guest.name,a),a.circles?.name??"Sin círculo",guest.checked?"Ingresó":"Pendiente"]);
+          rows.push([table.table_number,table.name,table.zone,++seatIndex,table.capacity,guest.name,guestPosition(guest.name,a),"",a.circles?.name??"Sin círculo",guest.checked?"Ingresó":"Pendiente"]);
         }
       }
-      if (!seatIndex) rows.push([table.table_number,table.name,table.zone,"",table.capacity,"Sin invitados asignados","","",""]);
+      if (!seatIndex) rows.push([table.table_number,table.name,table.zone,"",table.capacity,"Sin invitados asignados","","","",""]);
     }
     const sheet=XLSX.utils.aoa_to_sheet(rows);
-    sheet["!cols"]=[{wch:10},{wch:35},{wch:18},{wch:9},{wch:12},{wch:48},{wch:45},{wch:48},{wch:16}];
-    sheet["!autofilter"]={ref:sheet["!ref"]??"A1:I1"};
+    sheet["!cols"]=[{wch:10},{wch:35},{wch:18},{wch:9},{wch:12},{wch:48},{wch:45},{wch:18},{wch:48},{wch:16}];
+    sheet["!autofilter"]={ref:sheet["!ref"]??"A1:J1"};
     const book=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book,sheet,"Listado por mesas");
     XLSX.writeFile(book,"gran-gala-listado-por-mesas.xlsx");
@@ -109,13 +109,13 @@ export default function TableReportPage() {
           <div>
             <p className="adminEyebrow">Distribución definitiva</p>
             <h1>Listado por mesa</h1>
-            <p>Nómina imprimible de invitados con cargos registrados, ordenada por cantidad de personas de mayor a menor.</p>
+            <p>Nómina imprimible de invitados, ordenada por cantidad de personas de mayor a menor.</p>
           </div>
           <div className="tablePageActions">
             <button className="adminAction" onClick={source.reload}><RefreshCw size={17}/> Actualizar</button>
-            <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportExcel}><Download size={17}/> Exportar a Excel</button>
+            <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportExcel}><Download size={17}/> Exportar Excel con cargos y RUT</button>
             <button className="adminAction" disabled={!source.data || Boolean(source.error)} onClick={exportGuests}><Download size={17}/> Exportar invitaciones de cortesía</button>
-            <button className="adminAction primary" disabled={!source.data || Boolean(source.error)} onClick={() => window.print()}><Printer size={17}/> Imprimir listado con cargos</button>
+            <button className="adminAction primary" disabled={!source.data || Boolean(source.error)} onClick={() => window.print()}><Printer size={17}/> Imprimir</button>
             <button className="adminAction primary" disabled={!source.data || Boolean(source.error)} onClick={printTableSigns}><Printer size={17}/> Imprimir letreros de mesas</button>
           </div>
         </section>
@@ -128,14 +128,13 @@ export default function TableReportPage() {
               const seats=byAttendee.get(a.id)??[];
               if(seats.length)return seats.map(s=>({
                 id:`${a.id}-${s.seat_number}`,name:s.guest_name,
-                circle:a.circles?.name??"Sin círculo",position:guestPosition(s.guest_name,a),checked_in:s.checked_in
+                circle:a.circles?.name??"Sin círculo",checked_in:s.checked_in
               }));
               const count=Math.max(1,Number(a.seats_reserved)||1);
               return Array.from({length:count},(_,i)=>({
                 id:`${a.id}-${i+1}`,
                 name:i===0?a.full_name:i===1&&a.companion_name?a.companion_name:`Invitado ${i+1} de ${a.full_name}`,
                 circle:a.circles?.name??"Sin círculo",
-                position:i===0?a.position_title?.trim()||"": "",
                 checked_in:i===0?Boolean(a.checked_in):false
               }));
             });
@@ -159,7 +158,6 @@ export default function TableReportPage() {
                     <li key={guest.id}>
                       <span>
                         <strong>{guest.name}</strong>
-                        {guest.position && <small>{guest.position}</small>}
                         <small>{guest.circle}</small>
                       </span>
                       <span>{guest.checked_in ? "✓ Ingresó" : "Pendiente"}</span>
