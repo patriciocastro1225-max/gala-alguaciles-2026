@@ -13,7 +13,7 @@ create table public.evento_inscritos (
 );
 create index on public.evento_inscritos(evento,grupo);
 create function public.admin_eventos() returns boolean language sql stable security invoker set search_path=public as $$
- select not public.is_gala_reception_operator() and exists(select from public.profiles where id=auth.uid() and active and role='administrador')
+ select lower(coalesce(auth.jwt()->>'email','')) <> 'pcastro@brastore.cl' and exists(select from public.profiles where id=auth.uid() and active and role='administrador')
 $$;
 alter table public.eventos enable row level security;
 alter table public.evento_inscritos enable row level security;
