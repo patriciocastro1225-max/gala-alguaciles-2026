@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 const items = [
+  { label: "Eventos", icon: LayoutGrid, href: "/admin/eventos", enabled: true },
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard", enabled: true },
   { label: "Día del evento", icon: Radio, href: "/admin/evento", enabled: true },
   { label: "Operación evento", icon: Gauge, href: "/admin/operacion", enabled: true },
