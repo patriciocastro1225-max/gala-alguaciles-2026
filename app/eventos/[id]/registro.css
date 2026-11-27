@@ -1,0 +1,16 @@
+.registroEvento{min-height:100vh;color-scheme:light;background:#edf2ee;color:#18382c;padding:clamp(18px,6vw,76px) 16px;font-family:Arial,sans-serif}
+.registroPanel{max-width:780px;margin:auto;background:white;border:1px solid #d5dfd7;border-radius:18px;overflow:hidden;box-shadow:0 12px 38px #1b382910}
+.registroPanel header,.registroPanel section{padding:clamp(22px,5vw,46px)}
+.registroPanel header{background:#153e30;border-bottom:4px solid #c5ac72;color:white}
+.registroPanel h1{font:500 clamp(2rem,5vw,3.3rem)/1.1 Georgia,serif;color:white;margin:0;text-transform:none;overflow-wrap:anywhere}
+.registroPanel header p{color:#e7efe9;margin:16px 0 0;line-height:1.6}
+.registroPanel fieldset{border:0;margin:0 0 24px;padding:0;min-width:0}
+.registroPanel legend{font:600 1.35rem Georgia,serif;margin-bottom:18px;padding:0;color:#193d30}
+.registroCampos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.registroCampos label{display:grid;gap:7px;font-size:.95rem;font-weight:600}
+.registroCampos label:first-child{grid-column:1/-1}
+.registroCampos input,.registroCampos select{box-sizing:border-box;width:100%;min-width:0;border:1px solid #84988d;background:white;color:#18382c;border-radius:7px;padding:11px 12px;font:inherit;font-size:16px;font-weight:400}
+.registroCampos :focus-visible,.registroEnviar:focus-visible{outline:3px solid #967222;outline-offset:2px}
+.registroEnviar{background:#154a37;color:white;border:0;border-radius:8px;padding:14px 24px;font:600 1rem Arial;cursor:pointer}
+.registroPanel [role=alert]{color:#942f28}.registroPanel [role=alert]:empty{display:none}
+@media(max-width:580px){.registroCampos{grid-template-columns:1fr}.registroEnviar{width:100%}}
