@@ -45,14 +45,25 @@ export default function Inscripcion() {
       documento: form.get("doc" + i),
     }));
     try {
-      const { error } = await requireSupabase().rpc("inscribir_evento_contacto", {
+      const file=form.get("comprobante");
+      if(!(file instanceof File) || !file.size || file.size>5*1024*1024 || !["application/pdf","image/jpeg","image/png"].includes(file.type)){
+        setAviso("Adjunte un comprobante en PDF, JPG o PNG de hasta 5 MB.");return;
+      }
+      const contenido=await new Promise<string>((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(String(reader.result).split(",")[1]);
+        reader.onerror=()=>reject(new Error("No se pudo leer el archivo. Vuelva a seleccionarlo."));
+        reader.readAsDataURL(file);
+      });
+      const { error } = await requireSupabase().rpc("inscribir_evento_con_pago", {
+        mime:file.type, contenido,
         clave: id,
         solicitud: key,
         personas,
       });
       if (error) setAviso(error.message);
       else setOk(true);
-    } finally {
+    } catch(error){setAviso(error instanceof Error?error.message:"No se pudo confirmar la inscripción. Intente nuevamente.");} finally {
       setBusy(false);
     }
   }
@@ -103,6 +114,9 @@ export default function Inscripcion() {
               )}
             </div></fieldset>
           ))}
+          <fieldset><legend>Comprobante de pago</legend><div className="registroCampos"><label>Adjuntar comprobante (obligatorio)
+            <input required type="file" name="comprobante" accept="application/pdf,image/jpeg,image/png" aria-describedby="formatosPago"/></label></div>
+            <small id="formatosPago">PDF, JPG o PNG de hasta 5 MB. Un comprobante por inscripción.</small></fieldset>
           <button className="registroEnviar" disabled={busy}>
             {busy?"Enviando…":"Confirmar inscripción"}
           </button>
