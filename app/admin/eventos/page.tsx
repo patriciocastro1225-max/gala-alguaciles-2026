@@ -55,7 +55,7 @@ function Editor() {
         for (let offset = 0; ; offset += 500) {
           const { data, error } = await client
             .from("evento_inscritos")
-            .select("id,nombre,mesa,grupo,ingreso")
+            .select("id,nombre,mesa,grupo,ingreso,telefono,email")
             .eq("evento", id)
             .order("nombre")
             .order("id")
@@ -364,14 +364,14 @@ function Editor() {
             <table>
               <thead>
                 <tr>
-                  <th>Nombre</th>
+                  <th>Nombre</th><th>Teléfono</th><th>Correo electrónico</th>
                   {current.mesas && <th>Mesa</th>}
                 </tr>
               </thead>
               <tbody>
                 {people.map((p) => (
                   <tr key={p.id}>
-                    <td>{p.nombre}</td>
+                    <td>{p.nombre}</td><td>{p.telefono || "—"}</td><td>{p.email || "—"}</td>
                     {current.mesas && (
                       <td>
                         <input
