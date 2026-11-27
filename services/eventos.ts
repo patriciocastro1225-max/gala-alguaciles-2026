@@ -19,6 +19,8 @@ export type Inscrito = {
   id: string;
   nombre: string;
   mesa: string;
+  telefono: string|null;
+  email: string|null;
   grupo: string;
   ingreso: string | null;
 };

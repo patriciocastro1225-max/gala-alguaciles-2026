@@ -4,6 +4,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { requireSupabase } from "@/services/helpers";
 import { detalle, Evento } from "@/services/eventos";
 
+import "./registro.css";
+
 export default function Inscripcion() {
   const { id } = useParams<{ id: string }>();
   const [evento, setEvento] = useState<Evento>(),
@@ -37,11 +39,13 @@ export default function Inscripcion() {
     const form = new FormData(ev.currentTarget);
     const personas = Array.from({ length: evento.integrantes }, (_, i) => ({
       nombre: form.get("nombre" + i),
+      telefono: form.get("telefono"+i),
+      email: form.get("email"+i),
       tipo: form.get("tipo" + i),
       documento: form.get("doc" + i),
     }));
     try {
-      const { error } = await requireSupabase().rpc("inscribir_evento", {
+      const { error } = await requireSupabase().rpc("inscribir_evento_contacto", {
         clave: id,
         solicitud: key,
         personas,
@@ -53,15 +57,15 @@ export default function Inscripcion() {
     }
   }
   if (!evento)
-    return <main className="adminPage">{aviso || "Cargando evento…"}</main>;
+    return <main className="registroEvento">{aviso || "Cargando evento…"}</main>;
   const lleno =
     (evento.ocupados ?? 0) +
       (evento.unidad === "equipos" ? 1 : evento.integrantes) >
     evento.limite;
   return (
-    <main className="adminPage">
-      <h1>{evento.nombre}</h1>
-      <p>{detalle(evento)}</p>
+    <main className="registroEvento">
+      <div className="registroPanel"><header><h1>{evento.nombre}</h1>
+      <p>{detalle(evento)}</p></header><section>
       {ok ? (
         <h2>Inscripción confirmada</h2>
       ) : !evento.abierto || lleno ? (
@@ -70,11 +74,13 @@ export default function Inscripcion() {
         <form onSubmit={submit}>
           {Array.from({ length: evento.integrantes }, (_, i) => (
             <fieldset key={i}>
-              <legend>Integrante {i + 1}</legend>
+              <legend>{evento.integrantes===1?"Datos del asistente":"Integrante "+(i+1)}</legend><div className="registroCampos">
               <label>
                 Nombre completo{" "}
                 <input required maxLength={160} name={"nombre" + i} />
               </label>
+              <label>Teléfono<input required type="tel" maxLength={32} autoComplete={"section-p"+i+" tel"} name={"telefono"+i}/></label>
+              <label>Correo electrónico<input required type="email" maxLength={254} autoComplete={"section-p"+i+" email"} name={"email"+i}/></label>
               {evento.documento !== "omitido" && (
                 <>
                   <label>
@@ -95,14 +101,14 @@ export default function Inscripcion() {
                   </label>
                 </>
               )}
-            </fieldset>
+            </div></fieldset>
           ))}
-          <button className="adminAction primary" disabled={busy}>
-            Confirmar inscripción
+          <button className="registroEnviar" disabled={busy}>
+            {busy?"Enviando…":"Confirmar inscripción"}
           </button>
           <p role="alert">{aviso}</p>
         </form>
       )}
-    </main>
+    </section></div></main>
   );
 }
