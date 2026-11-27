@@ -75,6 +75,16 @@ function Editor() {
       live = false;
     };
   }, [client, id, revision]);
+  async function downloadReceipt(eventId:string,group:string){
+    const {data,error}=await client.from("evento_comprobantes").select("mime,archivo").eq("evento",eventId).eq("grupo",group).maybeSingle();
+    if(error || !data){setNotice(error?.message || "Esta inscripción no tiene comprobante registrado.");return;}
+    const hex=String(data.archivo).slice(2);
+    const bytes=new Uint8Array(hex.length/2);
+    for(let i=0;i<bytes.length;i++)bytes[i]=parseInt(hex.slice(i*2,i*2+2),16);
+    const url=URL.createObjectURL(new Blob([bytes],{type:data.mime}));
+    const link=document.createElement("a");link.href=url;link.download="comprobante-"+group+"."+({"application/pdf":"pdf","image/png":"png","image/jpeg":"jpg"}[String(data.mime)] || "bin");
+    link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
   function select(e?: Evento) {
     setNotice("");
     setId(e?.id ?? "");
@@ -364,14 +374,14 @@ function Editor() {
             <table>
               <thead>
                 <tr>
-                  <th>Nombre</th><th>Teléfono</th><th>Correo electrónico</th>
+                  <th>Nombre</th><th>Teléfono</th><th>Correo electrónico</th><th>Comprobante de pago</th>
                   {current.mesas && <th>Mesa</th>}
                 </tr>
               </thead>
               <tbody>
                 {people.map((p) => (
                   <tr key={p.id}>
-                    <td>{p.nombre}</td><td>{p.telefono || "—"}</td><td>{p.email || "—"}</td>
+                    <td>{p.nombre}</td><td>{p.telefono || "—"}</td><td>{p.email || "—"}</td><td><button onClick={()=>downloadReceipt(id,p.grupo)}>Descargar comprobante</button></td>
                     {current.mesas && (
                       <td>
                         <input
